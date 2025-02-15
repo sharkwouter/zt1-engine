@@ -74,7 +74,7 @@ std::string ResourceManager::fixPath(std::string &path) {
     }
     base_dir = exe_directory;
     for(size_t j = 0; j < i; j++) {
-      base_dir += parts[j] + "/";
+      base_dir += parts[j] + std::filesystem::path::preferred_separator;
     }
     std::string new_part = getCorrectCaseFilename(base_dir, parts[i]);
     if (!new_part.empty()) {
@@ -84,7 +84,7 @@ std::string ResourceManager::fixPath(std::string &path) {
 
   std::string fixed_path = exe_directory;
   for(std::string part : parts) {
-    fixed_path += "/" + part;
+    fixed_path += std::filesystem::path::preferred_separator + part;
   }
 
   return fixed_path;

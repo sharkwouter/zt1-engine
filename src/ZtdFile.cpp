@@ -77,7 +77,7 @@ Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &fi
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
     SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    music = Mix_LoadMUSType_RW(rw, MUS_WAV, 0);
+    music = Mix_LoadMUSType_RW(rw, MUS_WAV, 1);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
   }
