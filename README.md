@@ -11,7 +11,32 @@ Currently it has the following features:
 
 Please do not use this unless you want to help make an open source engine for Zoo Tycoon a reality. This is very far from playable.
 
-# License
+## Building
+
+To build ZT1-Engine, first makes sure the following dependencies are installed:
+
+- libzip-dev
+- libsdl2-dev
+- libsdl2-image-dev
+- libsdl2-mixer-dev
+- libsdl2-ttf-dev
+
+Then run the following commands:
+
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+Now copy all the Zoo Tycoon files into the build directory and start it with:
+
+```
+./zt1-engine
+```
+
+## License
 
 ZT1-Engine is available under the following MIT license:
 
@@ -37,7 +62,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-# Third Party Licenses
+## Third Party Licenses
 
 ZT1-Engine uses the ini reading library inih (src/lib/INIReader.h), for which the following license applies:
 
