@@ -110,7 +110,6 @@ void ResourceManager::load() {
 
   for (std::string path : config->getResourcePaths()) {
     path = fixPath(path);
-
     for (std::filesystem::directory_entry archive : std::filesystem::directory_iterator(path)) {
       current_archive = archive.path().string();
       if (!current_archive.ends_with(".ztd")) {
@@ -141,4 +140,9 @@ SDL_Texture *ResourceManager::getTexture(SDL_Renderer * renderer, const std::str
 
 Mix_Music *ResourceManager::getMusic(const std::string &file_name) {
   return ZtdFile::getMusic(getResourceLocation(file_name), file_name);
+}
+
+INIReader ResourceManager::getINIReader(const std::string &file_name)
+{
+  return ZtdFile::getINIReader(getResourceLocation(file_name), file_name);
 }

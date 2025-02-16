@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "lib/INIReader.h"
+#include "IniReader.hpp"
 
 class Config {
 public:
@@ -14,7 +14,7 @@ public:
   std::vector<std::string> getResourcePaths();
   std::string getMenuMusic();
 private:
-  INIReader * reader = NULL;
+  IniReader * reader = NULL;
 };
 
 #endif // CONFIG_HPP

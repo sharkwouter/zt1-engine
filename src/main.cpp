@@ -12,6 +12,7 @@
 #include "Window.hpp"
 #include "ResourceManager.hpp"
 #include "ZtdFile.hpp"
+#include "lib/INIReader.h"
 
 
 
@@ -21,9 +22,9 @@ int main(int argc, char *argv[]) {
   Window window("ZT1-Engine", 800, 600, 60.0f);
 
   resource_manager.load();
-  // Load image
   SDL_Texture * background = resource_manager.getTexture(window.renderer, "ui/startup/mainbck.tga");
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
+  Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);
 
   SDL_Event event;

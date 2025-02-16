@@ -71,7 +71,6 @@ SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::s
 Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &file_name) {
   Mix_Music * music = NULL;
   int file_size = 0;
-  std::string file_extension = get_file_extension(file_name);
   Mix_MusicType music_type = MUS_WAV;
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
@@ -83,4 +82,24 @@ Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &fi
   }
 
   return music;
+}
+
+INIReader ZtdFile::getINIReader(const std::string &ztd_file, const std::string &file_name)
+{
+  size_t size = 0;
+  if(zip_t * file = zip_open(ztd_file.c_str(), 0, NULL)) {
+    int index = 0;
+    struct zip_stat finfo;
+    zip_stat_init(&finfo);
+    while ((zip_stat_index(file, index, 0, &finfo)) == 0) {
+      if(std::string(finfo.name) == file_name) {
+        zip_file_t * fd = zip_fopen_index(file, index, 0);
+        return INIReader((FILE *) fd);
+      }
+      index++;
+    }
+    zip_close(file);
+  }
+  SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
+  return INIReader();
 }
