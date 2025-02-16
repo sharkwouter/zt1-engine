@@ -6,7 +6,7 @@
 
 #include "Config.hpp"
 #include "ZtdFile.hpp"
-#include "lib/INIReader.h"
+#include "IniReader.hpp"
 
 
 class ResourceManager {
@@ -21,7 +21,7 @@ public:
   void * getFileContent(const std::string &file_name, int * size);
   SDL_Texture * getTexture(SDL_Renderer * renderer, const std::string &file_name);
   Mix_Music *getMusic(const std::string &file_name);
-  INIReader getINIReader(const std::string &file_name);
+  IniReader getIniReader(const std::string &file_name);
 
 private:
   std::unordered_map<std::string, std::string> resource_map;

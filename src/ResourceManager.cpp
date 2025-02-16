@@ -142,7 +142,7 @@ Mix_Music *ResourceManager::getMusic(const std::string &file_name) {
   return ZtdFile::getMusic(getResourceLocation(file_name), file_name);
 }
 
-INIReader ResourceManager::getINIReader(const std::string &file_name)
+IniReader ResourceManager::getIniReader(const std::string &file_name)
 {
-  return ZtdFile::getINIReader(getResourceLocation(file_name), file_name);
+  return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
 }

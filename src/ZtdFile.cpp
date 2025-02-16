@@ -84,22 +84,16 @@ Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &fi
   return music;
 }
 
-INIReader ZtdFile::getINIReader(const std::string &ztd_file, const std::string &file_name)
+IniReader ZtdFile::getIniReader(const std::string &ztd_file, const std::string &file_name)
 {
-  size_t size = 0;
-  if(zip_t * file = zip_open(ztd_file.c_str(), 0, NULL)) {
-    int index = 0;
-    struct zip_stat finfo;
-    zip_stat_init(&finfo);
-    while ((zip_stat_index(file, index, 0, &finfo)) == 0) {
-      if(std::string(finfo.name) == file_name) {
-        zip_file_t * fd = zip_fopen_index(file, index, 0);
-        return INIReader((FILE *) fd);
-      }
-      index++;
-    }
-    zip_close(file);
+  int file_size = 0;
+  void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
+  if (file_content) {
+    return IniReader(file_content, file_size);
+  } else {
+    SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
   }
-  SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
-  return INIReader();
+
+  SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not load ini file %s", file_name.c_str());
+  exit(8);
 }
