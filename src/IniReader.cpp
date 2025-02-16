@@ -27,13 +27,13 @@ IniReader::IniReader(const std::string &filename) {
   fread(buffer, sizeof(char), size, fd);
   load(std::string((char *) buffer, size));
 
-  print_content(content);
+  // print_content(content);
 }
 
 IniReader::IniReader(void *buffer, size_t size) {
   load(std::string((char *) buffer, size));
   
-  print_content(content);
+  // print_content(content);
 }
 
 IniReader::~IniReader() {
@@ -48,13 +48,13 @@ static std::string string_to_lower(const std::string &value) {
   return new_string;
 }
 
-std::string IniReader::get(const std::string &key, const std::string &value, const std::string &default_value) {
+std::string IniReader::get(const std::string &section, const std::string &key, const std::string &default_value) {
+  std::string section_lower = string_to_lower(section);
   std::string key_lower = string_to_lower(key);
-  std::string value_lower = string_to_lower(value);
-  if (content.count(key_lower) != 0 && content[key_lower].count(value_lower) != 0) {
-    return content[key_lower][value_lower];
+  if (content.count(section_lower) != 0 && content[section_lower].count(key_lower) != 0) {
+    return content[section_lower][key_lower];
   }
-  SDL_Log("Value of %s: %s not found, returning default", key.c_str(), value.c_str());
+  SDL_Log("Value of %s: %s not found, returning default", section.c_str(), key.c_str());
   return default_value;
 }
 
@@ -90,7 +90,9 @@ void IniReader::load(std::string file_content) {
     // On newline save the data if we're in value mode, otherwise just reset the character number
     if (character == '\n') {
       if (current_mode == process_mode::VALUE && skip_to_end_of_line == false) {
-        content[current_section][current_key] = current_value;
+        if (!current_section.empty() && !current_key.empty() && !current_value.empty()) {
+          content[current_section][current_key] = current_value;
+        }
         current_key = "";
         current_value = "";
       }

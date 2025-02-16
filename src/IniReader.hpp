@@ -11,7 +11,7 @@ public:
   IniReader(void * buffer, size_t size);
   ~IniReader();
 
-  std::string get(const std::string &key, const std::string &value, const std::string &default_value);
+  std::string get(const std::string &key, const std::string &value, const std::string &default_value = "");
 private:
   std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content;
 
