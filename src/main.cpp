@@ -19,7 +19,7 @@
 int main(int argc, char *argv[]) {
   Config config;
   ResourceManager resource_manager(&config);
-  Window window("ZT1-Engine", 800, 600, 60.0f);
+  Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
 
   resource_manager.load();
   IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     startup_background = startup_lyt_reader.get("background", "normal");
   }
   SDL_Texture * background = resource_manager.getTexture(window.renderer, startup_background);
+  SDL_SetTextureScaleMode(background, SDL_ScaleModeBest);
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
   Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);

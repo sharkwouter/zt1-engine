@@ -38,3 +38,13 @@ std::string Config::getMenuMusic()
 {
   return reader->get("ui", "menuMusic", "");
 }
+
+int Config::getScreenWidth()
+{
+  return reader->getInt("user", "screenwidth", 800);
+}
+
+int Config::getScreenHeight()
+{
+  return reader->getInt("user", "screenheight", 600);;
+}

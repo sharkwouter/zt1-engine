@@ -12,6 +12,7 @@ public:
   ~IniReader();
 
   std::string get(const std::string &key, const std::string &value, const std::string &default_value = "");
+  int getInt(const std::string &key, const std::string &value, const int &default_value = -1);
 private:
   std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content;
 

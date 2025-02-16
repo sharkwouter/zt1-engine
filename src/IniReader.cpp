@@ -58,6 +58,16 @@ std::string IniReader::get(const std::string &section, const std::string &key, c
   return default_value;
 }
 
+int IniReader::getInt(const std::string &key, const std::string &value, const int &default_value)
+{
+  int result = default_value;
+  std::string string_value = get(key, value);
+  if (!string_value.empty()) {
+    result = std::stoi(string_value, NULL, 10);
+  }
+  return result;
+}
+
 void IniReader::load(std::string file_content) {
   size_t character_number = 0;
   bool skip_to_end_of_line = false;

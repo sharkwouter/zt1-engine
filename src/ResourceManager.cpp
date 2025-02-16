@@ -115,10 +115,13 @@ void ResourceManager::load() {
       if (!current_archive.ends_with(".ztd")) {
         continue;
       }
-      SDL_Log("Adding resources from %s", archive.path().c_str());
+      // SDL_Log("Adding resources from %s", archive.path().c_str());
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
+        }
+        if(file.ends_with(".txt")) {
+          SDL_Log("Found resource %s in %s", file.c_str(), current_archive.c_str());
         }
       }
     }

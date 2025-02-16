@@ -13,6 +13,8 @@ public:
 
   std::vector<std::string> getResourcePaths();
   std::string getMenuMusic();
+  int getScreenWidth();
+  int getScreenHeight();
 private:
   IniReader * reader = NULL;
 };
