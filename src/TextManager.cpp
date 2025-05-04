@@ -10,5 +10,5 @@ TextManager::~TextManager() {
 }
 
 void TextManager::load() {
-  FILE * fd = fopen();
+  // FILE * fd = fopen();
 }
