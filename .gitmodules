@@ -1,0 +1,3 @@
+[submodule "vendor/pe-resource-loader"]
+	path = vendor/pe-resource-loader
+	url = https://github.com/sharkwouter/pe-resource-loader.git
