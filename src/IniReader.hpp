@@ -11,8 +11,12 @@ public:
   IniReader(void * buffer, size_t size);
   ~IniReader();
 
-  std::string get(const std::string &key, const std::string &value, const std::string &default_value = "");
-  int getInt(const std::string &key, const std::string &value, const int &default_value = -1);
+  std::string get(const std::string &section, const std::string &key, const std::string &default_value = "");
+  std::vector<std::string> getList(const std::string &section, const std::string &key, const std::vector<std::string> &default_value = {});
+  int getInt(const std::string &section, const std::string &key, const int &default_value = -1);
+  std::vector<int> getIntList(const std::string &section, const std::string &key, const std::vector<int> &default_value = {});
+
+  bool isList(const std::string &section, const std::string &key);
 private:
   std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content;
 

@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <sstream>
+
 static void print_content(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content) {
   SDL_Log("Printing loaded content");
   std::string section = "";
@@ -58,6 +60,22 @@ std::string IniReader::get(const std::string &section, const std::string &key, c
   return default_value;
 }
 
+std::vector<std::string> IniReader::getList(const std::string &section, const std::string &key, const std::vector<std::string> &default_value)
+{
+  std::vector<std::string> list = {};
+  std::string value = get(section, key, "");
+  if (value.empty()) {
+    return list;
+  }
+
+  std::stringstream stream(value);
+  std::string entry;
+  while(std::getline(stream, entry, ',')) {
+      list.push_back(entry);
+  }
+  return list;
+}
+
 int IniReader::getInt(const std::string &key, const std::string &value, const int &default_value)
 {
   int result = default_value;
@@ -66,6 +84,28 @@ int IniReader::getInt(const std::string &key, const std::string &value, const in
     result = std::stoi(string_value, NULL, 10);
   }
   return result;
+}
+
+std::vector<int> IniReader::getIntList(const std::string &key, const std::string &value, const std::vector<int> &default_value)
+{
+  std::vector<int> list = {};
+  std::vector<std::string> strings = this->getList(key, value);
+
+  for(std::string string : strings) {
+    if (!string.empty()) {
+      list.push_back(std::stoi(string, NULL, 10));
+    }
+  }
+  return list;
+}
+
+bool IniReader::isList(const std::string &section, const std::string &key) {
+  std::string value = get(section, key);
+  if (value.find(",") != std::string::npos) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void IniReader::load(std::string file_content) {
@@ -101,7 +141,11 @@ void IniReader::load(std::string file_content) {
     if (character == '\n') {
       if (current_mode == process_mode::VALUE && skip_to_end_of_line == false) {
         if (!current_section.empty() && !current_key.empty() && !current_value.empty()) {
+          if (!content[current_section].contains(current_key)) {
           content[current_section][current_key] = current_value;
+          } else {
+            content[current_section][current_key] +=  "," + current_value;
+          }
         }
         current_key = "";
         current_value = "";
