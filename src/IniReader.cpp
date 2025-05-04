@@ -70,7 +70,7 @@ std::vector<std::string> IniReader::getList(const std::string &section, const st
 
   std::stringstream stream(value);
   std::string entry;
-  while(std::getline(stream, entry, ',')) {
+  while(std::getline(stream, entry, ';')) {
       list.push_back(entry);
   }
   return list;
@@ -101,7 +101,7 @@ std::vector<int> IniReader::getIntList(const std::string &key, const std::string
 
 bool IniReader::isList(const std::string &section, const std::string &key) {
   std::string value = get(section, key);
-  if (value.find(",") != std::string::npos) {
+  if (value.find(";") != std::string::npos) {
     return true;
   } else {
     return false;
@@ -144,7 +144,7 @@ void IniReader::load(std::string file_content) {
           if (!content[current_section].contains(current_key)) {
           content[current_section][current_key] = current_value;
           } else {
-            content[current_section][current_key] +=  "," + current_value;
+            content[current_section][current_key] +=  ";" + current_value;
           }
         }
         current_key = "";
