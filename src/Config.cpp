@@ -46,9 +46,31 @@ int Config::getScreenWidth()
 
 int Config::getScreenHeight()
 {
-  return reader->getInt("user", "screenheight", 600);;
+  return reader->getInt("user", "screenheight", 600);
 }
 
 std::string Config::getLangDllName() {
   return reader->get("lib", "lang");
+}
+
+SDL_Color Config::getProgressColor() {
+  SDL_Color color;
+
+  color.r = (uint8_t) reader->getInt("UI", "progressRed", 255);
+  color.g = (uint8_t) reader->getInt("UI", "progressGreen", 255);
+  color.b = (uint8_t) reader->getInt("UI", "progressBlue", 255);
+  color.a = 255;
+
+  return color;
+}
+
+SDL_Rect Config::getProgressPosition() {
+  SDL_Rect rect;
+
+  rect.x = reader->getInt("UI", "progressLeft", 0);
+  rect.y = reader->getInt("UI", "progressTop", 0);
+  rect.w = reader->getInt("UI", "progressRight", 0) - rect.x;
+  rect.h = reader->getInt("UI", "progressBottom", 0) - rect.y;
+
+  return rect;
 }

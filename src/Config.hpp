@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <SDL2/SDL.h>
+
 #include "IniReader.hpp"
 
 class Config {
@@ -16,7 +18,8 @@ public:
   int getScreenWidth();
   int getScreenHeight();
   std::string getLangDllName();
-
+  SDL_Color getProgressColor();
+  SDL_Rect getProgressPosition();
 private:
   IniReader * reader = NULL;
 };

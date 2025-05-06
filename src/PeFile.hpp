@@ -13,6 +13,8 @@ public:
     ~PeFile();
 
     SDL_Surface * getLoadScreenSurface();
+    std::vector<uint32_t> getStringIds();
+    std::string getString(uint32_t string_id);
 private:
     PeResourceLoader * loader = nullptr;
 };

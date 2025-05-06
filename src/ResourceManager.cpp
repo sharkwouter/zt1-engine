@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 
 #include "ZtdFile.hpp"
+#include "Utils.hpp"
 
 ResourceManager::ResourceManager(Config * config) : config(config) {
 
@@ -99,7 +100,7 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
   return resource_map[resource_name];
 }
 
-void ResourceManager::load_all() {
+void ResourceManager::load_resource_map(std::atomic<int> * progress) {
   if (resource_map_loaded) {
     SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,"Resource maps was already loaded");
     return;
@@ -108,7 +109,8 @@ void ResourceManager::load_all() {
 
   SDL_Log("Loading resource map...");
 
-  for (std::string path : config->getResourcePaths()) {
+  std::vector<std::string> resource_paths = config->getResourcePaths();
+  for (std::string path : resource_paths) {
     path = fixPath(path);
     for (std::filesystem::directory_entry archive : std::filesystem::directory_iterator(path)) {
       current_archive = archive.path().string();
@@ -122,9 +124,37 @@ void ResourceManager::load_all() {
         }
       }
     }
+    *progress += 50 / resource_paths.size();
   }
   resource_map_loaded = true;
   SDL_Log("Loading resource map done");
+}
+
+void ResourceManager::load_string_map(std::atomic<int> * progress) {
+  std::filesystem::directory_iterator directory_iterator(Utils::getExecutableDirectory());
+  for (std::filesystem::directory_entry lang_dll : directory_iterator) {
+    std::string current_dll = lang_dll.path().filename().string();
+    if (!current_dll.starts_with("lang") || !current_dll.ends_with(".dll")) {
+      continue;
+    }
+    PeFile pe_file(lang_dll.path().string());
+    for (uint32_t string_id : pe_file.getStringIds()) {
+      std::string string = pe_file.getString(string_id);
+      if (!string.empty()) {
+        if (string_map.contains(string_id)) {
+          SDL_Log("String with id %u was already in string map", string_id);
+        }
+        this->string_map[string_id] = string;
+      }
+    }
+    *progress += 50 / 19;
+  }
+}
+
+void ResourceManager::load_all(std::atomic<int> * progress, std::atomic<bool> * is_done) {
+  this->load_resource_map(progress);
+  this->load_string_map(progress);
+  *is_done = true;
 }
 
 void *ResourceManager::getFileContent(const std::string &file_name, int *size) {

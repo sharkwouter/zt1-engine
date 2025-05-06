@@ -36,3 +36,33 @@ SDL_Surface *PeFile::getLoadScreenSurface()
   }
   return surface;
 }
+
+std::vector<uint32_t> PeFile::getStringIds() {
+  std::vector<uint32_t> string_ids;
+  if (this->loader) {
+    uint32_t string_count;
+    uint32_t * string_ids_c = PeResourceLoader_GetResourceIds(this->loader, PRL_TYPE_STRING, &string_count);
+    string_ids.reserve((size_t) string_count);
+    for (uint32_t i = 0; i < string_count; i++) {
+      string_ids.push_back(string_ids_c[i]);
+    }
+    free(string_ids_c);
+  }
+
+  return string_ids;
+}
+
+std::string PeFile::getString(uint32_t string_id) {
+  if (!this->loader) {
+    return "";
+  }
+  uint32_t string_length;
+  uint8_t * c_string = PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, &string_length);
+  if (!c_string) {
+    return "";
+  }
+  std::string result = std::string((char *) c_string);
+  free(c_string);
+
+  return result;
+}
