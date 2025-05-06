@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <SDL2/SDL.h>
 
@@ -60,12 +61,7 @@ std::string ResourceManager::fixPath(std::string &path) {
   }
 
   // Get the path of the executable
-  std::string exe_directory = "./";
-  char * sdl_base_path = SDL_GetBasePath();
-  if (sdl_base_path) {
-    exe_directory = std::string(sdl_base_path);
-    SDL_free(sdl_base_path);
-  }
+  std::string exe_directory = Utils::getExecutableDirectory();
 
   // Check if the paths really exist as they are and correct them
   std::string base_dir = exe_directory;
@@ -131,23 +127,26 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
 }
 
 void ResourceManager::load_string_map(std::atomic<int> * progress) {
-  std::filesystem::directory_iterator directory_iterator(Utils::getExecutableDirectory());
-  for (std::filesystem::directory_entry lang_dll : directory_iterator) {
+  std::vector<std::string> lang_dlls;
+  for (std::filesystem::directory_entry lang_dll : std::filesystem::directory_iterator(Utils::getExecutableDirectory())) {
     std::string current_dll = lang_dll.path().filename().string();
     if (!current_dll.starts_with("lang") || !current_dll.ends_with(".dll")) {
       continue;
     }
-    PeFile pe_file(lang_dll.path().string());
+    lang_dlls.push_back(lang_dll.path().string());
+  }
+  std::sort(lang_dlls.begin(), lang_dlls.end());
+
+  for (std::string lang_dll : lang_dlls) {
+    SDL_Log("Loading strings from %s", lang_dll.c_str());
+    PeFile pe_file(lang_dll);
     for (uint32_t string_id : pe_file.getStringIds()) {
       std::string string = pe_file.getString(string_id);
       if (!string.empty()) {
-        if (string_map.contains(string_id)) {
-          SDL_Log("String with id %u was already in string map", string_id);
-        }
         this->string_map[string_id] = string;
       }
     }
-    *progress += 50 / 19;
+    *progress += 50 / lang_dlls.size();
   }
 }
 

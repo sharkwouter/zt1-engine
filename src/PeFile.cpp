@@ -6,19 +6,13 @@
 #include <SDL2/SDL_image.h>
 
 PeFile::PeFile(const std::string &pe_file) {
-  std::string pe_path = "./";
-  char * sdl_base_path = SDL_GetBasePath();
-  if (sdl_base_path) {
-    pe_path = std::string(sdl_base_path);
-    SDL_free(sdl_base_path);
-  }
-  pe_path += pe_file;
-
-  this->loader = PeResourceLoader_Open(pe_path.c_str());
+  this->loader = PeResourceLoader_Open(pe_file.c_str());
 }
 
 PeFile::~PeFile() {
-  PeResourceLoader_Close(this->loader);
+  if (this->loader) {
+    PeResourceLoader_Close(this->loader);
+  }
 }
 
 SDL_Surface *PeFile::getLoadScreenSurface()
@@ -39,6 +33,7 @@ SDL_Surface *PeFile::getLoadScreenSurface()
 
 std::vector<uint32_t> PeFile::getStringIds() {
   std::vector<uint32_t> string_ids;
+
   if (this->loader) {
     uint32_t string_count;
     uint32_t * string_ids_c = PeResourceLoader_GetResourceIds(this->loader, PRL_TYPE_STRING, &string_count);
@@ -57,7 +52,7 @@ std::string PeFile::getString(uint32_t string_id) {
     return "";
   }
   uint32_t string_length;
-  uint8_t * c_string = PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, &string_length);
+  uint8_t * c_string = PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, NULL);
   if (!c_string) {
     return "";
   }
