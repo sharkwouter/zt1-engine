@@ -43,7 +43,7 @@ Window::Window(const std::string &title, int width, int height, float fps_target
 }
 
 void Window::clear() {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(this->renderer);
 }
 
