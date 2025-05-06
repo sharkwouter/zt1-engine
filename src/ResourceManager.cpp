@@ -61,10 +61,10 @@ std::string ResourceManager::fixPath(std::string &path) {
   // Get the path of the executable
   std::string exe_directory = "./";
   char * sdl_base_path = SDL_GetBasePath();
-    if (sdl_base_path) {
-      exe_directory = std::string(sdl_base_path);
-      SDL_free(sdl_base_path);
-    }
+  if (sdl_base_path) {
+    exe_directory = std::string(sdl_base_path);
+    SDL_free(sdl_base_path);
+  }
 
   // Check if the paths really exist as they are and correct them
   std::string base_dir = exe_directory;
@@ -99,7 +99,7 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
   return resource_map[resource_name];
 }
 
-void ResourceManager::load() {
+void ResourceManager::load_all() {
   if (resource_map_loaded) {
     SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,"Resource maps was already loaded");
     return;
@@ -148,4 +148,14 @@ Mix_Music *ResourceManager::getMusic(const std::string &file_name) {
 IniReader ResourceManager::getIniReader(const std::string &file_name)
 {
   return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
+}
+
+SDL_Texture *ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::string &lang_dll_name) {
+  PeFile pe_file(lang_dll_name);
+ 
+  SDL_Surface * surface = pe_file.getLoadScreenSurface();
+  SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
+
+  return texture;
 }

@@ -19,9 +19,14 @@
 int main(int argc, char *argv[]) {
   Config config;
   ResourceManager resource_manager(&config);
-  Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
 
-  resource_manager.load();
+  Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
+  SDL_Texture * load_screen = resource_manager.getLoadTexture(window.renderer, config.getLangDllName());
+  SDL_RenderCopy(window.renderer, load_screen, NULL, NULL);
+  window.present();
+
+  resource_manager.load_all();
+  
   IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   std::string startup_background = "";
   std::vector<std::string> startup_backgrounds = startup_lyt_reader.getList("background", "animation");
@@ -51,6 +56,7 @@ int main(int argc, char *argv[]) {
     window.present();
   }
 
+  SDL_DestroyTexture(load_screen);
   SDL_DestroyTexture(background);
 
   return 0;

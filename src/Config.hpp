@@ -15,6 +15,8 @@ public:
   std::string getMenuMusic();
   int getScreenWidth();
   int getScreenHeight();
+  std::string getLangDllName();
+
 private:
   IniReader * reader = NULL;
 };

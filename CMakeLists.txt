@@ -14,15 +14,16 @@ pkg_search_module(SDL2_IMAGE REQUIRED SDL2_image)
 pkg_search_module(SDL2_MIXER REQUIRED SDL2_mixer)
 pkg_search_module(ZIP REQUIRED libzip)
 
-set(PE_STRING_LOADER OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/pe-resource-loader)
+set(PE_BITMAP_LOADER OFF CACHE INTERNAL "Prevent pe-resource-loader from building the pe_bitmap_loader binary" FORCE)
+set(PE_STRING_LOADER OFF CACHE INTERNAL "Prevent pe-resource-loader from building the pe_string_loader binary" FORCE)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vendor/pe-resource-loader)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${SDL2_MIXER_INCLUDE_DIRS}
     ${ZIP_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/vendor/pe-resource-loader/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pe-resource-loader/include
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

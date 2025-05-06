@@ -1,4 +1,4 @@
-#ifndef TEXT_MANAGER_HPP
+#ifndef PE_RESOURCE_LOADER_HPP
 #define TEXT_MANAGER_HPP
 
 #include <string>

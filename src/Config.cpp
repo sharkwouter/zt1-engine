@@ -48,3 +48,7 @@ int Config::getScreenHeight()
 {
   return reader->getInt("user", "screenheight", 600);;
 }
+
+std::string Config::getLangDllName() {
+  return reader->get("lib", "lang");
+}
