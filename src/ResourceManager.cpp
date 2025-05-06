@@ -120,9 +120,6 @@ void ResourceManager::load_all() {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
         }
-        if(file.ends_with(".txt")) {
-          SDL_Log("Found resource %s in %s", file.c_str(), current_archive.c_str());
-        }
       }
     }
   }
