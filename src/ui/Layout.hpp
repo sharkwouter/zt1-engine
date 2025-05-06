@@ -6,19 +6,17 @@
 #include <SDL2/SDL.h>
 
 #include "UiElement.hpp"
+#include "../IniReader.hpp"
 
 class Layout : UiElement {
 public:
-  Layout(int x, int y, int dx, int dy, int id, int layer);
-  Layout(int id, int layer);
+  Layout(IniReader * ini_reader);
   ~Layout();
 
   void draw(SDL_Renderer * renderer);
 
-  void addUiElement(UiElement * element);
-
 private:
-  SDL_Rect * dest_rect = NULL;
+  SDL_Rect dest_rect;
 
   std::vector<UiElement*> elements;
 };

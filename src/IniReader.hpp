@@ -16,6 +16,8 @@ public:
   int getInt(const std::string &section, const std::string &key, const int &default_value = -1);
   std::vector<int> getIntList(const std::string &section, const std::string &key, const std::vector<int> &default_value = {});
 
+  std::unordered_map<std::string, std::string> * getSection(const std::string &section);
+
   bool isList(const std::string &section, const std::string &key);
 private:
   std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content;

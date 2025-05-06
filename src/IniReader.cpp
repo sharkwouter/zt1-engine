@@ -99,6 +99,13 @@ std::vector<int> IniReader::getIntList(const std::string &key, const std::string
   return list;
 }
 
+std::unordered_map<std::string, std::string> *IniReader::getSection(const std::string &section) {
+  if (!this->content.contains(section)) {
+    return nullptr;
+  }
+  return &this->content[section];
+}
+
 bool IniReader::isList(const std::string &section, const std::string &key) {
   std::string value = get(section, key);
   if (value.find(";") != std::string::npos) {
