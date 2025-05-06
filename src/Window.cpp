@@ -3,6 +3,9 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
+#define INTERNAL_WIDTH 800
+#define INTERNAL_HEIGHT 600
+
 Window::Window(const std::string &title, int width, int height, float fps_target) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER) != 0) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL: %s", SDL_GetError());
@@ -19,7 +22,7 @@ Window::Window(const std::string &title, int width, int height, float fps_target
       exit(3);
     }
 
-    this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+    this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_RESIZABLE);
     if (this->window == nullptr) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't create window: %s", SDL_GetError());
         exit(4);
@@ -30,6 +33,7 @@ Window::Window(const std::string &title, int width, int height, float fps_target
     if (this->renderer == nullptr) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't create renderer: %s", SDL_GetError());
     }
+    SDL_RenderSetLogicalSize(renderer, INTERNAL_WIDTH, INTERNAL_HEIGHT);
 
     // Make the use of transparency possible
     SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
