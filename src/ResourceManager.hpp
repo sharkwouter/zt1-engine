@@ -44,6 +44,12 @@ private:
 
   void load_resource_map(std::atomic<int> * progress);
   void load_string_map(std::atomic<int> * progress);
+
+  #ifdef _WIN32
+  std::string preferred_separator = "\\";
+  #else
+  std::string preferred_separator = "/";
+  #endif
 };
 
 #endif // RESOURCE_MANAGER_HPP
