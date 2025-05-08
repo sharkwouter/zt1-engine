@@ -52,7 +52,7 @@ protected:
   IniReader * ini_reader = nullptr;
   ResourceManager * resource_manager = nullptr;
   std::string name;
-  int id;
+  int id = 0;
   int layer;
   int anchor = 0;
 

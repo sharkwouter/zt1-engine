@@ -84,12 +84,12 @@ Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &fi
   return music;
 }
 
-IniReader ZtdFile::getIniReader(const std::string &ztd_file, const std::string &file_name)
+IniReader * ZtdFile::getIniReader(const std::string &ztd_file, const std::string &file_name)
 {
   int file_size = 0;
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
-    return IniReader(file_content, file_size);
+    return new IniReader(file_content, file_size);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
   }
