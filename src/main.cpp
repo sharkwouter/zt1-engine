@@ -6,7 +6,7 @@
 #include "IniReader.hpp"
 #include "LoadScreen.hpp"
 
-#include "ui/Layout.hpp"
+#include "ui/UiLayout.hpp"
 
 
 int main(int argc, char *argv[]) {
@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
 
   LoadScreen::run(&window,&config, &resource_manager);
 
-  IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
-  Layout startup_layout(&startup_lyt_reader, &resource_manager);
+  IniReader * startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
+  UiLayout startup_layout(startup_lyt_reader, &resource_manager);
 
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
   Mix_VolumeMusic(MIX_MAX_VOLUME);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
           break;
       }
     }
-    startup_layout.draw(window.renderer);
+    startup_layout.draw(window.renderer, NULL);
     window.present();
   }
 

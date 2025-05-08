@@ -15,7 +15,7 @@ public:
     static void * getFileContent(const std::string &ztd_file, const std::string &file_name, int * size);
     static SDL_Surface * getImageSurface(const std::string &ztd_file, const std::string &file_name);
     static Mix_Music * getMusic(const std::string &ztd_file, const std::string &file_name);
-    static IniReader getIniReader(const std::string &ztd_file, const std::string &file_name);
+    static IniReader * getIniReader(const std::string &ztd_file, const std::string &file_name);
 };
 
 #endif // ZTD_FILE_HPP
