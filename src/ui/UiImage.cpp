@@ -12,12 +12,13 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
   std::string normal = ini_reader->get(name, "normal");
   if (!normal.empty()) {
     this->image_path = normal;
-  }
-  if(ini_reader->isList(name, "animation")) {
-    std::vector<std::string> animation_list = ini_reader->getList(name, "animation");
-    this->image_path = animation_list[animation_list.size() - 1];
   } else {
-    this->image_path = ini_reader->get(name, "animation");
+    if(ini_reader->isList(name, "animation")) {
+      std::vector<std::string> animation_list = ini_reader->getList(name, "animation");
+      this->image_path = animation_list[animation_list.size() - 1];
+    } else {
+      this->image_path = ini_reader->get(name, "animation");
+    }
   }
 }
 
