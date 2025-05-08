@@ -7,16 +7,21 @@
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
+#include "../ResourceManager.hpp"
 
-class Layout : UiElement {
+class Layout {
 public:
-  Layout(IniReader * ini_reader);
+  Layout(IniReader * ini_reader, ResourceManager * resource_manager);
   ~Layout();
 
   void draw(SDL_Renderer * renderer);
 
 private:
-  SDL_Rect dest_rect;
+  std::string name = "layoutinfo";
+  int id = 0;
+  int layer_count = 0;
+  SDL_Rect layout_rect;
+  SDL_Window * window = nullptr;
 
   std::vector<UiElement*> elements;
 };

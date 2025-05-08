@@ -76,12 +76,20 @@ std::vector<std::string> IniReader::getList(const std::string &section, const st
   return list;
 }
 
-int IniReader::getInt(const std::string &key, const std::string &value, const int &default_value)
-{
+int IniReader::getInt(const std::string &section, const std::string &key, const int &default_value) {
   int result = default_value;
-  std::string string_value = get(key, value);
+  std::string string_value = get(section, key);
   if (!string_value.empty()) {
     result = std::stoi(string_value, NULL, 10);
+  }
+  return result;
+}
+
+uint32_t IniReader::getUnsignedInt(const std::string &section, const std::string &key, const uint32_t default_value) {
+  uint32_t result = default_value;
+  std::string string_value = get(section, key);
+  if (!string_value.empty()) {
+    result = std::stoul(string_value, NULL, 10);
   }
   return result;
 }
@@ -99,11 +107,20 @@ std::vector<int> IniReader::getIntList(const std::string &key, const std::string
   return list;
 }
 
-std::unordered_map<std::string, std::string> *IniReader::getSection(const std::string &section) {
+std::unordered_map<std::string, std::string> IniReader::getSection(const std::string &section) {
   if (!this->content.contains(section)) {
-    return nullptr;
+    SDL_Log("Failed to get section %s", section.c_str());
+    return std::unordered_map<std::string, std::string>();
   }
-  return &this->content[section];
+  return this->content[section];
+}
+
+std::vector<std::string> IniReader::getSections() {
+  std::vector<std::string> sections;
+  for (auto entry: this->content) {
+    sections.push_back(entry.first);
+  }
+  return sections;
 }
 
 bool IniReader::isList(const std::string &section, const std::string &key) {

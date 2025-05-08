@@ -22,9 +22,10 @@ public:
 
   void * getFileContent(const std::string &file_name, int * size);
   SDL_Texture * getTexture(SDL_Renderer * renderer, const std::string &file_name);
-  Mix_Music *getMusic(const std::string &file_name);
+  Mix_Music * getMusic(const std::string &file_name);
   IniReader getIniReader(const std::string &file_name);
   SDL_Texture * getLoadTexture(SDL_Renderer * renderer, const std::string &lang_dll_name);
+  std::string getString(uint32_t string_id);
 
 private:
   std::unordered_map<std::string, std::string> resource_map;

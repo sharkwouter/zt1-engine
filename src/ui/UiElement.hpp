@@ -7,57 +7,63 @@
 
 #include <SDL2/SDL.h>
 
+#include "../IniReader.hpp"
+#include "../ResourceManager.hpp"
+
 #define FONT_SIZE 16
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
 
 class UiElement {
 public:
-  virtual void draw(SDL_Renderer *renderer) = 0;
-  int state = 1;
+  virtual void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) = 0;
+  int getLayer() {return this->layer;};
+
 protected:
+  IniReader * ini_reader = nullptr;
+  ResourceManager * resource_manager = nullptr;
   std::string name;
   int id;
   int layer;
 
-  SDL_Rect getRect(std::unordered_map<std::string, std::string> map) {
+  SDL_Rect getRect(std::unordered_map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect;
 
     if (map["x"] == "center") {
-      rect.x = SCREEN_WIDTH / 2;
+      rect.x = layout_rect->w / 2;
      } else if (map["x"] == "right") {
-        rect.x = SCREEN_WIDTH;
+        rect.x = layout_rect->w;
     } else {
       rect.x = std::stoi(map["x"]);
     }
 
     if (map["y"] == "center") {
-      rect.y = SCREEN_HEIGHT / 2;
+      rect.y = layout_rect->h / 2;
     } else if (map["y"] == "bottom") {
-      rect.y = SCREEN_HEIGHT;
-
+      rect.y = layout_rect->h;
     } else {
-      rect.y = std::stoi(map["x"]);
+      rect.y = std::stoi(map["y"]);
     }
 
     if(map["dx"] == "whole") {
-      rect.x = SCREEN_WIDTH;
+      rect.w = layout_rect->w;
     } else {
-      rect.w = std::stoi(map["dx"]) - rect.x;
+      rect.w = std::stoi(map["dx"]);
     }
 
     if(map["dy"] == "whole") {
-      rect.h = SCREEN_HEIGHT;
+      rect.h = layout_rect->h;
     } else if (map["dy"] == "fitfont") {
       rect.h = FONT_SIZE;
     } else {
-      rect.h = std::stoi(map["dy"]) - rect.y;
+      rect.h = std::stoi(map["dy"]);
     }
 
-    if (map["justify"] == "center") {
+    if (map["justify"] == "center" || map["x"] == "center") {
       rect.x -= rect.w / 2;
+    }
+    if (map["justify"] == "center" || map["y"] == "center") {
       rect.y -= rect.h / 2;
-    } else if (map["justify"] == "right") {
+    }
+    if (map["justify"] == "right") {
       rect.x -= rect.w;
       rect.y -= rect.h;
     }

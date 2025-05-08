@@ -16,6 +16,7 @@
 #include "IniReader.hpp"
 #include "LoadScreen.hpp"
 
+#include "ui/Layout.hpp"
 
 
 int main(int argc, char *argv[]) {
@@ -27,15 +28,8 @@ int main(int argc, char *argv[]) {
   LoadScreen::run(&window,&config, &resource_manager);
 
   IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
-  std::string startup_background = "";
-  std::vector<std::string> startup_backgrounds = startup_lyt_reader.getList("background", "animation");
-  if (startup_backgrounds.empty()) {
-    startup_background = startup_lyt_reader.get("background", "normal");
-  } else {
-    startup_background = startup_backgrounds[startup_backgrounds.size() - 1];
-  }
-  SDL_Texture * background = resource_manager.getTexture(window.renderer, startup_background);
-  SDL_SetTextureScaleMode(background, SDL_ScaleModeBest);
+  Layout startup_layout(&startup_lyt_reader, &resource_manager);
+
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
   Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);
@@ -51,11 +45,9 @@ int main(int argc, char *argv[]) {
           break;
       }
     }
-    SDL_RenderCopy(window.renderer, background, NULL, NULL);
+    startup_layout.draw(window.renderer);
     window.present();
   }
-
-  SDL_DestroyTexture(background);
 
   return 0;
 }

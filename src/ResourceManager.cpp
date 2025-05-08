@@ -156,7 +156,7 @@ void ResourceManager::load_all(std::atomic<int> * progress, std::atomic<bool> * 
   *is_done = true;
 }
 
-void *ResourceManager::getFileContent(const std::string &file_name, int *size) {
+void * ResourceManager::getFileContent(const std::string &file_name, int *size) {
   return ZtdFile::getFileContent(getResourceLocation(file_name), file_name, size);
 }
 
@@ -167,7 +167,7 @@ SDL_Texture *ResourceManager::getTexture(SDL_Renderer * renderer, const std::str
   return texture;
 }
 
-Mix_Music *ResourceManager::getMusic(const std::string &file_name) {
+Mix_Music * ResourceManager::getMusic(const std::string &file_name) {
   return ZtdFile::getMusic(getResourceLocation(file_name), file_name);
 }
 
@@ -176,7 +176,7 @@ IniReader ResourceManager::getIniReader(const std::string &file_name)
   return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
 }
 
-SDL_Texture *ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::string &lang_dll_name) {
+SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::string &lang_dll_name) {
   PeFile pe_file(lang_dll_name);
  
   SDL_Surface * surface = pe_file.getLoadScreenSurface();
@@ -184,4 +184,8 @@ SDL_Texture *ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::
   SDL_FreeSurface(surface);
 
   return texture;
+}
+
+std::string ResourceManager::getString(uint32_t string_id) {
+  return this->string_map[string_id];
 }
