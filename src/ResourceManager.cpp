@@ -15,7 +15,13 @@ ResourceManager::ResourceManager(Config * config) : config(config) {
 }
 
 ResourceManager::~ResourceManager() {
-  TTF_CloseFont(this->startup_font);
+  if (this->startup_font) {
+    if (TTF_WasInit()) {
+      TTF_CloseFont(this->startup_font);
+    } else {
+      free(this->startup_font);
+    }
+  }
 }
 
 std::string ResourceManager::getCorrectCaseFilename(std::string &base_path, std::string file_name) {
