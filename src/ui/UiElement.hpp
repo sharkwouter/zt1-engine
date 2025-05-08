@@ -84,13 +84,13 @@ protected:
       rect.y = std::stoi(map["y"]);
     }
 
-    if(map["dx"] == "whole") {
+    if(!map.contains("dx") || map["dx"] == "whole") {
       rect.w = layout_rect->w;
     } else {
       rect.w = std::stoi(map["dx"]);
     }
 
-    if(map["dy"] == "whole") {
+    if(!map.contains("dy") || map["dy"] == "whole") {
       rect.h = layout_rect->h;
     } else if (map["dy"] == "fitfont") {
       rect.h = FONT_SIZE;
