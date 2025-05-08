@@ -12,18 +12,29 @@ Layout::Layout(IniReader * ini_reader, ResourceManager * resource_manager) {
     if (section == this->name) {
       continue;
     }
+
+    UiElement * new_element = nullptr;
     std::string element_type = ini_reader->get(section, "type");
     if (element_type == "UIImage") {
-      this->elements.push_back((UiElement *) new UiImage(ini_reader, resource_manager, section));
-      continue;
+      new_element = (UiElement *) new UiImage(ini_reader, resource_manager, section);
+    } else if (element_type == "UIButton") {
+      new_element = (UiElement *) new UiButton(ini_reader, resource_manager, section);
+    } else if (element_type == "UIText") {
+      new_element = (UiElement *) new UiText(ini_reader, resource_manager, section);
     }
-    if (element_type == "UIButton") {
-      this->elements.push_back((UiElement *) new UiButton(ini_reader, resource_manager, section));
-      continue;
-    }
-    if (element_type == "UIText") {
-      this->elements.push_back((UiElement *) new UiText(ini_reader, resource_manager, section));
-      continue;
+
+    if (new_element) {
+      if (!new_element->getAnchor() || new_element->getAnchor() == this->id) {
+        this->elements.push_back(new_element);
+      } else {
+        for(UiElement * element : elements) {
+          if (element->hasId(new_element->getAnchor())) {
+            element->addChild(new_element);
+          } else {
+            SDL_Log("id was not found");
+          }
+        }
+      }
     }
   }
 }

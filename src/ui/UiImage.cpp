@@ -7,6 +7,7 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
+  this->anchor = ini_reader->getInt(name, "anchor", 0);
 
   std::string normal = ini_reader->get(name, "normal");
   if (!normal.empty()) {
@@ -22,6 +23,9 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
 UiImage::~UiImage() {
   SDL_DestroyTexture(this->image);
+  for (UiElement * child : this->children) {
+    free(child);
+  }
 }
 
 void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
@@ -33,4 +37,5 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   }
   SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+  this->drawChildren(renderer, &dest_rect);
 }

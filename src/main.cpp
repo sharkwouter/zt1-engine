@@ -1,18 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <strings.h>
-#include <unordered_map>
-#include <filesystem>
-#include <atomic>
-
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 
 #include "Config.hpp"
 #include "Window.hpp"
 #include "ResourceManager.hpp"
-#include "ZtdFile.hpp"
 #include "IniReader.hpp"
 #include "LoadScreen.hpp"
 

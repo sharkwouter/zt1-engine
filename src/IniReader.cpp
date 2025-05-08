@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-static void print_content(std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content) {
+static void print_content(std::map<std::string, std::map<std::string, std::string>> content) {
   SDL_Log("Printing loaded content");
   std::string section = "";
   for (auto section_key : content) {
@@ -107,10 +107,10 @@ std::vector<int> IniReader::getIntList(const std::string &key, const std::string
   return list;
 }
 
-std::unordered_map<std::string, std::string> IniReader::getSection(const std::string &section) {
+std::map<std::string, std::string> IniReader::getSection(const std::string &section) {
   if (!this->content.contains(section)) {
     SDL_Log("Failed to get section %s", section.c_str());
-    return std::unordered_map<std::string, std::string>();
+    return std::map<std::string, std::string>();
   }
   return this->content[section];
 }
@@ -207,7 +207,7 @@ void IniReader::load(std::string file_content) {
     switch (current_mode) {
       case process_mode::SECTION:
         if (character == ']') {
-          content[current_section] = std::unordered_map<std::string, std::string>();
+          content[current_section] = std::map<std::string, std::string>();
           continue;
         }
         current_section += std::tolower(character);

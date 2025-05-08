@@ -7,6 +7,7 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
+  this->anchor = ini_reader->getInt(name, "anchor", 0);
 
   uint32_t string_id = (uint32_t) ini_reader->getUnsignedInt(name, "textid");
   this->text_string = this->resource_manager->getString(string_id);
@@ -18,15 +19,18 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
 
 UiButton::~UiButton() {
   SDL_DestroyTexture(text);
+  for (UiElement * child : this->children) {
+    free(child);
+  }
 }
 
 void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   if (!this->text) {
     std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");
     SDL_Color color = {
-      std::stoi(color_values[0]),
-      std::stoi(color_values[1]),
-      std::stoi(color_values[2]),
+      (uint8_t) std::stoi(color_values[0]),
+      (uint8_t) std::stoi(color_values[1]),
+      (uint8_t) std::stoi(color_values[2]),
       255,
     };
     this->text = this->resource_manager->getStringTexture(renderer, this->text_string, color);
@@ -36,4 +40,5 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   // SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
   // dest_rect.w = std::min(dest_rect.w, text_rect.w);
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
+  this->drawChildren(renderer, &dest_rect);
 }

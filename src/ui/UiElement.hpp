@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include <SDL2/SDL.h>
 
@@ -14,8 +14,39 @@
 
 class UiElement {
 public:
+  virtual ~UiElement() {};
+
   virtual void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) = 0;
+  std::string getName() {return this->name;};
   int getLayer() {return this->layer;};
+  int getAnchor() {return this->anchor;};
+
+  bool hasId(int id) {
+    if (id == this->id) {
+      return true;
+    }
+    for (UiElement * child : this->children) {
+      if (child->hasId(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void addChild(UiElement * new_child) {
+    if(new_child->anchor == this->id) {
+      this->children.push_back(new_child);
+      return;
+    } else {
+      for (UiElement * child : this->children) {
+        if (child->hasId(new_child->anchor)) {
+          child->addChild(new_child);
+          return;
+        }
+      }
+    }
+    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "This code should never be reached, which was the child not added?");
+  }
 
 protected:
   IniReader * ini_reader = nullptr;
@@ -23,8 +54,18 @@ protected:
   std::string name;
   int id;
   int layer;
+  int anchor = 0;
 
-  SDL_Rect getRect(std::unordered_map<std::string, std::string> map, SDL_Rect * layout_rect) {
+  std::vector<UiElement*> children;
+
+  void drawChildren(SDL_Renderer * renderer, SDL_Rect * parent_rect) {
+    // TODO: Figure out if layers need to be taken into account here
+    for (UiElement * child : this->children) {
+      child->draw(renderer, parent_rect);
+    }
+  }
+
+  SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect;
 
     if (map["x"] == "center") {
@@ -67,6 +108,9 @@ protected:
       rect.x -= rect.w;
       rect.y -= rect.h;
     }
+
+    rect.x += layout_rect->x;
+    rect.y += layout_rect->y;
 
     return rect;
   };

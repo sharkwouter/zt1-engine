@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 class IniReader {
 public:
@@ -17,12 +17,12 @@ public:
   uint32_t getUnsignedInt(const std::string &section, const std::string &key, const uint32_t default_value = -1);
   std::vector<int> getIntList(const std::string &section, const std::string &key, const std::vector<int> &default_value = {});
 
-  std::unordered_map<std::string, std::string> getSection(const std::string &section);
+  std::map<std::string, std::string> getSection(const std::string &section);
   std::vector<std::string> getSections();
 
   bool isList(const std::string &section, const std::string &key);
 private:
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> content;
+  std::map<std::string, std::map<std::string, std::string>> content;
 
   void load(std::string file_content);
 };
