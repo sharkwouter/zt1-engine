@@ -10,7 +10,7 @@
 #include "../IniReader.hpp"
 #include "../ResourceManager.hpp"
 
-#define FONT_SIZE 16
+#define FONT_SIZE 24
 
 class UiElement {
 public:

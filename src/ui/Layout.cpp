@@ -2,6 +2,7 @@
 
 #include "UiImage.hpp"
 #include "UiText.hpp"
+#include "UiButton.hpp"
 
 Layout::Layout(IniReader * ini_reader, ResourceManager * resource_manager) {
   this->id = ini_reader->getInt(name, "id", 0);
@@ -17,10 +18,11 @@ Layout::Layout(IniReader * ini_reader, ResourceManager * resource_manager) {
       continue;
     }
     if (element_type == "UIButton") {
+      this->elements.push_back((UiElement *) new UiButton(ini_reader, resource_manager, section));
       continue;
     }
     if (element_type == "UIText") {
-      // this->elements.push_back((UiElement *) new UiText(ini_reader, resource_manager, section));
+      this->elements.push_back((UiElement *) new UiText(ini_reader, resource_manager, section));
       continue;
     }
   }

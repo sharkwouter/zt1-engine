@@ -16,7 +16,7 @@ ResourceManager::ResourceManager(Config * config) : config(config) {
 }
 
 ResourceManager::~ResourceManager() {
-
+  TTF_CloseFont(this->startup_font);
 }
 
 std::string ResourceManager::getCorrectCaseFilename(std::string &base_path, std::string file_name) {
@@ -180,6 +180,22 @@ SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std:
   PeFile pe_file(lang_dll_name);
  
   SDL_Surface * surface = pe_file.getLoadScreenSurface();
+  SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
+
+  return texture;
+}
+
+SDL_Texture *ResourceManager::getStringTexture(SDL_Renderer *renderer, const std::string &string, SDL_Color color) {
+  if (!this->startup_font) {
+    this->startup_font = TTF_OpenFont(std::string(Utils::getExecutableDirectory() +"font/Aileron-Regular.otf").c_str(), 24);
+  }
+  SDL_Surface * surface = TTF_RenderUTF8_Blended(this->startup_font, string.c_str(), color);
+  if (surface == NULL) {
+      SDL_Log("Couldn't create surface for text %s: %s", string.c_str(), TTF_GetError());
+      return NULL;
+  }
+
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_FreeSurface(surface);
 

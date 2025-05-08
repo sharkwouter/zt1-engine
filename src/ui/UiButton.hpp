@@ -7,16 +7,18 @@
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
+#include "../ResourceManager.hpp"
 
 class UiButton : UiElement {
 public:
-  UiButton(IniReader * ini_reader, std::string name);
+  UiButton(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
   ~UiButton();
 
-  void draw(SDL_Renderer *renderer);
+  void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
 
 private:
-  SDL_Texture * button;
+  std::string text_string = "";
+  SDL_Texture * text = nullptr;
 };
 
 #endif // UI_BUTTON_HPP
