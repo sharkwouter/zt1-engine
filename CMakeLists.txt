@@ -108,6 +108,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     libzip::zip
 )
 
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        SDL2::SDL2main
+    )
+endif()
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/font ${CMAKE_CURRENT_BINARY_DIR}/font)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/font ${CMAKE_CURRENT_BINARY_DIR}/font)
