@@ -109,6 +109,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 if(WIN32)
+    set(CMAKE_CXX_FLAGS "-static ${CMAKE_CXX_FLAGS}")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         SDL2::SDL2main
     )
