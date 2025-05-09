@@ -13,32 +13,27 @@ Window::Window(const std::string &title, int width, int height, float fps_target
         exit(1);
     }
 
-    if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) {
-        SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL_image: %s", IMG_GetError());
-        exit(2);
-    }
     if (TTF_Init() == -1) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL_ttf: %s", TTF_GetError());
-        exit(3);
+        exit(2);
     }
 
     if( Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1 ) {
-		  SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL_mixer: %s", Mix_GetError());
-      exit(4);
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL_mixer: %s", Mix_GetError());
+        exit(3);
     }
 
     this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_RESIZABLE);
     if (this->window == nullptr) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't create window: %s", SDL_GetError());
-        exit(5);
+        exit(4);
     }
 
     this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (this->renderer == nullptr) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't create renderer: %s", SDL_GetError());
-        exit(6);
+        exit(5);
     }
-    // SDL_RenderSetLogicalSize(renderer, INTERNAL_WIDTH, INTERNAL_HEIGHT);
 
     // Make the use of transparency possible
     SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
