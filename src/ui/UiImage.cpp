@@ -29,6 +29,10 @@ UiImage::~UiImage() {
   }
 }
 
+UiAction UiImage::handleInputs(std::vector<Input> &inputs) {
+  return handleInputChildren(inputs);
+}
+
 void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   if (this->image_path.empty()) {
     return;

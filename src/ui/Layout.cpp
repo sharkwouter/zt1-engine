@@ -45,6 +45,17 @@ Layout::~Layout() {
     }
 }
 
+std::vector<UiAction> Layout::handleInputs(std::vector<Input> &inputs) {
+  std::vector<UiAction> actions;
+  for (UiElement * element : this->elements) {
+    UiAction current_action = element->handleInputs(inputs);
+    if (current_action != UiAction::NONE) {
+      actions.push_back(current_action);
+    }
+  }
+  return actions;
+}
+
 void Layout::draw(SDL_Renderer *renderer) {
   if (!window) {
     this->window = SDL_RenderGetWindow(renderer);

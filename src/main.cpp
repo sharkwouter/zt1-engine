@@ -5,6 +5,8 @@
 #include "ResourceManager.hpp"
 #include "IniReader.hpp"
 #include "LoadScreen.hpp"
+#include "InputManager.hpp"
+#include "Input.hpp"
 
 #include "ui/Layout.hpp"
 
@@ -15,7 +17,7 @@ int main(int argc, char *argv[]) {
 
   Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
 
-  LoadScreen::run(&window,&config, &resource_manager);
+  LoadScreen::run(&window, &config, &resource_manager);
 
   IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   Layout startup_layout(&startup_lyt_reader, &resource_manager);
@@ -24,15 +26,22 @@ int main(int argc, char *argv[]) {
   Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);
 
-  SDL_Event event;
+  InputManager input_manager;
+  std::vector<Input> inputs;
+
   int running = 1;
   while (running > 0) {
     window.clear();
-    if (SDL_PollEvent(&event)) {
-      switch (event.type) {
-        case SDL_QUIT:
-          running = 0;
-          break;
+    inputs = input_manager.getInputs();
+    for (Input input : inputs) {
+      if (input.event == InputEvent::QUIT) {
+        running = 0;
+      }
+    }
+  
+    for (UiAction action : startup_layout.handleInputs(inputs)) {
+      if (action == UiAction::STARTUP_EXIT) {
+        running = false;
       }
     }
     startup_layout.draw(window.renderer);

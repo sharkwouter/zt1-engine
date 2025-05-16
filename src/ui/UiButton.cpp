@@ -24,21 +24,77 @@ UiButton::~UiButton() {
   }
 }
 
+UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
+  UiAction action = UiAction::NONE;
+  for (Input input : inputs) {
+    if (input.type != InputType::POSITIONED) {
+      continue;
+    }
+    if (input.position.x < this->dest_rect.x || input.position.x > this->dest_rect.x + this->dest_rect.w) {
+      this->selected_updated = true;
+      this->selected = false;
+      continue;
+    }
+    if (input.position.y < this->dest_rect.y || input.position.y > this->dest_rect.y + this->dest_rect.h) {
+      this->selected_updated = true;
+      this->selected = false;
+      continue;
+    }
+    this->selected = true;
+    this->selected_updated = true;
+    switch (input.event) {
+      case InputEvent::LEFT_CLICK:
+        if(this->ini_reader->getInt(this->name, "action", 0) == 1) {
+          int target = this->ini_reader->getInt(this->name, "target", 0);
+          if (target != 0) {
+            action = (UiAction) target;
+          }
+        } else {
+          action = this->getActionBasedOnName();
+        }
+        break;
+      default:
+        break;
+    }
+    
+  }
+  handleInputChildren(inputs);
+  return action;
+}
+
 void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
-  if (!this->text) {
-    std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");
+  if (!this->text || this->selected_updated) {
+    std::vector<std::string> color_values;
+    if (this->selected) {
+      color_values = ini_reader->getList(name, "forecolor");
+    } else {
+      color_values = ini_reader->getList(name, "selectcolor");
+    }
     SDL_Color color = {
       (uint8_t) std::stoi(color_values[0]),
       (uint8_t) std::stoi(color_values[1]),
       (uint8_t) std::stoi(color_values[2]),
       255,
     };
+    if (this->text != nullptr) {
+      SDL_DestroyTexture(this->text);
+    }
     this->text = this->resource_manager->getStringTexture(renderer, this->text_string, color);
   }
-  SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+  dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
   // SDL_Rect text_rect;
   // SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
   // dest_rect.w = std::min(dest_rect.w, text_rect.w);
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
   this->drawChildren(renderer, &dest_rect);
+}
+
+UiAction UiButton::getActionBasedOnName() {
+  UiAction action = UiAction::NONE;
+  if (this->name == "exit") {
+    action = UiAction::STARTUP_EXIT;
+  } else {
+    action = UiAction::NONE;
+  }
+  return action;
 }
