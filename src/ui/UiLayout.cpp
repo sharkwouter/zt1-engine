@@ -1,10 +1,10 @@
-#include "Layout.hpp"
+#include "UiLayout.hpp"
 
 #include "UiImage.hpp"
 #include "UiText.hpp"
 #include "UiButton.hpp"
 
-Layout::Layout(IniReader * ini_reader, ResourceManager * resource_manager) {
+UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
   this->id = ini_reader->getInt(name, "id", 0);
   this->layer_count = ini_reader->getInt(name, "layer", 0);
 
@@ -39,13 +39,13 @@ Layout::Layout(IniReader * ini_reader, ResourceManager * resource_manager) {
   }
 }
 
-Layout::~Layout() {
+UiLayout::~UiLayout() {
     for (UiElement * element : this->elements) {
       free(element);
     }
 }
 
-std::vector<UiAction> Layout::handleInputs(std::vector<Input> &inputs) {
+std::vector<UiAction> UiLayout::handleInputs(std::vector<Input> &inputs) {
   std::vector<UiAction> actions;
   for (UiElement * element : this->elements) {
     UiAction current_action = element->handleInputs(inputs);
@@ -56,7 +56,7 @@ std::vector<UiAction> Layout::handleInputs(std::vector<Input> &inputs) {
   return actions;
 }
 
-void Layout::draw(SDL_Renderer *renderer) {
+void UiLayout::draw(SDL_Renderer *renderer) {
   if (!window) {
     this->window = SDL_RenderGetWindow(renderer);
   }

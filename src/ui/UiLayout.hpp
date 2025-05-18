@@ -1,5 +1,5 @@
-#ifndef LAYOUT_HPP
-#define LAYOUT_HPP
+#ifndef UI_LAYOUT_HPP
+#define UI_LAYOUT_HPP
 
 #include <vector>
 
@@ -12,10 +12,10 @@
 #include "../ResourceManager.hpp"
 #include "../Input.hpp"
 
-class Layout {
+class UiLayout {
 public:
-  Layout(IniReader * ini_reader, ResourceManager * resource_manager);
-  ~Layout();
+  UiLayout(IniReader * ini_reader, ResourceManager * resource_manager);
+  ~UiLayout();
 
   std::vector<UiAction> handleInputs(std::vector<Input> &inputs);
   void draw(SDL_Renderer * renderer);
@@ -30,4 +30,4 @@ private:
   std::vector<UiElement*> elements;
 };
 
-#endif // LAYOUT_HPP
+#endif // UI_LAYOUT_HPP
