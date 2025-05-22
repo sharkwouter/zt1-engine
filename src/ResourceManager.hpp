@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <atomic>
+#include <cstdint>
 
 #include <SDL2/SDL_ttf.h>
 

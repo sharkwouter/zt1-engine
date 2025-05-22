@@ -7,8 +7,11 @@
 
 #include <SDL2/SDL.h>
 
+#include "UiAction.hpp"
+
 #include "../IniReader.hpp"
 #include "../ResourceManager.hpp"
+#include "../Input.hpp"
 
 #define FONT_SIZE 24
 
@@ -16,7 +19,9 @@ class UiElement {
 public:
   virtual ~UiElement() {};
 
+  virtual UiAction handleInputs(std::vector<Input> &inputs) = 0;
   virtual void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) = 0;
+
   std::string getName() {return this->name;};
   int getLayer() {return this->layer;};
   int getAnchor() {return this->anchor;};
@@ -63,6 +68,17 @@ protected:
     for (UiElement * child : this->children) {
       child->draw(renderer, parent_rect);
     }
+  }
+
+  UiAction handleInputChildren(std::vector<Input> &inputs) {
+    UiAction action = UiAction::NONE;
+    for (UiElement * child : this->children) {
+      UiAction new_action = child->handleInputs(inputs);
+      if (new_action != UiAction::NONE) {
+        action = new_action;
+      }
+    }
+    return action;
   }
 
   SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {

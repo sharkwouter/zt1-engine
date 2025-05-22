@@ -13,7 +13,11 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
   this->text_string = this->resource_manager->getString(string_id);
   
   if(this->text_string.empty()) {
-    this->text_string = "Not found";
+    if (name == "version_label") {
+      this->text_string = "ZT1-Engine WIP version number: 0.1";
+    } else {
+      this->text_string = "Not found";
+    }
   }
 }
 
@@ -22,6 +26,10 @@ UiText::~UiText() {
   for (UiElement * child : this->children) {
     free(child);
   }
+}
+
+UiAction UiText::handleInputs(std::vector<Input> &inputs) {
+  return this->handleInputChildren(inputs);
 }
 
 void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {

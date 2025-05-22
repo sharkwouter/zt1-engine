@@ -1,3 +1,18 @@
 [submodule "vendor/pe-resource-loader"]
 	path = vendor/pe-resource-loader
 	url = https://github.com/sharkwouter/pe-resource-loader.git
+[submodule "vendor/SDL_ttf"]
+	path = vendor/SDL_ttf
+	url = https://github.com/libsdl-org/SDL_ttf.git
+[submodule "vendor/SDL_mixer"]
+	path = vendor/SDL_mixer
+	url = https://github.com/libsdl-org/SDL_mixer.git
+[submodule "vendor/SDL_image"]
+	path = vendor/SDL_image
+	url = https://github.com/libsdl-org/SDL_image.git
+[submodule "vendor/SDL"]
+	path = vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "vendor/libzip"]
+	path = vendor/libzip
+	url = https://github.com/nih-at/libzip.git

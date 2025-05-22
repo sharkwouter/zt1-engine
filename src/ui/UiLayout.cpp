@@ -40,6 +40,9 @@ void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
 }
 
 void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource_manager) {
+  this->id = ini_reader->getInt(name, "id", 0);
+  this->layer_count = ini_reader->getInt(name, "layer", 0);
+
   for(std::string section: ini_reader->getSections()) {
     if (section == this->name) {
       continue;
@@ -79,4 +82,30 @@ void UiLayout::process_layout(ResourceManager *resource_manager, std::string lay
   }
   IniReader * ini_reader = resource_manager->getIniReader(layout);
   process_sections(ini_reader, resource_manager);
+}
+
+std::vector<UiAction> UiLayout::handleInputs(std::vector<Input> &inputs) {
+  std::vector<UiAction> actions;
+  for (UiElement * element : this->elements) {
+    UiAction current_action = element->handleInputs(inputs);
+    if (current_action != UiAction::NONE) {
+      actions.push_back(current_action);
+    }
+  }
+  return actions;
+}
+
+void UiLayout::draw(SDL_Renderer *renderer) {
+  if (!window) {
+    this->window = SDL_RenderGetWindow(renderer);
+  }
+  SDL_GetWindowSize(this->window, &this->layout_rect.w, &this->layout_rect.h);
+  for(int layer = 1; layer < this->layer_count + 2; layer++) {
+    for (UiElement * element : this->elements) {
+      if (element->getLayer() != layer) {
+        continue;
+      }
+      element->draw(renderer, &this->layout_rect);
+    }
+  }
 }

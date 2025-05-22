@@ -1,0 +1,98 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget cmake pkgconf libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libzip-dev
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          mkdir zt1-engine && cd zt1-engine
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake --build .
+          strip --strip-unneeded zt1-engine
+          cp ../LICENSE.txt ./
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt1-engine-linux
+          path: |
+            zt1-engine/zt1-engine
+            zt1-engine/font
+            zt1-engine/LICENSE.txt
+
+  Windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Install dependencies
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-binutils
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_ttf
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-libzip
+          update: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          mkdir zt1-engine && cd zt1-engine
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake --build .
+          strip --strip-unneeded zt1-engine.exe
+          ldd zt1-engine.exe | grep /mingw64 | awk '{print $3}' | xargs -i cp {} .
+          cp ../LICENSE.txt ./
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zt1-engine-windows
+          path: |
+            zt1-engine/zt1-engine.exe
+            zt1-engine/*.dll
+            zt1-engine/font
+            zt1-engine/LICENSE.txt
+
+  Release:
+    needs: [Linux, Windows]
+    if: ${{ github.ref_type == 'tag' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build: [linux, windows]
+    steps:
+    - uses: actions/download-artifact@v3
+    - name: Zip artifacts
+      run: |
+        zip -r zt1-engine-${{matrix.build}}.zip zt1-engine-${{matrix.build}}
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: zt1-engine-${{matrix.build}}.zip
+        prerelease: true
+        name: zt1-engine ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
