@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
   LoadScreen::run(&window, &config, &resource_manager);
 
-  IniReader startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
-  UiLayout startup_layout(&startup_lyt_reader, &resource_manager);
+  IniReader * startup_lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
+  UiLayout startup_layout(startup_lyt_reader, &resource_manager);
 
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
   Mix_VolumeMusic(MIX_MAX_VOLUME);
@@ -39,10 +39,8 @@ int main(int argc, char *argv[]) {
       }
     }
   
-    for (UiAction action : startup_layout.handleInputs(inputs)) {
-      if (action == UiAction::STARTUP_EXIT) {
-        running = false;
-      }
+    if (startup_layout.handleInputs(inputs) == UiAction::STARTUP_EXIT) {
+      running = false;
     }
     startup_layout.draw(window.renderer, NULL);
     window.present();

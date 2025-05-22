@@ -32,7 +32,7 @@ void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
     if (!window) {
       this->window = SDL_RenderGetWindow(renderer);
     }
-    SDL_Rect window_rect;
+    SDL_Rect window_rect = {0, 0, 0, 0};
     SDL_GetWindowSize(this->window, &window_rect.w, &window_rect.h);
     layout_rect = &window_rect;
   }
@@ -84,28 +84,6 @@ void UiLayout::process_layout(ResourceManager *resource_manager, std::string lay
   process_sections(ini_reader, resource_manager);
 }
 
-std::vector<UiAction> UiLayout::handleInputs(std::vector<Input> &inputs) {
-  std::vector<UiAction> actions;
-  for (UiElement * element : this->elements) {
-    UiAction current_action = element->handleInputs(inputs);
-    if (current_action != UiAction::NONE) {
-      actions.push_back(current_action);
-    }
-  }
-  return actions;
-}
-
-void UiLayout::draw(SDL_Renderer *renderer) {
-  if (!window) {
-    this->window = SDL_RenderGetWindow(renderer);
-  }
-  SDL_GetWindowSize(this->window, &this->layout_rect.w, &this->layout_rect.h);
-  for(int layer = 1; layer < this->layer_count + 2; layer++) {
-    for (UiElement * element : this->elements) {
-      if (element->getLayer() != layer) {
-        continue;
-      }
-      element->draw(renderer, &this->layout_rect);
-    }
-  }
+UiAction UiLayout::handleInputs(std::vector<Input> &inputs) {
+  return handleInputChildren(inputs);
 }
