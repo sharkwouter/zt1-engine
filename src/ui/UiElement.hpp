@@ -57,8 +57,8 @@ protected:
   IniReader * ini_reader = nullptr;
   ResourceManager * resource_manager = nullptr;
   std::string name;
-  int id;
-  int layer;
+  int id = 0;
+  int layer = 0;
   int anchor = 0;
 
   std::vector<UiElement*> children;
