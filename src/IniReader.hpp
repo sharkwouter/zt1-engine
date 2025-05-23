@@ -22,6 +22,9 @@ public:
   std::vector<std::string> getSections();
 
   bool isList(const std::string &section, const std::string &key);
+
+  void printContent();
+
 private:
   std::map<std::string, std::map<std::string, std::string>> content;
 

@@ -82,7 +82,7 @@ protected:
   }
 
   SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
-    SDL_Rect rect;
+    SDL_Rect rect = {0, 0, 0, 0};
 
     if (map["x"] == "center") {
       rect.x = layout_rect->w / 2;
@@ -114,13 +114,13 @@ protected:
       rect.h = std::stoi(map["dy"]);
     }
 
-    if (map["justify"] == "center" || map["x"] == "center") {
+    if (map["x"] == "center" || (map.contains("justify") && map["justify"] == "center" )) {
       rect.x -= rect.w / 2;
     }
-    if (map["justify"] == "center" || map["y"] == "center") {
+    if (map["y"] == "center" || (map.contains("justify") && map["justify"] == "center" )) {
       rect.y -= rect.h / 2;
     }
-    if (map["justify"] == "right") {
+    if (map.contains("justify") && map["justify"] == "right") {
       rect.x -= rect.w;
       rect.y -= rect.h;
     }

@@ -44,12 +44,15 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
   this->layer_count = ini_reader->getInt(name, "layer", 0);
 
   for(std::string section: ini_reader->getSections()) {
-    if (section == this->name) {
+    if (section == this->name || section == "layoutinfo") {
       continue;
     }
 
     UiElement * new_element = nullptr;
     std::string element_type = ini_reader->get(section, "type");
+    if (element_type.empty()) {
+      SDL_Log("Could not determine type of section %s", section.c_str());
+    }
     if (element_type == "UIImage") {
       new_element = (UiElement *) new UiImage(ini_reader, resource_manager, section);
     } else if (element_type == "UIButton") {
@@ -61,7 +64,7 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
     }
 
     if (new_element) {
-      if (!new_element->getAnchor() || new_element->getAnchor() == this->id) {
+      if (!new_element->getAnchor() || new_element->getAnchor() == 0 || new_element->getAnchor() == this->id) {
         this->children.push_back(new_element);
       } else {
         for(UiElement * element : children) {

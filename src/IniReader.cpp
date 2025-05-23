@@ -4,15 +4,15 @@
 
 #include <sstream>
 
-static void print_content(std::map<std::string, std::map<std::string, std::string>> content) {
-  SDL_Log("Printing loaded content");
+void IniReader::printContent() {
   std::string section = "";
-  for (auto section_key : content) {
+  for (auto section_key : this->content) {
     section = section_key.first;
-    SDL_Log("Section %s:", section.c_str());
+    printf("[%s]\n", section.c_str());
     for (auto key_value : section_key.second) {
-      SDL_Log("- %s: %s", key_value.first.c_str(), key_value.second.c_str());
+      printf("%s = %s\n", key_value.first.c_str(), key_value.second.c_str());
     }
+    printf("\n");
   }
 }
 
@@ -29,13 +29,13 @@ IniReader::IniReader(const std::string &filename) {
   fread(buffer, sizeof(char), size, fd);
   load(std::string((char *) buffer, size));
 
-  // print_content(content);
+  // this->printContent();
 }
 
 IniReader::IniReader(void *buffer, size_t size) {
   load(std::string((char *) buffer, size));
-  
-  // print_content(content);
+
+  // this->printContent();
 }
 
 IniReader::~IniReader() {
@@ -56,7 +56,7 @@ std::string IniReader::get(const std::string &section, const std::string &key, c
   if (content.count(section_lower) != 0 && content[section_lower].count(key_lower) != 0) {
     return content[section_lower][key_lower];
   }
-  SDL_Log("Value of %s: %s not found, returning default", section.c_str(), key.c_str());
+  SDL_Log("Value of %s:%s not found, returning default", section.c_str(), key.c_str());
   return default_value;
 }
 

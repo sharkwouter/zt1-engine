@@ -9,6 +9,8 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
   this->layer = ini_reader->getInt(name, "layer", 1);
   this->anchor = ini_reader->getInt(name, "anchor", 0);
 
+  this->has_select_color = !ini_reader->get(name, "selectcolor", "").empty();
+
   uint32_t string_id = (uint32_t) ini_reader->getUnsignedInt(name, "textid");
   this->text_string = this->resource_manager->getString(string_id);
   
@@ -63,12 +65,12 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
 }
 
 void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
-  if (!this->text || this->selected_updated) {
+  if (this->text == nullptr || (this->selected_updated && this->has_select_color)) {
     std::vector<std::string> color_values;
-    if (this->selected) {
-      color_values = ini_reader->getList(name, "forecolor");
-    } else {
+    if (this->selected && this->has_select_color) {
       color_values = ini_reader->getList(name, "selectcolor");
+    } else {
+      color_values = ini_reader->getList(name, "forecolor");
     }
     SDL_Color color = {
       (uint8_t) std::stoi(color_values[0]),
@@ -82,9 +84,6 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->text = this->resource_manager->getStringTexture(renderer, this->text_string, color);
   }
   dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  // SDL_Rect text_rect;
-  // SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
-  // dest_rect.w = std::min(dest_rect.w, text_rect.w);
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
   this->drawChildren(renderer, &dest_rect);
 }

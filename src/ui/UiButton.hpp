@@ -22,7 +22,8 @@ private:
   SDL_Texture * text = nullptr;
   bool selected = false;
   bool selected_updated = false;
-  SDL_Rect dest_rect;
+  bool has_select_color = false;
+  SDL_Rect dest_rect = {0, 0, 0, 0};
 
   UiAction getActionBasedOnName();
 };
