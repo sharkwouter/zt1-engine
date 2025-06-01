@@ -67,17 +67,20 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
 void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   if (this->text == nullptr || (this->selected_updated && this->has_select_color)) {
     std::vector<std::string> color_values;
-    if (this->selected && this->has_select_color) {
+    if (this->selected && this->has_select_color && !ini_reader->getList(name, "selectcolor").empty()) {
       color_values = ini_reader->getList(name, "selectcolor");
     } else {
       color_values = ini_reader->getList(name, "forecolor");
     }
-    SDL_Color color = {
-      (uint8_t) std::stoi(color_values[0]),
-      (uint8_t) std::stoi(color_values[1]),
-      (uint8_t) std::stoi(color_values[2]),
-      255,
-    };
+    SDL_Color color = {0, 0, 0, 255};
+    if (color_values.size() == 3) {
+      color = {
+        (uint8_t) std::stoi(color_values[0]),
+        (uint8_t) std::stoi(color_values[1]),
+        (uint8_t) std::stoi(color_values[2]),
+        255,
+      };
+  }
     if (this->text != nullptr) {
       SDL_DestroyTexture(this->text);
     }

@@ -125,6 +125,9 @@ std::vector<std::string> IniReader::getSections() {
 
 bool IniReader::isList(const std::string &section, const std::string &key) {
   std::string value = get(section, key);
+  if (value.empty()) {
+    return false;
+  }
   if (value.find(";") != std::string::npos) {
     return true;
   } else {

@@ -25,6 +25,9 @@ UiLayout::~UiLayout() {
     for (UiElement * element : this->children) {
       free(element);
     }
+    if (ini_reader != nullptr) {
+      free(ini_reader);
+    }
 }
 
 void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
