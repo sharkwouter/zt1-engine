@@ -45,24 +45,77 @@ void * ZtdFile::getFileContent(const std::string &ztd_file, const std::string &f
 static std::string get_file_extension(const std::string &file_name) {
   std::string extension = "";
 
-  for(size_t i = file_name.find_last_of(".") + 1; i < file_name.length(); i++) {
-    extension += std::toupper(file_name[i]);
+  size_t last_dot = file_name.find_last_of(".");
+  if(last_dot != std::string::npos && last_dot >= (file_name.length() - 4)) {
+    for(size_t i = last_dot + 1; i < file_name.length(); i++) {
+      extension += std::toupper(file_name[i]);
+    }
   }
 
   return extension;
 }
 
-SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::string &file_name) {
+static SDL_Surface * getImageSurfaceBmp(const std::string &ztd_file, const std::string &file_name) {
   SDL_Surface * surface = NULL;
   int file_size = 0;
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
     SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    surface = IMG_LoadTyped_RW(rw, 1, get_file_extension(file_name).c_str());
+    surface = IMG_LoadTyped_RW(rw, 1, "BMP");
     free(file_content);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
+  }
+
+  return surface;
+}
+
+static SDL_Surface * getImageSurfaceTga(const std::string &ztd_file, const std::string &file_name) {
+  SDL_Surface * surface = NULL;
+  int file_size = 0;
+
+  void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
+  if (file_content) {
+    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
+    surface = IMG_LoadTyped_RW(rw, 1, "TGA");
+    free(file_content);
+  } else {
+    SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
+  }
+
+  return surface;
+}
+
+static SDL_Surface * getImageSurfaceZt1(const std::string &ztd_file, const std::string &file_name) {
+  SDL_Surface * surface = NULL;
+  int file_size = 0;
+
+  void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
+  if (file_content) {
+    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
+    surface = IMG_LoadTyped_RW(rw, 1, "TGA");
+    free(file_content);
+  } else {
+    SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
+  }
+
+  return surface;
+}
+
+SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::string &file_name) {
+  SDL_Surface * surface = nullptr;
+
+  std::string file_extension = get_file_extension(file_name);
+  if(file_extension == "BMP"){
+    surface = getImageSurfaceBmp(ztd_file, file_name);
+  } else if (file_extension == "TGA") {
+    surface = getImageSurfaceTga(ztd_file, file_name);
+  } else if (file_extension.empty()){
+    SDL_Log("Encountered Zoo Tycoon format image file %s", file_name.c_str());
+    surface = getImageSurfaceZt1(ztd_file, file_name);
+  } else {
+    SDL_Log("Unkown image file extension %s for file %s, returning nullptr", file_extension.c_str(), file_name.c_str());
   }
 
   return surface;
