@@ -65,6 +65,11 @@ int main(int argc, char *argv[]) {
         lyt_reader = resource_manager.getIniReader("ui/gameopts.lyt");
         layout = new UiLayout(lyt_reader, &resource_manager);
         break;
+      case UiAction::SCENARIO_BACK_TO_MAIN_MENU:
+        free(layout);
+        lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
+        layout = new UiLayout(lyt_reader, &resource_manager);
+        break;
       default:
         if (action != UiAction::NONE) {
           SDL_Log("Got unassigned action %i", (int) action);

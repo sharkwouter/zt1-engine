@@ -87,6 +87,7 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->text = this->resource_manager->getStringTexture(renderer, this->text_string, color);
   }
   dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+  SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
   this->drawChildren(renderer, &dest_rect);
 }
@@ -95,6 +96,8 @@ UiAction UiButton::getActionBasedOnName() {
   UiAction action = UiAction::NONE;
   if (this->name == "exit") {
     action = UiAction::STARTUP_EXIT;
+  } else if (this->name == "back to main menu") {
+    action = UiAction::SCENARIO_BACK_TO_MAIN_MENU;
   } else {
     action = UiAction::NONE;
   }
