@@ -169,7 +169,7 @@ SDL_Texture *ResourceManager::getTexture(SDL_Renderer * renderer, const std::str
   SDL_Texture * texture = nullptr;
   SDL_Surface * surface = ZtdFile::getImageSurface(getResourceLocation(file_name), file_name);
   if (surface != nullptr) {
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
   }
   return texture;

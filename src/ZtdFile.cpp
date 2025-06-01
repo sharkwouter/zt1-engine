@@ -55,7 +55,7 @@ static std::string get_file_extension(const std::string &file_name) {
   return extension;
 }
 
-static SDL_Surface * getImageSurfaceBmp(const std::string &ztd_file, const std::string &file_name) {
+SDL_Surface * ZtdFile::getImageSurfaceBmp(const std::string &ztd_file, const std::string &file_name) {
   SDL_Surface * surface = NULL;
   int file_size = 0;
 
@@ -71,7 +71,7 @@ static SDL_Surface * getImageSurfaceBmp(const std::string &ztd_file, const std::
   return surface;
 }
 
-static SDL_Surface * getImageSurfaceTga(const std::string &ztd_file, const std::string &file_name) {
+SDL_Surface * ZtdFile::getImageSurfaceTga(const std::string &ztd_file, const std::string &file_name) {
   SDL_Surface * surface = NULL;
   int file_size = 0;
 
@@ -87,7 +87,7 @@ static SDL_Surface * getImageSurfaceTga(const std::string &ztd_file, const std::
   return surface;
 }
 
-static SDL_Surface * getImageSurfaceZt1(const std::string &ztd_file, const std::string &file_name) {
+SDL_Surface * ZtdFile::getImageSurfaceZt1(const std::string &ztd_file, const std::string &file_name) {
   SDL_Surface * surface = NULL;
   int file_size = 0;
 
@@ -108,12 +108,12 @@ SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::s
 
   std::string file_extension = get_file_extension(file_name);
   if(file_extension == "BMP"){
-    surface = getImageSurfaceBmp(ztd_file, file_name);
+    surface = ZtdFile::getImageSurfaceBmp(ztd_file, file_name);
   } else if (file_extension == "TGA") {
-    surface = getImageSurfaceTga(ztd_file, file_name);
+    surface = ZtdFile::getImageSurfaceTga(ztd_file, file_name);
   } else if (file_extension.empty()){
     SDL_Log("Encountered Zoo Tycoon format image file %s", file_name.c_str());
-    surface = getImageSurfaceZt1(ztd_file, file_name);
+    surface = ZtdFile::getImageSurfaceZt1(ztd_file, file_name);
   } else {
     SDL_Log("Unkown image file extension %s for file %s, returning nullptr", file_extension.c_str(), file_name.c_str());
   }
