@@ -4,10 +4,11 @@ ZT1-Engine is an open source engine for Zoo Tycoon 1 that is still very much wor
 
 Currently it has the following features:
 - Read `zoo.ini`.
+- Display the loading screen.
 - Map the resources found in ztd files.
-- Load tga files from ztd files, like the menu background.
+- Map the strings found in lang*.dll files.
 - Load the into music.
-- Open a window.
+- Display the main menu.
 
 Please do not use this unless you want to help make an open source engine for Zoo Tycoon a reality. This is very far from playable.
 
@@ -15,22 +16,22 @@ Please do not use this unless you want to help make an open source engine for Zo
 
 To build ZT1-Engine, first makes sure the following dependencies are installed:
 
-- libzip-dev
-- libsdl2-dev
-- libsdl2-image-dev
-- libsdl2-mixer-dev
-- libsdl2-ttf-dev
+- libz-dev
 
 Then run the following commands:
 
 ```
+git clone --recurse-submodules --remote-submodules https://github.com/sharkwouter/zt1-engine.git
+cd zt1-engine
 mkdir build
 cd build
 cmake ..
 make
 ```
 
-Now copy all the Zoo Tycoon files into the build directory and start it with:
+Now copy all the Zoo Tycoon files into the `zt1-engine/build` directory.
+
+The engine can be started by double clicking zt1-engine or running it like this from the terminal:
 
 ```
 ./zt1-engine
