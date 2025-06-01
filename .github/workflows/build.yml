@@ -21,7 +21,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release ..
           cmake --build .
           strip --strip-unneeded zt1-engine
-          cp ../LICENSE.txt ./
+          cp ../LICENSE.txt ../README.md ./
       - name: Publish artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -30,6 +30,7 @@ jobs:
             zt1-engine/zt1-engine
             zt1-engine/font
             zt1-engine/LICENSE.txt
+            zt1-engine/README.md
 
   Windows:
     runs-on: windows-latest
@@ -64,7 +65,7 @@ jobs:
           cmake --build .
           strip --strip-unneeded zt1-engine.exe
           ldd zt1-engine.exe | grep /mingw64 | awk '{print $3}' | xargs -i cp {} .
-          cp ../LICENSE.txt ./
+          cp ../LICENSE.txt ../README.md ./
       - name: Publish artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -74,6 +75,7 @@ jobs:
             zt1-engine/*.dll
             zt1-engine/font
             zt1-engine/LICENSE.txt
+            zt1-engine/README.md
 
   Release:
     needs: [Linux, Windows]
