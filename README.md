@@ -14,11 +14,7 @@ Please do not use this unless you want to help make an open source engine for Zo
 
 ## Building
 
-To build ZT1-Engine, first makes sure the following dependencies are installed:
-
-- libz-dev
-
-Then run the following commands:
+To build ZT1-Engine can be build with the following command:
 
 ```
 git clone --recurse-submodules --remote-submodules https://github.com/sharkwouter/zt1-engine.git
