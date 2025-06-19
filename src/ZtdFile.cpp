@@ -86,7 +86,7 @@ SDL_Surface * ZtdFile::getImageSurfaceZt1(const std::string &ztd_file, const std
     surface = IMG_Load_RW(rw, 1);
     free(file_content);
   } else {
-    SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
+    SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.empty() ? "unknown ztd file" : ztd_file.c_str());
   }
 
   return surface;
