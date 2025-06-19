@@ -92,13 +92,17 @@ std::string ResourceManager::fixPath(std::string &path) {
   return fixed_path;
 }
 
-std::string ResourceManager::getResourceLocation(const std::string &resource_name)
-{
-  if (resource_map.count(resource_name) == 0) {
-    SDL_Log("Could not find resource %s", resource_name.c_str());
+std::string ResourceManager::getResourceLocation(const std::string &resource_name) {
+  if (this->resource_map.count(resource_name) == 0) {
+    std::string resource_name_with_slash = resource_name + "/";
+    if(this->resource_map.count(resource_name_with_slash) == 0) {
+      SDL_Log("Could not find resource %s", resource_name.c_str());
+      return "";
+    }
+    return this->resource_map[resource_name_with_slash];
   }
 
-  return resource_map[resource_name];
+  return this->resource_map[resource_name];
 }
 
 void ResourceManager::load_resource_map(std::atomic<int> * progress) {

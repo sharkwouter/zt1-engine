@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL_image.h>
 
+#include "Utils.hpp"
+
 std::vector<std::string> ZtdFile::getFileList(const std::string &ztd_file) {
   std::vector<std::string> files = std::vector<std::string>();
 
@@ -40,19 +42,6 @@ void * ZtdFile::getFileContent(const std::string &ztd_file, const std::string &f
     zip_close(file);
   }
   return content;
-}
-
-static std::string get_file_extension(const std::string &file_name) {
-  std::string extension = "";
-
-  size_t last_dot = file_name.find_last_of(".");
-  if(last_dot != std::string::npos && last_dot >= (file_name.length() - 4)) {
-    for(size_t i = last_dot + 1; i < file_name.length(); i++) {
-      extension += std::toupper(file_name[i]);
-    }
-  }
-
-  return extension;
 }
 
 SDL_Surface * ZtdFile::getImageSurfaceBmp(const std::string &ztd_file, const std::string &file_name) {
@@ -94,7 +83,7 @@ SDL_Surface * ZtdFile::getImageSurfaceZt1(const std::string &ztd_file, const std
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
     SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    surface = IMG_LoadTyped_RW(rw, 1, "TGA");
+    surface = IMG_Load_RW(rw, 1);
     free(file_content);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
@@ -106,7 +95,7 @@ SDL_Surface * ZtdFile::getImageSurfaceZt1(const std::string &ztd_file, const std
 SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::string &file_name) {
   SDL_Surface * surface = nullptr;
 
-  std::string file_extension = get_file_extension(file_name);
+  std::string file_extension = Utils::getFileExtension(file_name);
   if(file_extension == "BMP"){
     surface = ZtdFile::getImageSurfaceBmp(ztd_file, file_name);
   } else if (file_extension == "TGA") {

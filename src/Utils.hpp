@@ -18,6 +18,32 @@ public:
       }
       return exe_directory;
     }
+
+    static std::string getFileExtension(const std::string &file_path) {
+      std::string extension = "";
+
+      size_t last_dot = file_path.find_last_of(".");
+      if(last_dot != std::string::npos && last_dot >= (file_path.length() - 4)) {
+        for(size_t i = last_dot + 1; i < file_path.length(); i++) {
+          extension += std::toupper(file_path[i]);
+        }
+      }
+
+      return extension;
+    }
+
+    static std::string getFileName(const std::string &file_path) {
+      std::string file_name = "";
+
+      size_t last_dot = file_path.find_last_of("/");
+      if(last_dot != std::string::npos && last_dot >= (file_path.length() - 4)) {
+        for(size_t i = last_dot + 1; i < file_path.length(); i++) {
+          file_name += std::toupper(file_path[i]);
+        }
+      }
+
+      return file_name;
+    }
 };
 
 #endif // UTILS_HPP
