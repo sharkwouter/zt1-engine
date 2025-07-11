@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
   Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
 
   LoadScreen::run(&window, &config, &resource_manager);
-  // AniFile * ani_file = resource_manager.getAniFile("animals/arcwolf/y/crouch/crouch.ani");
-  AniFile * ani_file = resource_manager.getAniFile("objects/cinema/idle/idle.ani");
+  AniFile * ani_file = resource_manager.getAniFile("animals/arcwolf/y/crouch/crouch.ani");
+  // AniFile * ani_file = resource_manager.getAniFile("objects/cinema/idle/idle.ani");
   // ani_file->getTexture(window.renderer);
   // free(ani_file);
 
