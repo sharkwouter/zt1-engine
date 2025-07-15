@@ -196,7 +196,7 @@ AniFile * ResourceManager::getAniFile(const std::string &file_name) {
   if(Utils::getFileExtension(file_name) == "ANI") {
     return new AniFile(getResourceLocation(file_name), file_name);
   } else {
-    std::string ani_file_name = file_name + "/" + Utils::getFileName(file_name) + ".ani";
+    std::string ani_file_name = file_name + ".ani";
     return new AniFile(getResourceLocation(ani_file_name), ani_file_name);
   }
 }

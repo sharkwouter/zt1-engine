@@ -1,5 +1,8 @@
 #include "UiImage.hpp"
 
+#include "../Utils.hpp"
+#include "../CompassDirection.hpp"
+
 UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std::string name) {
   this->ini_reader = ini_reader;
   this->resource_manager = resource_manager;
@@ -24,7 +27,12 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 }
 
 UiImage::~UiImage() {
-  SDL_DestroyTexture(this->image);
+  if (this->image) {
+    SDL_DestroyTexture(this->image);
+  }
+  if (this->animation) {
+    free(animation);
+  }
   for (UiElement * child : this->children) {
     free(child);
   }
@@ -35,18 +43,21 @@ UiAction UiImage::handleInputs(std::vector<Input> &inputs) {
 }
 
 void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
-  if (this->image_path.empty()) {
-    return;
-  }
-  if (!this->image) {
-    this->image = this->resource_manager->getTexture(renderer, this->image_path);
-    if (!this->image) {
-      SDL_Log("Loading texture failed");
-      this->image = this->resource_manager->getTexture(renderer, this->image_path + ".ani"); // This almost works, the ani file is found
-      return;
+  if (!this->image && !this->animation && !this->image_path.empty()) {
+    std::string extension = Utils::getFileExtension(this->image_path);
+    if(extension.empty() || extension == "ANI") {
+      this->animation = this->resource_manager->getAniFile(this->image_path);
+    } else {
+      this->image = this->resource_manager->getTexture(renderer, this->image_path);
     }
   }
+
   SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+  if (this->image) {
+    SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+  }
+  if (this->animation) {
+    this->animation->draw(renderer, dest_rect.x, dest_rect.y, CompassDirection::N);
+  }
   this->drawChildren(renderer, &dest_rect);
 }

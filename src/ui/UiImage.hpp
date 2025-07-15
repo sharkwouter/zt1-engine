@@ -8,6 +8,7 @@
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
 #include "../ResourceManager.hpp"
+#include "../AniFile.hpp"
 
 class UiImage : UiElement {
 public:
@@ -20,6 +21,7 @@ public:
 private:
   std::string image_path = "";
   SDL_Texture * image = nullptr;
+  AniFile * animation = nullptr;
 };
 
 #endif // UI_IMAGE_HPP
