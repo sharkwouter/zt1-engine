@@ -7,7 +7,6 @@
 #include "LoadScreen.hpp"
 #include "InputManager.hpp"
 #include "Input.hpp"
-#include "AniFile.hpp"
 
 #include "ui/UiLayout.hpp"
 
@@ -78,7 +77,6 @@ int main(int argc, char *argv[]) {
         break;
     }
     layout->draw(window.renderer, NULL);
-
     window.present();
   }
 
