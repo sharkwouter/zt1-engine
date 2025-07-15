@@ -97,7 +97,12 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
     std::string resource_name_with_slash = resource_name + "/";
     if(this->resource_map.count(resource_name_with_slash) == 0) {
       SDL_Log("Could not find resource %s", resource_name.c_str());
-      return "";
+      #ifdef DEBUG
+        for(auto pair : this->resource_map) {
+          SDL_Log("%s", pair.first.c_str());
+        }
+      #endif
+      exit(500);
     }
     return this->resource_map[resource_name_with_slash];
   }
@@ -183,9 +188,17 @@ Mix_Music * ResourceManager::getMusic(const std::string &file_name) {
   return ZtdFile::getMusic(getResourceLocation(file_name), file_name);
 }
 
-IniReader * ResourceManager::getIniReader(const std::string &file_name)
-{
+IniReader * ResourceManager::getIniReader(const std::string &file_name) {
   return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
+}
+
+AniFile * ResourceManager::getAniFile(const std::string &file_name) {
+  if(Utils::getFileExtension(file_name) == "ANI") {
+    return new AniFile(getResourceLocation(file_name), file_name);
+  } else {
+    std::string ani_file_name = file_name + "/" + Utils::getFileName(file_name) + ".ani";
+    return new AniFile(getResourceLocation(ani_file_name), ani_file_name);
+  }
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::string &lang_dll_name) {

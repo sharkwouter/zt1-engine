@@ -31,10 +31,12 @@ void * ZtdFile::getFileContent(const std::string &ztd_file, const std::string &f
     zip_stat_init(&finfo);
     while ((zip_stat_index(file, index, 0, &finfo)) == 0) {
       if(std::string(finfo.name) == file_name) {
-        *size =  finfo.size;
-        content = calloc(*size + 1, sizeof(uint8_t));
+        content = calloc(finfo.size + 1, sizeof(uint8_t));
         zip_file_t * fd = zip_fopen_index(file, index, 0);
-        zip_fread(fd, content, *size);
+        zip_fread(fd, content, finfo.size);
+        if (size) {
+          *size =  finfo.size;
+        }
         break;
       }
       index++;

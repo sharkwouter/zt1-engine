@@ -29,13 +29,17 @@ IniReader::IniReader(const std::string &filename) {
   fread(buffer, sizeof(char), size, fd);
   load(std::string((char *) buffer, size));
 
-  // this->printContent();
+  #ifdef DEBUG
+    this->printContent();
+  #endif
 }
 
 IniReader::IniReader(void *buffer, size_t size) {
   load(std::string((char *) buffer, size));
 
-  // this->printContent();
+  #ifdef DEBUG
+    this->printContent();
+  #endif
 }
 
 IniReader::~IniReader() {

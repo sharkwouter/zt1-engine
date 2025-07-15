@@ -14,6 +14,7 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
     this->image_path = normal;
   } else {
     if(ini_reader->isList(name, "animation")) {
+      SDL_Log("Loading animation");
       std::vector<std::string> animation_list = ini_reader->getList(name, "animation");
       this->image_path = animation_list[animation_list.size() - 1];
     } else {
@@ -39,6 +40,11 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   }
   if (!this->image) {
     this->image = this->resource_manager->getTexture(renderer, this->image_path);
+    if (!this->image) {
+      SDL_Log("Loading texture failed");
+      this->image = this->resource_manager->getTexture(renderer, this->image_path + ".ani"); // This almost works, the ani file is found
+      return;
+    }
   }
   SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
