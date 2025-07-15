@@ -19,17 +19,12 @@ int main(int argc, char *argv[]) {
   Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
 
   LoadScreen::run(&window, &config, &resource_manager);
-  AniFile * ani_file = resource_manager.getAniFile("animals/arcwolf/y/crouch/crouch.ani");
-  // AniFile * ani_file = resource_manager.getAniFile("objects/cinema/idle/idle.ani");
-  // ani_file->getTexture(window.renderer);
-  // free(ani_file);
 
   IniReader * lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
-  // UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);
-  UiLayout * layout = nullptr;
+  UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);
 
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
-  Mix_VolumeMusic(0);
+  Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);
 
   InputManager input_manager;
@@ -46,7 +41,7 @@ int main(int argc, char *argv[]) {
       }
     }
   
-    // action = layout->handleInputs(inputs);
+    action = layout->handleInputs(inputs);
     switch (action) {
       case UiAction::STARTUP_EXIT:
         running = false;
@@ -82,9 +77,7 @@ int main(int argc, char *argv[]) {
         }
         break;
     }
-    ani_file->draw(window.renderer);
-    // layout->draw(window.renderer, NULL);
-    ani_file->draw(window.renderer);
+    layout->draw(window.renderer, NULL);
 
     window.present();
   }

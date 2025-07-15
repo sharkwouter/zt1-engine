@@ -103,7 +103,6 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
         }
       #endif
       exit(500);
-      return "";
     }
     return this->resource_map[resource_name_with_slash];
   }

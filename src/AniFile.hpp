@@ -15,7 +15,7 @@ public:
     AniFile(const std::string &ztd_file, const std::string &file_name);
     ~AniFile();
 
-    void draw(SDL_Renderer * renderer, CompassDirection direction=CompassDirection::NW);
+    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::SW);
 
 private:
     int current_frame = 0;
@@ -23,13 +23,8 @@ private:
     bool draw_mirrored = false;
     uint32_t frame_start_time = 0;
 
-    int x = 400;
-    int y = 400;
-
-    int x0;
-    int y0;
-    int x1;
-    int y1;
+    int width;
+    int height;
 
     typedef struct {
         int16_t x_offset;

@@ -8,10 +8,8 @@
 AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
   IniReader * ini_reader = ZtdFile::getIniReader(ztd_file, file_name);
 
-  this->x0 = ini_reader->getInt("animation", "x0");
-  this->y0 = ini_reader->getInt("animation", "y0");
-  this->x1 = ini_reader->getInt("animation", "x1");
-  this->y1 = ini_reader->getInt("animation", "y1");
+  this->width = ini_reader->getInt("animation", "x1") - ini_reader->getInt("animation", "x0");
+  this->height = ini_reader->getInt("animation", "y1") - ini_reader->getInt("animation", "y0");
 
   std::string directory = this->getAnimationDirectory(ini_reader);
   for (std::string direction : ini_reader->getList("animation", "animation")) {
@@ -34,7 +32,7 @@ AniFile::~AniFile() {
     }
 }
 
-void AniFile::draw(SDL_Renderer *renderer, CompassDirection direction) {
+void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
   if (direction != this->last_direction) {
     this->last_direction = direction;
@@ -52,15 +50,27 @@ void AniFile::draw(SDL_Renderer *renderer, CompassDirection direction) {
     this->current_frame = 0;
   }
 
-  int multiplier = 4;
+  #ifdef DEBUG
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+    SDL_Rect outline = {this->x, this->y, this->width, this->height};
+    SDL_RenderFillRect(renderer, &outline);
+  #endif
+
+  int anchor_x = this->width / 2 - this->animations[direction_string].frames[0].width / 2;
+  int anchor_y = this->height / 2 - this->animations[direction_string].frames[0].height / 2;
+
+  int offset_x = (this->width - this->animations[direction_string].frames[this->animations[direction_string].frame_count].width) / 2;
+  offset_x = (offset_x + this->animations[direction_string].frames[this->animations[direction_string].frame_count].width / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].x_offset);
+  int offset_y = (this->height - this->animations[direction_string].frames[this->animations[direction_string].frame_count].height) / 2;
+  offset_y = (offset_y + this->animations[direction_string].frames[this->animations[direction_string].frame_count].height / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].y_offset);
 
   // Draw shadow
   if (this->animations[direction_string].has_shadow) {
     SDL_Rect shadow_dst = {
-      this->x + this->x0 + this->animations[direction_string].frames[this->animations[direction_string].frame_count].x_offset,
-      this->y + this->y0 + this->animations[direction_string].frames[this->animations[direction_string].frame_count].y_offset,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].width * multiplier,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].height * multiplier,
+      x + offset_x,
+      y + offset_y,
+      this->animations[direction_string].frames[this->animations[direction_string].frame_count].width,
+      this->animations[direction_string].frames[this->animations[direction_string].frame_count].height,
     };
 
     if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
@@ -70,15 +80,22 @@ void AniFile::draw(SDL_Renderer *renderer, CompassDirection direction) {
     SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, &shadow_dst);
   }
 
+  offset_x = (this->width - this->animations[direction_string].frames[this->current_frame].width) / 2;
+  offset_x = (offset_x + this->animations[direction_string].frames[this->current_frame].width / 2 - this->animations[direction_string].frames[this->current_frame].x_offset);
+  offset_y = (this->height - this->animations[direction_string].frames[this->current_frame].height) / 2;
+  offset_y = (offset_y + this->animations[direction_string].frames[this->current_frame].height / 2 - this->animations[direction_string].frames[this->current_frame].y_offset);
+
   // Draw object
   SDL_Rect dst = {
-    this->x + this->x0 + this->animations[direction_string].frames[this->current_frame].x_offset,
-    this->y + this->y0 + this->animations[direction_string].frames[this->current_frame].y_offset,
-    this->animations[direction_string].frames[this->current_frame].width * multiplier,
-    this->animations[direction_string].frames[this->current_frame].height * multiplier,
+    x + offset_x,
+    y + offset_y,
+    this->animations[direction_string].frames[this->current_frame].width,
+    this->animations[direction_string].frames[this->current_frame].height,
   };
 
-  SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dst.x, dst.y, dst.w, dst.h);
+  #ifdef DEBUG
+    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dst.x, dst.y, dst.w, dst.h);
+  #endif
 
   if (!this->animations[direction_string].frames[this->current_frame].texture) {
     this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
@@ -265,10 +282,10 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
 
     frame.surface = SDL_CreateRGBSurfaceWithFormat(0, frame.width, frame.height, 0, SDL_PIXELFORMAT_RGBA32);
 
-    frame.x_offset =  *(int16_t *) data;
+    frame.y_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
-    frame.y_offset =  *(int16_t *) data;
+    frame.x_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
     uint16_t mystery_bytes =  *(uint16_t *) data;
