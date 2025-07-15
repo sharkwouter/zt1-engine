@@ -97,9 +97,11 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
     std::string resource_name_with_slash = resource_name + "/";
     if(this->resource_map.count(resource_name_with_slash) == 0) {
       SDL_Log("Could not find resource %s", resource_name.c_str());
-      for(auto pair : this->resource_map) {
-        SDL_Log("%s", pair.first.c_str());
-      }
+      #ifdef DEBUG
+        for(auto pair : this->resource_map) {
+          SDL_Log("%s", pair.first.c_str());
+        }
+      #endif
       exit(500);
       return "";
     }
