@@ -7,7 +7,7 @@
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
-#include "../Animation.hpp"
+#include "../AniFile.hpp"
 #include "../ResourceManager.hpp"
 
 class UiButton : UiElement {
