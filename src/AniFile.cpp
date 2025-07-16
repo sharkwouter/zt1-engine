@@ -52,7 +52,7 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
 
   #ifdef DEBUG
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_Rect outline = {this->x, this->y, this->width, this->height};
+    SDL_Rect outline = {x, y, this->width, this->height};
     SDL_RenderFillRect(renderer, &outline);
   #endif
 
@@ -210,6 +210,7 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
         direction_string = "E";
         this->draw_mirrored = true;
       }
+      break;
     default:
       SDL_Log("Unhandled direction used!");
       break;
