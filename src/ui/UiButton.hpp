@@ -7,6 +7,7 @@
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
+#include "../Animation.hpp"
 #include "../ResourceManager.hpp"
 
 class UiButton : UiElement {
@@ -20,6 +21,7 @@ public:
 private:
   std::string text_string = "";
   SDL_Texture * text = nullptr;
+  AniFile * animation = nullptr;
   bool selected = false;
   bool selected_updated = false;
   bool has_select_color = false;
