@@ -47,7 +47,7 @@ void AniFile::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direc
   this->draw(renderer, &rect, direction);
 }
 
-void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * layout_rect, CompassDirection direction) {
+void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
   if (direction_string.empty()) {
     SDL_Log("Cannot draw animation because the specified direction does not exist");
