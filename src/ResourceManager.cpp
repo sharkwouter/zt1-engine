@@ -131,6 +131,9 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
+          #ifdef DEBUG
+            SDL_Log("Added file to map: %s", file.c_str());
+          #endif
         }
       }
     }

@@ -8,6 +8,9 @@
 #include "InputManager.hpp"
 #include "Input.hpp"
 
+#include "AniFile.hpp"
+#include "CompassDirection.hpp"
+
 #include "ui/UiLayout.hpp"
 
 
@@ -22,6 +25,11 @@ int main(int argc, char *argv[]) {
   IniReader * lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);
 
+  AniFile * scrn40 = resource_manager.getAniFile("scenario/scn40/scn40/scn40");
+  AniFile * komodo = resource_manager.getAniFile("animals/komodo/lskomodo/lskomodo");
+  AniFile * cinema = resource_manager.getAniFile("objects/cinema/idle/idle");
+  AniFile * trex = resource_manager.getAniFile("animals/trex/m/huntror/huntror");
+  
   Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
   Mix_VolumeMusic(MIX_MAX_VOLUME);
   Mix_PlayMusic(music, -1);
@@ -77,6 +85,12 @@ int main(int argc, char *argv[]) {
         break;
     }
     layout->draw(window.renderer, NULL);
+
+    scrn40->draw(window.renderer, 32, 32, CompassDirection::N);
+    komodo->draw(window.renderer, 32, 400, CompassDirection::N);
+    cinema->draw(window.renderer, 420, 32);
+    trex->draw(window.renderer, 400, 400);
+
     window.present();
   }
 

@@ -3,10 +3,20 @@
 #include <vector>
 #include <cstring>
 
+#ifdef DEBUG
+  #include <assert.h>
+#endif
+
 #include "ZtdFile.hpp"
 
 AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
   IniReader * ini_reader = ZtdFile::getIniReader(ztd_file, file_name);
+
+  this->file_name = file_name;
+  SDL_Log("Loading animation %s", file_name.c_str());
+
+  this->x0 = ini_reader->getInt("animation", "x0");
+  this->y0 = ini_reader->getInt("animation", "y0");
 
   this->width = ini_reader->getInt("animation", "x1") - ini_reader->getInt("animation", "x0");
   this->height = ini_reader->getInt("animation", "y1") - ini_reader->getInt("animation", "y0");
@@ -56,6 +66,8 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
     SDL_RenderFillRect(renderer, &outline);
   #endif
 
+  SDL_Rect broken = {x, y, width, height};
+
   int anchor_x = this->width / 2 - this->animations[direction_string].frames[0].width / 2;
   int anchor_y = this->height / 2 - this->animations[direction_string].frames[0].height / 2;
 
@@ -77,7 +89,7 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
       this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
     }
 
-    SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, &shadow_dst);
+    SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, &broken);
   }
 
   offset_x = (this->width - this->animations[direction_string].frames[this->current_frame].width) / 2;
@@ -101,7 +113,7 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
     this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
   }
 
-  SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, &dst);
+  SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, &broken);
 }
 
 std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
@@ -258,6 +270,8 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
   data = (char*)data + sizeof(uint32_t);
   SDL_Log("Frames found: %lu", animation.frame_count);
 
+  int first_frame_offset_x = 0;
+  int first_frame_offset_y = 0;
   for(int i = 0; i < (animation.frame_count + (int) animation.has_shadow); i++) {
     Frame frame = {};
     frame.texture = nullptr;
@@ -270,18 +284,16 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.height =  *(uint16_t *) data;
     data = (char*)data + sizeof(uint16_t);
 
+    frame.width =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
     bool is_shadow = false;
-    if (frame.height & 0xFF == 80) {
+    if ((frame.height & 0xFF) == 80) {
       is_shadow = true;
       frame.height = frame.height >> 8;
     }
 
-    frame.width =  *(uint16_t *) data;
-    data = (char*)data + sizeof(uint16_t);
-
-    SDL_Log("Frame is %ux%u pixels", frame.height, frame.width);
-
-    frame.surface = SDL_CreateRGBSurfaceWithFormat(0, frame.width, frame.height, 0, SDL_PIXELFORMAT_RGBA32);
+    frame.surface = SDL_CreateRGBSurfaceWithFormat(0, this->width, this->height, 0, SDL_PIXELFORMAT_RGBA32);
 
     frame.y_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
@@ -289,33 +301,53 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.x_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
+    SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
+    SDL_Log("x0,y0: %i,%i", this->x0, this->y0);
+    SDL_Log("Canvas size: %ix%i", this->width, this->height);
+
+
     uint16_t mystery_bytes =  *(uint16_t *) data;
     data = (char*)data + sizeof(uint16_t);
     SDL_Log("Mystery bytes are %u", mystery_bytes);
 
-    for(int y = 0; y < frame.height; y++) {
+    int start_x = 0; (this->width / 2) - (frame.width / 2);
+    int start_y = 0;(this->height / 2) - (frame.height / 2);
+    if (i == 0 || i == (int) animation.frame_count) {
+      start_x = (this->width / 2) - (frame.width / 2);
+      start_y = (this->height / 2) - (frame.height / 2);
+      first_frame_offset_x = start_x + frame.x_offset;
+      first_frame_offset_y = start_y + frame.y_offset;
+    } else {
+      start_x = first_frame_offset_x - frame.x_offset;
+      start_y = first_frame_offset_y - frame.y_offset;
+    }
+    for(int y = start_y; y < start_y + frame.height; y++) {
       uint8_t draw_instructions =  *(uint8_t *) data;
       data = (char*)data + sizeof(uint8_t);
 
-      int current_offset = 0;
+      int x = start_x;
       for(int instruction = 0; instruction < draw_instructions; instruction++) {
           uint8_t offset_value =  (*(uint8_t *) data);
           data = (char*)data + sizeof(uint8_t);
-          current_offset += offset_value;
+          x += offset_value;
 
           uint8_t pixels_to_draw =  *(uint8_t *) data;
           data = (char*)data + sizeof(uint8_t);
 
-          for(int x = 0; x < pixels_to_draw; x++) {
+          for(int p = 0; p < pixels_to_draw; p++, x++) {
+            if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
+              SDL_Log("Failure to draw %s within the bounds", this->file_name.c_str());
+            }
+            // #ifdef DEBUG
+            //   assert((x < 0 || x >= this->width || y < 0 || y >= this->height) && "Current drawing position is outside the surface");
+            // #endif
             if (is_shadow) {
-              ((uint32_t *) frame.surface->pixels)[frame.width * y + current_offset + x] = 0x000000FF;
+              ((uint32_t *) frame.surface->pixels)[this->width * y + x] = 0x000000FF;
             } else {
-              ((uint32_t *) frame.surface->pixels)[frame.width * y + current_offset + x] = ((uint32_t *) pallet_data)[*(uint8_t *)data];
+              ((uint32_t *) frame.surface->pixels)[this->width * y + x] = ((uint32_t *) pallet_data)[*(uint8_t *)data];
             }
             data = (char*)data + sizeof(uint8_t);
           }
-          current_offset += pixels_to_draw;
-
       }
     }
 
