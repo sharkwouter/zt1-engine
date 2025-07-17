@@ -42,7 +42,12 @@ AniFile::~AniFile() {
     }
 }
 
-void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direction) {
+void AniFile::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direction) {
+  SDL_Rect rect = {x, y, this->width, this->height};
+  this->draw(renderer, &rect, direction);
+}
+
+void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * layout_rect, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
   if (direction != this->last_direction) {
     this->last_direction = direction;
@@ -50,7 +55,6 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
     this->frame_start_time = SDL_GetTicks();
   } else {
     if (this->animations[direction_string].frame_time_in_ms < SDL_GetTicks() - this->frame_start_time) {
-      // SDL_Log("Next Frame");
       this->current_frame++;
       this->frame_start_time = SDL_GetTicks();
     }
@@ -62,58 +66,27 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
 
   #ifdef DEBUG
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_Rect outline = {x, y, this->width, this->height};
-    SDL_RenderFillRect(renderer, &outline);
+    SDL_RenderFillRect(renderer, layout_rect);
   #endif
 
-  SDL_Rect broken = {x, y, width, height};
-
-  int anchor_x = this->width / 2 - this->animations[direction_string].frames[0].width / 2;
-  int anchor_y = this->height / 2 - this->animations[direction_string].frames[0].height / 2;
-
-  int offset_x = (this->width - this->animations[direction_string].frames[this->animations[direction_string].frame_count].width) / 2;
-  offset_x = (offset_x + this->animations[direction_string].frames[this->animations[direction_string].frame_count].width / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].x_offset);
-  int offset_y = (this->height - this->animations[direction_string].frames[this->animations[direction_string].frame_count].height) / 2;
-  offset_y = (offset_y + this->animations[direction_string].frames[this->animations[direction_string].frame_count].height / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].y_offset);
-
-  // Draw shadow
-  if (this->animations[direction_string].has_shadow) {
-    SDL_Rect shadow_dst = {
-      x + offset_x,
-      y + offset_y,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].width,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].height,
-    };
-
+  // Draw background
+  if (this->animations[direction_string].has_background) {
     if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
       this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
     }
-
-    SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, &broken);
+    SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, layout_rect, 0, NULL, this->renderer_flip);
   }
 
-  offset_x = (this->width - this->animations[direction_string].frames[this->current_frame].width) / 2;
-  offset_x = (offset_x + this->animations[direction_string].frames[this->current_frame].width / 2 - this->animations[direction_string].frames[this->current_frame].x_offset);
-  offset_y = (this->height - this->animations[direction_string].frames[this->current_frame].height) / 2;
-  offset_y = (offset_y + this->animations[direction_string].frames[this->current_frame].height / 2 - this->animations[direction_string].frames[this->current_frame].y_offset);
-
   // Draw object
-  SDL_Rect dst = {
-    x + offset_x,
-    y + offset_y,
-    this->animations[direction_string].frames[this->current_frame].width,
-    this->animations[direction_string].frames[this->current_frame].height,
-  };
-
   #ifdef DEBUG
-    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dst.x, dst.y, dst.w, dst.h);
+    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, layout_rect->x, layout_rect->y, layout_rect->w, layout_rect->h);
   #endif
 
   if (!this->animations[direction_string].frames[this->current_frame].texture) {
     this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
   }
 
-  SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, &broken);
+  SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, layout_rect, 0, NULL, this->renderer_flip);
 }
 
 std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
@@ -146,61 +119,64 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
     case CompassDirection::N:
       if (this->animations.contains("N")) {
         direction_string = "N";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else {
         direction_string = "Z";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_VERTICAL;
       }
       break;
     case CompassDirection::NE:
       if (this->animations.contains("NE")) {
         direction_string = "NE";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("NW")) {
         direction_string = "NW";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       } else {
         direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::NW:
       if (this->animations.contains("NW")) {
         direction_string = "NW";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("NE")) {
         direction_string = "NE";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       } else {
         direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::S:
       if (this->animations.contains("S")) {
         direction_string = "S";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else {
         direction_string = "N";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_VERTICAL;
       }
       break;
     case CompassDirection::SE:
       if (this->animations.contains("SE")) {
         direction_string = "SE";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("SW")) {
         direction_string = "SW";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       } else {
         direction_string = "S";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::SW:
       if (this->animations.contains("SW")) {
         direction_string = "SW";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("SE")) {
         direction_string = "SE";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       } else {
         direction_string = "S";
       }
@@ -208,19 +184,19 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
     case CompassDirection::E:
       if (this->animations.contains("E")) {
         direction_string = "E";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else {
         direction_string = "W";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       }
       break;
     case CompassDirection::W:
       if (this->animations.contains("W")) {
         direction_string = "W";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else {
         direction_string = "E";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
       }
       break;
     default:
@@ -242,12 +218,12 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
  
   // Read optional header with shadow information
   if(strncmp((const char *) data, "FATZ", 8) == 0) {
-      animation.has_shadow = (bool) *((char *)data + 8);
+      animation.has_background = (bool) *((char *)data + 8);
 
       // Move pointer to end of optional header
       data = (char*)data + 9;
   } else {
-    animation.has_shadow = false;
+    animation.has_background = false;
   }
 
   animation.frame_time_in_ms = *(uint32_t *) data;
@@ -272,7 +248,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
 
   int first_frame_offset_x = 0;
   int first_frame_offset_y = 0;
-  for(int i = 0; i < (animation.frame_count + (int) animation.has_shadow); i++) {
+  for(int i = 0; i < (animation.frame_count + (int) animation.has_background); i++) {
     Frame frame = {};
     frame.texture = nullptr;
 
@@ -338,9 +314,6 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
             if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
               SDL_Log("Failure to draw %s within the bounds", this->file_name.c_str());
             }
-            // #ifdef DEBUG
-            //   assert((x < 0 || x >= this->width || y < 0 || y >= this->height) && "Current drawing position is outside the surface");
-            // #endif
             if (is_shadow) {
               ((uint32_t *) frame.surface->pixels)[this->width * y + x] = 0x000000FF;
             } else {
