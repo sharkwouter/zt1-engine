@@ -71,7 +71,7 @@ void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirecti
 
   #ifdef DEBUG
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_RenderFillRect(renderer, layout_rect);
+    SDL_RenderFillRect(renderer, dest_rect);
   #endif
 
   // Draw background
@@ -79,19 +79,19 @@ void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirecti
     if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
       this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
     }
-    SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, layout_rect, 0, NULL, this->renderer_flip);
+    SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
   }
 
   // Draw object
   #ifdef DEBUG
-    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, layout_rect->x, layout_rect->y, layout_rect->w, layout_rect->h);
+    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
   #endif
 
   if (!this->animations[direction_string].frames[this->current_frame].texture) {
     this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
   }
 
-  SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, layout_rect, 0, NULL, this->renderer_flip);
+  SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
 std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
