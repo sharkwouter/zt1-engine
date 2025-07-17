@@ -49,6 +49,11 @@ void AniFile::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direc
 
 void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * layout_rect, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
+  if (direction_string.empty()) {
+    SDL_Log("Cannot draw animation because the specified direction does not exist");
+    return;
+  }
+
   if (direction != this->last_direction) {
     this->last_direction = direction;
     this->current_frame = 0;
@@ -120,9 +125,12 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       if (this->animations.contains("N")) {
         direction_string = "N";
         this->renderer_flip = SDL_FLIP_NONE;
-      } else {
-        direction_string = "Z";
-        this->renderer_flip = SDL_FLIP_VERTICAL;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::NE:
@@ -132,7 +140,7 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       } else if (this->animations.contains("NW")) {
         direction_string = "NW";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
-      } else {
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
         this->renderer_flip = SDL_FLIP_NONE;
       }
@@ -144,7 +152,7 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       } else if (this->animations.contains("NE")) {
         direction_string = "NE";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
-      } else {
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
         this->renderer_flip = SDL_FLIP_NONE;
       }
@@ -153,9 +161,27 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       if (this->animations.contains("S")) {
         direction_string = "S";
         this->renderer_flip = SDL_FLIP_NONE;
-      } else {
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
-        this->renderer_flip = SDL_FLIP_VERTICAL;
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::SE:
@@ -165,8 +191,17 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       } else if (this->animations.contains("SW")) {
         direction_string = "SW";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
-      } else {
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("S")) {
         direction_string = "S";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
         this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
@@ -177,26 +212,72 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
       } else if (this->animations.contains("SE")) {
         direction_string = "SE";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
-      } else {
+      } else if (this->animations.contains("S")) {
         direction_string = "S";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::E:
       if (this->animations.contains("E")) {
         direction_string = "E";
         this->renderer_flip = SDL_FLIP_NONE;
-      } else {
+      } else if (this->animations.contains("W")) {
         direction_string = "W";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::W:
       if (this->animations.contains("W")) {
         direction_string = "W";
         this->renderer_flip = SDL_FLIP_NONE;
-      } else {
+      } else if (this->animations.contains("E")) {
         direction_string = "E";
         this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     default:

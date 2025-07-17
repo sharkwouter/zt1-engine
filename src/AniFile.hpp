@@ -15,8 +15,8 @@ public:
     AniFile(const std::string &ztd_file, const std::string &file_name);
     ~AniFile();
 
-    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::SW);
-    void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect, CompassDirection direction=CompassDirection::SW);
+    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::N);
+    void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect, CompassDirection direction=CompassDirection::N);
 
 private:
     int current_frame = 0;
