@@ -19,6 +19,7 @@ public:
   int getScreenWidth();
   int getScreenHeight();
   std::string getLangDllName();
+  std::string getResDllName();
   SDL_Color getProgressColor();
   SDL_Rect getProgressPosition();
 private:

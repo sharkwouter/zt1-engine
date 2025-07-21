@@ -58,6 +58,10 @@ std::string Config::getLangDllName() {
   return reader->get("lib", "lang");
 }
 
+std::string Config::getResDllName() {
+  return reader->get("lib", "res");
+}
+
 SDL_Color Config::getProgressColor() {
   SDL_Color color;
 

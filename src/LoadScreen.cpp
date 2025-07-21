@@ -6,7 +6,7 @@
 #include <atomic>
 
 void LoadScreen::run(Window * window, Config * config, ResourceManager * resource_manager) {
-  SDL_Texture * background = resource_manager->getLoadTexture(window->renderer, config->getLangDllName());
+  SDL_Texture * background = resource_manager->getLoadTexture(window->renderer);
   
   SDL_Event event;
 

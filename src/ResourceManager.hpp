@@ -26,10 +26,11 @@ public:
 
   void * getFileContent(const std::string &file_name, int * size);
   SDL_Texture * getTexture(SDL_Renderer * renderer, const std::string &file_name);
+  SDL_Cursor * getCursor(uint32_t cursor_id);
   Mix_Music * getMusic(const std::string &file_name);
   IniReader * getIniReader(const std::string &file_name);
   AniFile * getAniFile(const std::string &file_name);
-  SDL_Texture * getLoadTexture(SDL_Renderer * renderer, const std::string &lang_dll_name);
+  SDL_Texture * getLoadTexture(SDL_Renderer * renderer);
   SDL_Texture * getStringTexture(SDL_Renderer * renderer, const std::string &string, SDL_Color color);
   std::string getString(uint32_t string_id);
 
