@@ -121,7 +121,7 @@ protected:
     if (map["x"] == "center" || (map.contains("justify") && map["justify"] == "center" )) {
       rect.x -= rect.w / 2;
     }
-    if (map["y"] == "center" || (map.contains("justify") && map["justify"] == "center" )) {
+    if (map["y"] == "center") {
       rect.y -= rect.h / 2;
     }
     if (map.contains("justify") && map["justify"] == "right") {

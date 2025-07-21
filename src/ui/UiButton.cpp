@@ -100,7 +100,7 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     dest_rect.x = layout_rect-> x + (layout_rect->w / 2) - (dest_rect.w / 2);
   }
 
-  shadow_rect = {dest_rect.x + 2, dest_rect.y + 2, dest_rect.w, dest_rect.h};
+  shadow_rect = {dest_rect.x - 2, dest_rect.y + 2, dest_rect.w, dest_rect.h};
   SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
 
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);

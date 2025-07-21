@@ -45,8 +45,12 @@ void FontManager::loadFont(const int font) {
       font_size = 18;
       break;
     case 7108:  // Smaller options in main menu
-      font_file = "Aileron-Black.otf";
+      font_file = "Aileron-Bold.otf";
       font_size = 16;
+      break;
+    case 4736:  // Version information in main menu
+      font_file = "Aileron-Black.otf";
+      font_size = 10;
       break;
     default:
       SDL_Log("Could not load unknown font %i, using default", font);
