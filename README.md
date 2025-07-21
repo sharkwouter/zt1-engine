@@ -243,4 +243,4 @@ Legal Terms
 
 ```
 
-The licenses for the other libraries can be found on their respective websites and in the source code of zt1-engine.
+The licenses for the other libraries can be found on their respective websites and in the source tree of zt1-engine at: https://github.com/sharkwouter/zt1-engine
