@@ -196,10 +196,9 @@ SDL_Cursor * ResourceManager::getCursor(uint32_t cursor_id) {
   PeFile pe_file(this->config->getResDllName());
 
   SDL_Surface * surface = pe_file.getCursor(cursor_id);
-  SDL_Log("%i,%i", surface->w, surface->h);
-
   SDL_Cursor * cursor = SDL_CreateColorCursor(surface, 0, 0);
   SDL_FreeSurface(surface);
+
   return cursor;
 }
 
