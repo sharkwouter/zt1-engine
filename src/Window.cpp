@@ -22,6 +22,7 @@ Window::Window(const std::string &title, int width, int height, float fps_target
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't init SDL_mixer: %s", Mix_GetError());
         exit(3);
     }
+    Mix_VolumeMusic(MIX_MAX_VOLUME);
 
     this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_RESIZABLE);
     if (this->window == nullptr) {

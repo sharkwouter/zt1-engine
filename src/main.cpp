@@ -29,10 +29,6 @@ int main(int argc, char *argv[]) {
   AniFile * komodo = resource_manager.getAniFile("animals/komodo/lskomodo/lskomodo");
   AniFile * cinema = resource_manager.getAniFile("objects/cinema/idle/idle");
   AniFile * trex = resource_manager.getAniFile("animals/trex/m/huntror/huntror");
-  
-  Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
-  Mix_VolumeMusic(MIX_MAX_VOLUME);
-  Mix_PlayMusic(music, -1);
 
   InputManager input_manager;
   std::vector<Input> inputs;

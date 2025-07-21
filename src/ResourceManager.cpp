@@ -22,6 +22,10 @@ ResourceManager::~ResourceManager() {
       free(this->startup_font);
     }
   }
+  Mix_HaltMusic();
+  if (this->intro_music != nullptr){
+    Mix_FreeMusic(this->intro_music);
+  }
 }
 
 std::string ResourceManager::getCorrectCaseFilename(std::string &base_path, std::string file_name) {
@@ -134,6 +138,10 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
           #ifdef DEBUG
             SDL_Log("Added file to map: %s", file.c_str());
           #endif
+        }
+        if (this->intro_music == nullptr && file == this->config->getMenuMusic()) {
+          this->intro_music = this->getMusic(file);
+          Mix_PlayMusic(this->intro_music, -1);
         }
       }
     }
