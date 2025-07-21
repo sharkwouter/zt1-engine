@@ -136,7 +136,7 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
         }
-        if (this->intro_music == nullptr && file == this->config->getMenuMusic()) {
+        if (this->intro_music == nullptr && this->config->playMenuMusic() && file == this->config->getMenuMusic()) {
           this->intro_music = this->getMusic(file);
           Mix_PlayMusic(this->intro_music, -1);
         }
