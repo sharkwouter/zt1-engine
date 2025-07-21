@@ -22,10 +22,6 @@ int main(int argc, char *argv[]) {
   IniReader * lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);
 
-  Mix_Music * music = resource_manager.getMusic(config.getMenuMusic());
-  Mix_VolumeMusic(MIX_MAX_VOLUME);
-  Mix_PlayMusic(music, -1);
-
   InputManager input_manager;
   std::vector<Input> inputs;
 

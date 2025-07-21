@@ -46,6 +46,8 @@ private:
 
   void load_resource_map(std::atomic<int> * progress);
   void load_string_map(std::atomic<int> * progress);
+
+  Mix_Music * intro_music = nullptr;
 };
 
 #endif // RESOURCE_MANAGER_HPP
