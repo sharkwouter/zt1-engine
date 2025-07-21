@@ -21,6 +21,7 @@ public:
 private:
   std::string text_string = "";
   SDL_Texture * text = nullptr;
+  int font = 0;
   AniFile * animation = nullptr;
   bool selected = false;
   bool selected_updated = false;

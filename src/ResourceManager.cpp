@@ -9,19 +9,13 @@
 
 #include "ZtdFile.hpp"
 #include "Utils.hpp"
+#include "FontManager.hpp"
 
 ResourceManager::ResourceManager(Config * config) : config(config) {
 
 }
 
 ResourceManager::~ResourceManager() {
-  if (this->startup_font) {
-    if (TTF_WasInit()) {
-      TTF_CloseFont(this->startup_font);
-    } else {
-      free(this->startup_font);
-    }
-  }
   Mix_HaltMusic();
   if (this->intro_music != nullptr){
     Mix_FreeMusic(this->intro_music);
@@ -229,20 +223,8 @@ SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
   return texture;
 }
 
-SDL_Texture *ResourceManager::getStringTexture(SDL_Renderer *renderer, const std::string &string, SDL_Color color) {
-  if (!this->startup_font) {
-    this->startup_font = TTF_OpenFont(std::string(Utils::getExecutableDirectory() +"font/Aileron-Regular.otf").c_str(), 24);
-  }
-  SDL_Surface * surface = TTF_RenderUTF8_Blended(this->startup_font, string.c_str(), color);
-  if (surface == NULL) {
-      SDL_Log("Couldn't create surface for text %s: %s", string.c_str(), TTF_GetError());
-      return NULL;
-  }
-
-  SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
-
-  return texture;
+SDL_Texture *ResourceManager::getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color) {
+  return this->font_manager.getStringTexture(renderer, font, string, color);
 }
 
 std::string ResourceManager::getString(uint32_t string_id) {

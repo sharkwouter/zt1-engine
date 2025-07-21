@@ -20,6 +20,7 @@ public:
 private:
   std::string text_string = "";
   SDL_Texture * text = nullptr;
+  int font = 0;
 };
 
 #endif // UI_TEXT_HPP
