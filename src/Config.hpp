@@ -15,9 +15,11 @@ public:
 
   std::vector<std::string> getResourcePaths();
   std::string getMenuMusic();
+  bool playMenuMusic();
   int getScreenWidth();
   int getScreenHeight();
   std::string getLangDllName();
+  std::string getResDllName();
   SDL_Color getProgressColor();
   SDL_Rect getProgressPosition();
 private:

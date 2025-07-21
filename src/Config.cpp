@@ -39,6 +39,11 @@ std::string Config::getMenuMusic()
   return reader->get("ui", "menuMusic", "");
 }
 
+bool Config::playMenuMusic()
+{
+  return (reader->get("ui", "noMenuMusic") == "0");
+}
+
 int Config::getScreenWidth()
 {
   return reader->getInt("user", "screenwidth", 800);
@@ -51,6 +56,10 @@ int Config::getScreenHeight()
 
 std::string Config::getLangDllName() {
   return reader->get("lib", "lang");
+}
+
+std::string Config::getResDllName() {
+  return reader->get("lib", "res");
 }
 
 SDL_Color Config::getProgressColor() {

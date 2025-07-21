@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
   ResourceManager resource_manager(&config);
 
   Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
+  window.set_cursor(resource_manager.getCursor(9));
 
   LoadScreen::run(&window, &config, &resource_manager);
 

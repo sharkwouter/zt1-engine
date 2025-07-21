@@ -139,7 +139,7 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
             SDL_Log("Added file to map: %s", file.c_str());
           #endif
         }
-        if (this->intro_music == nullptr && file == this->config->getMenuMusic()) {
+        if (this->intro_music == nullptr && this->config->playMenuMusic() && file == this->config->getMenuMusic()) {
           this->intro_music = this->getMusic(file);
           Mix_PlayMusic(this->intro_music, -1);
         }
@@ -185,7 +185,7 @@ void * ResourceManager::getFileContent(const std::string &file_name, int *size) 
   return ZtdFile::getFileContent(getResourceLocation(file_name), file_name, size);
 }
 
-SDL_Texture *ResourceManager::getTexture(SDL_Renderer * renderer, const std::string &file_name) {
+SDL_Texture * ResourceManager::getTexture(SDL_Renderer * renderer, const std::string &file_name) {
   SDL_Texture * texture = nullptr;
   SDL_Surface * surface = ZtdFile::getImageSurface(getResourceLocation(file_name), file_name);
   if (surface != nullptr) {
@@ -193,6 +193,16 @@ SDL_Texture *ResourceManager::getTexture(SDL_Renderer * renderer, const std::str
     SDL_FreeSurface(surface);
   }
   return texture;
+}
+
+SDL_Cursor * ResourceManager::getCursor(uint32_t cursor_id) {
+  PeFile pe_file(this->config->getResDllName());
+
+  SDL_Surface * surface = pe_file.getCursor(cursor_id);
+  SDL_Cursor * cursor = SDL_CreateColorCursor(surface, 0, 0);
+  SDL_FreeSurface(surface);
+
+  return cursor;
 }
 
 Mix_Music * ResourceManager::getMusic(const std::string &file_name) {
@@ -212,9 +222,9 @@ AniFile * ResourceManager::getAniFile(const std::string &file_name) {
   }
 }
 
-SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer, const std::string &lang_dll_name) {
-  PeFile pe_file(lang_dll_name);
- 
+SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
+  PeFile pe_file(this->config->getLangDllName());
+
   SDL_Surface * surface = pe_file.getLoadScreenSurface();
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_FreeSurface(surface);

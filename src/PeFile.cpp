@@ -31,6 +31,21 @@ SDL_Surface *PeFile::getLoadScreenSurface()
   return surface;
 }
 
+SDL_Surface *PeFile::getCursor(uint32_t cursor_id) {
+  SDL_Surface * surface = NULL;
+  uint32_t size = 0;
+
+  uint8_t * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_CURSOR, 0, cursor_id, &size);
+  if (data) {
+    SDL_RWops * rw = SDL_RWFromMem(data, size);
+    surface = IMG_LoadTyped_RW(rw, 1, "CUR");
+    free(data);
+  } else {
+    SDL_Log("Could not load content of cursor");
+  }
+  return surface;
+}
+
 std::vector<uint32_t> PeFile::getStringIds() {
   std::vector<uint32_t> string_ids;
 
