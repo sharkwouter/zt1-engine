@@ -10,8 +10,11 @@ FontManager::FontManager() {
 
 FontManager::~FontManager() {
   for (auto font_entry : this->fonts) {
-    TTF_CloseFont(font_entry.second);
+    if (font_entry.second != nullptr) {
+      TTF_CloseFont(font_entry.second);
+    }
   }
+  TTF_Quit();
 }
 
 SDL_Texture * FontManager::getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color) {
