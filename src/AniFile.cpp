@@ -292,6 +292,54 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
   return direction_string;
 }
 
+static int get_starting_point(void * data_frames_start, int frame_count, int canvas_width, int canvas_height, int * base_frame_offset_x, int * base_frame_offset_y) {
+  void * data = data_frames_start;
+  int base_frame = 0;
+  int current_frame_offset_x = 0;
+  int current_frame_offset_y = 0;
+
+  *base_frame_offset_x = 0;
+  *base_frame_offset_y = 0;
+  for(int i = 0; i < frame_count; i++) {
+    uint32_t size =  *(uint32_t *) data;
+    data = (char*)data + sizeof(uint32_t);
+
+    void * frame_end = (char*) data + size;
+
+    uint16_t height =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
+    uint16_t width =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
+    bool is_shadow = false;
+    if ((height & 0xFF) == 80) {
+      is_shadow = true;
+      height = height >> 8;
+    }
+
+    int16_t offset_y =  *(int16_t *) data;
+    data = (char*)data + sizeof(int16_t);
+
+    int16_t offset_x =  *(int16_t *) data;
+    data = (char*)data + sizeof(int16_t);
+
+    current_frame_offset_x = (canvas_width / 2) - (width / 2) + offset_x;
+    current_frame_offset_y = (canvas_height / 2) - (height / 2) + offset_y;
+
+    if (i == 0 || current_frame_offset_x > *base_frame_offset_x || current_frame_offset_y > *base_frame_offset_y) {
+      *base_frame_offset_x = current_frame_offset_x;
+      *base_frame_offset_y = current_frame_offset_y;
+      base_frame = i;
+    }
+
+    data = frame_end;
+  }
+
+
+  return base_frame;
+}
+
 AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std::string &file_name) {
   Animation animation = {};
   
@@ -327,8 +375,9 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
   data = (char*)data + sizeof(uint32_t);
   SDL_Log("Frames found: %lu", animation.frame_count);
 
-  int first_frame_offset_x = 0;
-  int first_frame_offset_y = 0;
+  int base_frame_offset_x = 0;
+  int base_frame_offset_y = 0;
+  int base_frame = get_starting_point(data, animation.frame_count + (int) animation.has_background, this->width, this->height, &base_frame_offset_x, &base_frame_offset_y);
   for(int i = 0; i < (animation.frame_count + (int) animation.has_background); i++) {
     Frame frame = {};
     frame.texture = nullptr;
@@ -367,16 +416,14 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     data = (char*)data + sizeof(uint16_t);
     SDL_Log("Mystery bytes are %u", mystery_bytes);
 
-    int start_x = 0; (this->width / 2) - (frame.width / 2);
-    int start_y = 0;(this->height / 2) - (frame.height / 2);
-    if (i == 0 || i == (int) animation.frame_count) {
+    int start_x = 0;
+    int start_y = 0;
+    if (i != base_frame && i != (int) animation.frame_count) {
+      start_x = base_frame_offset_x - frame.x_offset;
+      start_y = base_frame_offset_y - frame.y_offset;
+    } else {
       start_x = (this->width / 2) - (frame.width / 2);
       start_y = (this->height / 2) - (frame.height / 2);
-      first_frame_offset_x = start_x + frame.x_offset;
-      first_frame_offset_y = start_y + frame.y_offset;
-    } else {
-      start_x = first_frame_offset_x - frame.x_offset;
-      start_y = first_frame_offset_y - frame.y_offset;
     }
     for(int y = start_y; y < start_y + frame.height; y++) {
       uint8_t draw_instructions =  *(uint8_t *) data;
