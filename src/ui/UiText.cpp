@@ -15,7 +15,7 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
   
   if(this->text_string.empty()) {
     if (name == "version_label") {
-      this->text_string = "ZT1-Engine WIP version number: 0.1";
+      this->text_string = "Version Number: ZT1-Engine 0.1  ";
     } else {
       this->text_string = "Not found";
     }
@@ -45,9 +45,10 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
   }
   SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_Rect text_rect;
-  SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
-  dest_rect.w = std::min(dest_rect.w, text_rect.w);
+  SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
+  if (this->ini_reader->get(this->name, "justify") == "right") {
+    dest_rect.x = layout_rect->x + layout_rect->w - dest_rect.w;
+  }
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
   this->drawChildren(renderer, &dest_rect);
 }
