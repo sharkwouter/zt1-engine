@@ -292,7 +292,7 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
   return direction_string;
 }
 
-static int get_starting_point(void * data_frames_start, int frame_count, int canvas_width, int canvas_height, int * base_frame_offset_x, int * base_frame_offset_y) {
+static int get_starting_point(void * data_frames_start, int frame_count, bool has_background, int canvas_width, int canvas_height, int * base_frame_offset_x, int * base_frame_offset_y) {
   void * data = data_frames_start;
   int base_frame = 0;
   int current_frame_offset_x = 0;
@@ -300,7 +300,7 @@ static int get_starting_point(void * data_frames_start, int frame_count, int can
 
   *base_frame_offset_x = 0;
   *base_frame_offset_y = 0;
-  for(int i = 0; i < frame_count; i++) {
+  for(int i = 0; i < frame_count + (int) has_background; i++) {
     uint32_t size =  *(uint32_t *) data;
     data = (char*)data + sizeof(uint32_t);
 
@@ -327,7 +327,7 @@ static int get_starting_point(void * data_frames_start, int frame_count, int can
     current_frame_offset_x = (canvas_width / 2) - (width / 2) + offset_x;
     current_frame_offset_y = (canvas_height / 2) - (height / 2) + offset_y;
 
-    if (i == 0 || current_frame_offset_x > *base_frame_offset_x || current_frame_offset_y > *base_frame_offset_y) {
+    if (i == 0 || i == frame_count || current_frame_offset_x > *base_frame_offset_x || current_frame_offset_y > *base_frame_offset_y) {
       *base_frame_offset_x = current_frame_offset_x;
       *base_frame_offset_y = current_frame_offset_y;
       base_frame = i;
@@ -377,7 +377,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
 
   int base_frame_offset_x = 0;
   int base_frame_offset_y = 0;
-  int base_frame = get_starting_point(data, animation.frame_count + (int) animation.has_background, this->width, this->height, &base_frame_offset_x, &base_frame_offset_y);
+  int base_frame = get_starting_point(data, animation.frame_count, animation.has_background, this->width, this->height, &base_frame_offset_x, &base_frame_offset_y);
   for(int i = 0; i < (animation.frame_count + (int) animation.has_background); i++) {
     Frame frame = {};
     frame.texture = nullptr;
