@@ -21,11 +21,14 @@ public:
 private:
   std::string text_string = "";
   SDL_Texture * text = nullptr;
+  SDL_Texture * shadow = nullptr;
+  int font = 0;
   AniFile * animation = nullptr;
   bool selected = false;
   bool selected_updated = false;
   bool has_select_color = false;
   SDL_Rect dest_rect = {0, 0, 0, 0};
+  SDL_Rect shadow_rect = {0, 0, 0, 0};
 
   UiAction getActionBasedOnName();
 };

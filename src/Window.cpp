@@ -63,7 +63,6 @@ Window::~Window() {
     SDL_FreeCursor(this->default_cursor);
     Mix_Quit();
     Mix_CloseAudio();
-    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
