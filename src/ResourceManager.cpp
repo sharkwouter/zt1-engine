@@ -133,10 +133,6 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
             SDL_Log("Added file to map: %s", file.c_str());
           #endif
         }
-        if (this->intro_music == nullptr && this->config->playMenuMusic() && file == this->config->getMenuMusic()) {
-          this->intro_music = this->getMusic(file);
-          Mix_PlayMusic(this->intro_music, -1);
-        }
       }
     }
     *progress += 50 / resource_paths.size();
@@ -171,6 +167,11 @@ void ResourceManager::load_string_map(std::atomic<int> * progress) {
 
 void ResourceManager::load_all(std::atomic<int> * progress, std::atomic<bool> * is_done) {
   this->load_resource_map(progress);
+
+  // Start playing the music after loading ztd resources
+  this->intro_music = this->getMusic(this->config->getMenuMusic());
+  Mix_PlayMusic(this->intro_music, -1);
+
   this->load_string_map(progress);
   *is_done = true;
 }
