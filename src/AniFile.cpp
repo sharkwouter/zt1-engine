@@ -3,10 +3,20 @@
 #include <vector>
 #include <cstring>
 
+#ifdef DEBUG
+  #include <assert.h>
+#endif
+
 #include "ZtdFile.hpp"
 
 AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
   IniReader * ini_reader = ZtdFile::getIniReader(ztd_file, file_name);
+
+  this->file_name = file_name;
+  SDL_Log("Loading animation %s", file_name.c_str());
+
+  this->x0 = ini_reader->getInt("animation", "x0");
+  this->y0 = ini_reader->getInt("animation", "y0");
 
   this->width = ini_reader->getInt("animation", "x1") - ini_reader->getInt("animation", "x0");
   this->height = ini_reader->getInt("animation", "y1") - ini_reader->getInt("animation", "y0");
@@ -32,15 +42,24 @@ AniFile::~AniFile() {
     }
 }
 
-void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direction) {
+void AniFile::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direction) {
+  SDL_Rect rect = {x, y, this->width, this->height};
+  this->draw(renderer, &rect, direction);
+}
+
+void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
+  if (direction_string.empty()) {
+    SDL_Log("Cannot draw animation because the specified direction does not exist");
+    return;
+  }
+
   if (direction != this->last_direction) {
     this->last_direction = direction;
     this->current_frame = 0;
     this->frame_start_time = SDL_GetTicks();
   } else {
     if (this->animations[direction_string].frame_time_in_ms < SDL_GetTicks() - this->frame_start_time) {
-      // SDL_Log("Next Frame");
       this->current_frame++;
       this->frame_start_time = SDL_GetTicks();
     }
@@ -52,56 +71,27 @@ void AniFile::draw(SDL_Renderer *renderer, int x, int y, CompassDirection direct
 
   #ifdef DEBUG
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_Rect outline = {x, y, this->width, this->height};
-    SDL_RenderFillRect(renderer, &outline);
+    SDL_RenderFillRect(renderer, dest_rect);
   #endif
 
-  int anchor_x = this->width / 2 - this->animations[direction_string].frames[0].width / 2;
-  int anchor_y = this->height / 2 - this->animations[direction_string].frames[0].height / 2;
-
-  int offset_x = (this->width - this->animations[direction_string].frames[this->animations[direction_string].frame_count].width) / 2;
-  offset_x = (offset_x + this->animations[direction_string].frames[this->animations[direction_string].frame_count].width / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].x_offset);
-  int offset_y = (this->height - this->animations[direction_string].frames[this->animations[direction_string].frame_count].height) / 2;
-  offset_y = (offset_y + this->animations[direction_string].frames[this->animations[direction_string].frame_count].height / 2 - this->animations[direction_string].frames[this->animations[direction_string].frame_count].y_offset);
-
-  // Draw shadow
-  if (this->animations[direction_string].has_shadow) {
-    SDL_Rect shadow_dst = {
-      x + offset_x,
-      y + offset_y,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].width,
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].height,
-    };
-
+  // Draw background
+  if (this->animations[direction_string].has_background) {
     if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
       this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
     }
-
-    SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, &shadow_dst);
+    SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
   }
 
-  offset_x = (this->width - this->animations[direction_string].frames[this->current_frame].width) / 2;
-  offset_x = (offset_x + this->animations[direction_string].frames[this->current_frame].width / 2 - this->animations[direction_string].frames[this->current_frame].x_offset);
-  offset_y = (this->height - this->animations[direction_string].frames[this->current_frame].height) / 2;
-  offset_y = (offset_y + this->animations[direction_string].frames[this->current_frame].height / 2 - this->animations[direction_string].frames[this->current_frame].y_offset);
-
   // Draw object
-  SDL_Rect dst = {
-    x + offset_x,
-    y + offset_y,
-    this->animations[direction_string].frames[this->current_frame].width,
-    this->animations[direction_string].frames[this->current_frame].height,
-  };
-
   #ifdef DEBUG
-    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dst.x, dst.y, dst.w, dst.h);
+    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
   #endif
 
   if (!this->animations[direction_string].frames[this->current_frame].texture) {
     this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
   }
 
-  SDL_RenderCopy(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, &dst);
+  SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
 std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
@@ -134,81 +124,160 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
     case CompassDirection::N:
       if (this->animations.contains("N")) {
         direction_string = "N";
-        this->draw_mirrored = false;
-      } else {
-        direction_string = "Z";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::NE:
       if (this->animations.contains("NE")) {
         direction_string = "NE";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("NW")) {
         direction_string = "NW";
-        this->draw_mirrored = true;
-      } else {
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::NW:
       if (this->animations.contains("NW")) {
         direction_string = "NW";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("NE")) {
         direction_string = "NE";
-        this->draw_mirrored = true;
-      } else {
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::S:
       if (this->animations.contains("S")) {
         direction_string = "S";
-        this->draw_mirrored = false;
-      } else {
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("N")) {
         direction_string = "N";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::SE:
       if (this->animations.contains("SE")) {
         direction_string = "SE";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("SW")) {
         direction_string = "SW";
-        this->draw_mirrored = true;
-      } else {
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("S")) {
         direction_string = "S";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::SW:
       if (this->animations.contains("SW")) {
         direction_string = "SW";
-        this->draw_mirrored = false;
+        this->renderer_flip = SDL_FLIP_NONE;
       } else if (this->animations.contains("SE")) {
         direction_string = "SE";
-        this->draw_mirrored = true;
-      } else {
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("S")) {
         direction_string = "S";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
+        direction_string = "W";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("E")) {
+        direction_string = "E";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::E:
       if (this->animations.contains("E")) {
         direction_string = "E";
-        this->draw_mirrored = false;
-      } else {
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("W")) {
         direction_string = "W";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     case CompassDirection::W:
       if (this->animations.contains("W")) {
         direction_string = "W";
-        this->draw_mirrored = false;
-      } else {
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("E")) {
         direction_string = "E";
-        this->draw_mirrored = true;
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("NW")) {
+        direction_string = "NW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("SW")) {
+        direction_string = "SW";
+        this->renderer_flip = SDL_FLIP_NONE;
+      } else if (this->animations.contains("NE")) {
+        direction_string = "NE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("SE")) {
+        direction_string = "SE";
+        this->renderer_flip = SDL_FLIP_HORIZONTAL;
+      } else if (this->animations.contains("N")) {
+        direction_string = "N";
+        this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
     default:
@@ -223,6 +292,54 @@ std::string AniFile::convertCompassDirectionToExistingAnimationString(CompassDir
   return direction_string;
 }
 
+static int get_starting_point(void * data_frames_start, int frame_count, bool has_background, int canvas_width, int canvas_height, int * base_frame_offset_x, int * base_frame_offset_y) {
+  void * data = data_frames_start;
+  int base_frame = 0;
+  int current_frame_offset_x = 0;
+  int current_frame_offset_y = 0;
+
+  *base_frame_offset_x = 0;
+  *base_frame_offset_y = 0;
+  for(int i = 0; i < frame_count + (int) has_background; i++) {
+    uint32_t size =  *(uint32_t *) data;
+    data = (char*)data + sizeof(uint32_t);
+
+    void * frame_end = (char*) data + size;
+
+    uint16_t height =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
+    uint16_t width =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
+    bool is_shadow = false;
+    if ((height & 0xFF) == 80) {
+      is_shadow = true;
+      height = height >> 8;
+    }
+
+    int16_t offset_y =  *(int16_t *) data;
+    data = (char*)data + sizeof(int16_t);
+
+    int16_t offset_x =  *(int16_t *) data;
+    data = (char*)data + sizeof(int16_t);
+
+    current_frame_offset_x = (canvas_width / 2) - (width / 2) + offset_x;
+    current_frame_offset_y = (canvas_height / 2) - (height / 2) + offset_y;
+
+    if (i == 0 || i == frame_count || current_frame_offset_x > *base_frame_offset_x || current_frame_offset_y > *base_frame_offset_y) {
+      *base_frame_offset_x = current_frame_offset_x;
+      *base_frame_offset_y = current_frame_offset_y;
+      base_frame = i;
+    }
+
+    data = frame_end;
+  }
+
+
+  return base_frame;
+}
+
 AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std::string &file_name) {
   Animation animation = {};
   
@@ -230,12 +347,12 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
  
   // Read optional header with shadow information
   if(strncmp((const char *) data, "FATZ", 8) == 0) {
-      animation.has_shadow = (bool) *((char *)data + 8);
+      animation.has_background = (bool) *((char *)data + 8);
 
       // Move pointer to end of optional header
       data = (char*)data + 9;
   } else {
-    animation.has_shadow = false;
+    animation.has_background = false;
   }
 
   animation.frame_time_in_ms = *(uint32_t *) data;
@@ -258,7 +375,10 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
   data = (char*)data + sizeof(uint32_t);
   SDL_Log("Frames found: %lu", animation.frame_count);
 
-  for(int i = 0; i < (animation.frame_count + (int) animation.has_shadow); i++) {
+  int base_frame_offset_x = 0;
+  int base_frame_offset_y = 0;
+  int base_frame = get_starting_point(data, animation.frame_count, animation.has_background, this->width, this->height, &base_frame_offset_x, &base_frame_offset_y);
+  for(int i = 0; i < (animation.frame_count + (int) animation.has_background); i++) {
     Frame frame = {};
     frame.texture = nullptr;
 
@@ -270,18 +390,16 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.height =  *(uint16_t *) data;
     data = (char*)data + sizeof(uint16_t);
 
+    frame.width =  *(uint16_t *) data;
+    data = (char*)data + sizeof(uint16_t);
+
     bool is_shadow = false;
-    if (frame.height & 0xFF == 80) {
+    if ((frame.height & 0xFF) == 80) {
       is_shadow = true;
       frame.height = frame.height >> 8;
     }
 
-    frame.width =  *(uint16_t *) data;
-    data = (char*)data + sizeof(uint16_t);
-
-    SDL_Log("Frame is %ux%u pixels", frame.height, frame.width);
-
-    frame.surface = SDL_CreateRGBSurfaceWithFormat(0, frame.width, frame.height, 0, SDL_PIXELFORMAT_RGBA32);
+    frame.surface = SDL_CreateRGBSurfaceWithFormat(0, this->width, this->height, 0, SDL_PIXELFORMAT_RGBA32);
 
     frame.y_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
@@ -289,33 +407,48 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.x_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
+    SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
+    SDL_Log("x0,y0: %i,%i", this->x0, this->y0);
+    SDL_Log("Canvas size: %ix%i", this->width, this->height);
+
+
     uint16_t mystery_bytes =  *(uint16_t *) data;
     data = (char*)data + sizeof(uint16_t);
     SDL_Log("Mystery bytes are %u", mystery_bytes);
 
-    for(int y = 0; y < frame.height; y++) {
+    int start_x = 0;
+    int start_y = 0;
+    if (i != base_frame && i != (int) animation.frame_count) {
+      start_x = base_frame_offset_x - frame.x_offset;
+      start_y = base_frame_offset_y - frame.y_offset;
+    } else {
+      start_x = (this->width / 2) - (frame.width / 2);
+      start_y = (this->height / 2) - (frame.height / 2);
+    }
+    for(int y = start_y; y < start_y + frame.height; y++) {
       uint8_t draw_instructions =  *(uint8_t *) data;
       data = (char*)data + sizeof(uint8_t);
 
-      int current_offset = 0;
+      int x = start_x;
       for(int instruction = 0; instruction < draw_instructions; instruction++) {
           uint8_t offset_value =  (*(uint8_t *) data);
           data = (char*)data + sizeof(uint8_t);
-          current_offset += offset_value;
+          x += offset_value;
 
           uint8_t pixels_to_draw =  *(uint8_t *) data;
           data = (char*)data + sizeof(uint8_t);
 
-          for(int x = 0; x < pixels_to_draw; x++) {
+          for(int p = 0; p < pixels_to_draw; p++, x++) {
+            if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
+              SDL_Log("Failure to draw %s within the bounds", this->file_name.c_str());
+            }
             if (is_shadow) {
-              ((uint32_t *) frame.surface->pixels)[frame.width * y + current_offset + x] = 0x000000FF;
+              ((uint32_t *) frame.surface->pixels)[this->width * y + x] = 0x000000FF;
             } else {
-              ((uint32_t *) frame.surface->pixels)[frame.width * y + current_offset + x] = ((uint32_t *) pallet_data)[*(uint8_t *)data];
+              ((uint32_t *) frame.surface->pixels)[this->width * y + x] = ((uint32_t *) pallet_data)[*(uint8_t *)data];
             }
             data = (char*)data + sizeof(uint8_t);
           }
-          current_offset += pixels_to_draw;
-
       }
     }
 

@@ -15,16 +15,22 @@ public:
     AniFile(const std::string &ztd_file, const std::string &file_name);
     ~AniFile();
 
-    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::SW);
+    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::N);
+    void draw(SDL_Renderer * renderer, SDL_Rect * draw_rect, CompassDirection direction=CompassDirection::N);
 
 private:
     int current_frame = 0;
     CompassDirection last_direction = CompassDirection::N;
-    bool draw_mirrored = false;
+    SDL_RendererFlip renderer_flip = SDL_FLIP_NONE;
     uint32_t frame_start_time = 0;
 
     int width;
     int height;
+
+    int x0;
+    int y0;
+
+    std::string file_name;
 
     typedef struct {
         int16_t x_offset;
@@ -37,7 +43,7 @@ private:
 
     typedef struct {
         uint32_t frame_count;
-        bool has_shadow;
+        bool has_background;
         uint32_t frame_time_in_ms;
         std::vector<Frame> frames;
     } Animation;
