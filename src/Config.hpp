@@ -15,7 +15,7 @@ public:
 
   std::vector<std::string> getResourcePaths();
   std::string getMenuMusic();
-  bool playMenuMusic();
+  bool getPlayMenuMusic();
   int getScreenWidth();
   int getScreenHeight();
   std::string getLangDllName();

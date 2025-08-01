@@ -13,7 +13,7 @@ AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
   IniReader * ini_reader = ZtdFile::getIniReader(ztd_file, file_name);
 
   this->file_name = file_name;
-  SDL_Log("Loading animation %s", file_name.c_str());
+  // SDL_Log("Loading animation %s", file_name.c_str());
 
   this->x0 = ini_reader->getInt("animation", "x0");
   this->y0 = ini_reader->getInt("animation", "y0");
@@ -23,8 +23,8 @@ AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
 
   std::string directory = this->getAnimationDirectory(ini_reader);
   for (std::string direction : ini_reader->getList("animation", "animation")) {
-    SDL_Log("Get animation for direction %s", direction.c_str());
-    this->animations[direction] = this->loadAnimation(ztd_file, directory + "/" + direction);
+    // SDL_Log("Get animation for direction %s", direction.c_str());
+    this->animations[direction] = this->loadAnimationData(ztd_file, directory + "/" + direction);
   }
   free(ini_reader);
 
@@ -33,12 +33,13 @@ AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
 
 AniFile::~AniFile() {
     for (auto animation_pair : this->animations) {
-      for (Frame frame : animation_pair.second.frames) {
-        if (frame.surface)
-          SDL_FreeSurface(frame.surface);
-        if (frame.texture)
-          SDL_DestroyTexture(frame.texture);
-      }
+      // TODO: Actually free stuff here
+      // for (Frame frame : animation_pair.second.frames) {
+      //   if (frame.surface)
+      //     SDL_FreeSurface(frame.surface);
+      //   if (frame.texture)
+      //     SDL_DestroyTexture(frame.texture);
+      // }
     }
 }
 
@@ -48,50 +49,50 @@ void AniFile::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direc
 }
 
 void AniFile::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirection direction) {
-  std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
-  if (direction_string.empty()) {
-    SDL_Log("Cannot draw animation because the specified direction does not exist");
-    return;
-  }
+  // std::string direction_string = convertCompassDirectionToExistingAnimationString(direction);
+  // if (direction_string.empty()) {
+  //   SDL_Log("Cannot draw animation because the specified direction does not exist");
+  //   return;
+  // }
 
-  if (direction != this->last_direction) {
-    this->last_direction = direction;
-    this->current_frame = 0;
-    this->frame_start_time = SDL_GetTicks();
-  } else {
-    if (this->animations[direction_string].frame_time_in_ms < SDL_GetTicks() - this->frame_start_time) {
-      this->current_frame++;
-      this->frame_start_time = SDL_GetTicks();
-    }
-  }
+  // if (direction != this->last_direction) {
+  //   this->last_direction = direction;
+  //   this->current_frame = 0;
+  //   this->frame_start_time = SDL_GetTicks();
+  // } else {
+  //   if (this->animations[direction_string].frame_time_in_ms < SDL_GetTicks() - this->frame_start_time) {
+  //     this->current_frame++;
+  //     this->frame_start_time = SDL_GetTicks();
+  //   }
+  // }
 
-  if (this->current_frame >= this->animations[direction_string].frame_count) {
-    this->current_frame = 0;
-  }
+  // if (this->current_frame >= this->animations[direction_string].frame_count) {
+  //   this->current_frame = 0;
+  // }
 
-  #ifdef DEBUG
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_RenderFillRect(renderer, dest_rect);
-  #endif
+  // #ifdef DEBUG
+  //   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+  //   SDL_RenderFillRect(renderer, dest_rect);
+  // #endif
 
-  // Draw background
-  if (this->animations[direction_string].has_background) {
-    if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
-      this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
-    }
-    SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
-  }
+  // // Draw background
+  // if (this->animations[direction_string].has_background) {
+  //   if (!this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture) {
+  //     this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].surface);
+  //   }
+  //   SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->animations[direction_string].frame_count].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
+  // }
 
-  // Draw object
-  #ifdef DEBUG
-    SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
-  #endif
+  // // Draw object
+  // #ifdef DEBUG
+  //   SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
+  // #endif
 
-  if (!this->animations[direction_string].frames[this->current_frame].texture) {
-    this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
-  }
+  // if (!this->animations[direction_string].frames[this->current_frame].texture) {
+  //   this->animations[direction_string].frames[this->current_frame].texture = SDL_CreateTextureFromSurface(renderer, this->animations[direction_string].frames[this->current_frame].surface);
+  // }
 
-  SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
+  // SDL_RenderCopyEx(renderer, this->animations[direction_string].frames[this->current_frame].texture, NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
 std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
@@ -362,7 +363,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
   data = (char*)data + sizeof(uint32_t);
 
   char * palette_file_name = (char *) calloc(palette_file_name_length, sizeof(char));
-  strncpy(palette_file_name, (char *) data, palette_file_name_length + 1);
+  strncpy(palette_file_name, (char *) data, palette_file_name_length);
   data = (char*)data + ((palette_file_name_length) * sizeof(char));  // Also skip empty byte after file name
 
   // Read the pallete file
@@ -373,7 +374,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
 
   animation.frame_count =  *(uint32_t *) data;
   data = (char*)data + sizeof(uint32_t);
-  SDL_Log("Frames found: %lu", animation.frame_count);
+  // SDL_Log("Frames found: %lu", animation.frame_count);
 
   int base_frame_offset_x = 0;
   int base_frame_offset_y = 0;
@@ -407,14 +408,13 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.x_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
-    SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
-    SDL_Log("x0,y0: %i,%i", this->x0, this->y0);
-    SDL_Log("Canvas size: %ix%i", this->width, this->height);
+    // SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
+    // SDL_Log("Canvas size: %ix%i", this->width, this->height);
 
 
     uint16_t mystery_bytes =  *(uint16_t *) data;
     data = (char*)data + sizeof(uint16_t);
-    SDL_Log("Mystery bytes are %u", mystery_bytes);
+    // SDL_Log("Mystery bytes are %u", mystery_bytes);
 
     int start_x = 0;
     int start_y = 0;
@@ -441,6 +441,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
           for(int p = 0; p < pixels_to_draw; p++, x++) {
             if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
               SDL_Log("Failure to draw %s within the bounds", this->file_name.c_str());
+              break;
             }
             if (is_shadow) {
               ((uint32_t *) frame.surface->pixels)[this->width * y + x] = 0x000000FF;
@@ -457,4 +458,90 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
   }
 
   return animation;
+}
+
+AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const std::string &file_name) {
+  AnimationData * animation_data = (AnimationData *) calloc(1, sizeof(AnimationData));
+  
+  int file_size = 0;
+  void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
+  SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
+
+  // Read optional header with shadow information
+  char header_string[8];
+  SDL_RWread(rw, header_string, sizeof(char), 8);
+  if(strncmp(header_string, "FATZ", 8) == 0) {
+      SDL_Log("FATZ found");
+      animation_data->has_background = SDL_ReadU8(rw);
+  } else {
+    SDL_RWseek(rw, 0,RW_SEEK_SET);
+    animation_data->has_background = SDL_FALSE;
+    SDL_Log("FATZ not found");
+  }
+
+  animation_data->frame_time_in_ms = SDL_ReadLE32(rw);
+  SDL_Log("Frame time: %u", animation_data->frame_time_in_ms);
+
+  uint32_t palette_file_name_length = SDL_ReadLE32(rw);  // There should be a \0 after the file name string
+  char * palette_file_name = (char *) calloc(palette_file_name_length, sizeof(char));
+  SDL_RWread(rw, palette_file_name, sizeof(char), (size_t) palette_file_name_length);
+
+  // Read the pallete file
+  if (pallet_colors == nullptr) {
+      SDL_Log("Palette file name: %s",palette_file_name);
+
+  int pallet_file_size = 0;
+  void * pallet_file_content = ZtdFile::getFileContent(ztd_file, std::string(palette_file_name), &pallet_file_size);
+  if (pallet_file_content == NULL) {
+    SDL_Log("Failed to load pallet, segfault inc");
+    return NULL;
+  }
+  SDL_RWops * pallet_rw = SDL_RWFromMem(pallet_file_content, pallet_file_size);
+
+  pallet_color_count =  SDL_ReadLE32(pallet_rw);
+  pallet_colors = (uint32_t *) calloc(animation_data->pallet_color_count, sizeof(uint32_t));
+  SDL_RWread(pallet_rw, pallet_colors, sizeof(uint32_t), (size_t) animation_data->pallet_color_count);
+  SDL_RWclose(pallet_rw);
+  }
+  animation_data->pallet_color_count = pallet_color_count;
+  animation_data->pallet_colors = pallet_colors;
+
+  // Continue reading animation data
+  animation_data->frame_count =  SDL_ReadLE32(rw);
+
+  int frame_count = (int)animation_data->frame_count + (int) animation_data->has_background;
+  SDL_Log("Found %i frames %u", frame_count, animation_data->frame_count);
+  animation_data->frames = (AnimationFrameInfo *) calloc(frame_count, sizeof(AnimationFrameInfo));
+  for(int i = 0; i < frame_count; i++) {
+    int64_t frame_start = SDL_RWtell(rw);
+
+    SDL_Log("Reading some of the empty data from the metadata %u, %u, %u",animation_data->frames[i].metadata.size, animation_data->frames[i].metadata.height, animation_data->frames[i].metadata.width);
+    SDL_RWread(rw, &(animation_data->frames[i].metadata), sizeof(AnimationFrameMetaData), 1);
+
+    int64_t frame_end = frame_start + animation_data->frames[i].metadata.size;
+
+    animation_data->frames[i].is_shadow = false;
+    if ((animation_data->frames[i].metadata.height & 0xFF) == 80) {
+      animation_data->frames[i].is_shadow = true;
+      animation_data->frames[i].metadata.height >>= 8;
+    }
+
+    SDL_Log("Frame is %ux%u pixels with offset %i,%i", animation_data->frames[i].metadata.height, animation_data->frames[i].metadata.width, animation_data->frames[i].metadata.offset_x, animation_data->frames[i].metadata.offset_y);
+    SDL_Log("Mystery bytes are %u", animation_data->frames[i].metadata.mystery_bytes);
+
+    animation_data->frames[i].lines = (AnimationLineInfo *) calloc(animation_data->frames[i].metadata.height, sizeof(AnimationLineInfo));
+    for(int y = 0; y < animation_data->frames[i].metadata.height; y++) {
+      animation_data->frames[i].lines[y].instruction_count = SDL_ReadU8(rw);
+      animation_data->frames[i].lines[y].instructions = (AnimationFrameDrawInstruction *) calloc(animation_data->frames[i].lines[y].instruction_count, sizeof(AnimationFrameDrawInstruction));
+      for(int x = 0; x < animation_data->frames[i].lines[y].instruction_count; x++) {
+          animation_data->frames[i].lines[y].instructions[x].offset = SDL_ReadU8(rw);
+          animation_data->frames[i].lines[y].instructions[x].color_count = SDL_ReadU8(rw);
+          animation_data->frames[i].lines[y].instructions[x].colors = (uint8_t *) calloc(animation_data->frames[i].lines[y].instructions[x].color_count, sizeof(uint8_t));
+          SDL_RWread(rw, animation_data->frames[i].lines[y].instructions[x].colors, sizeof(uint8_t), animation_data->frames[i].lines[y].instructions[x].color_count);
+      }
+    }
+    SDL_RWseek(rw, frame_end, RW_SEEK_SET);
+  }
+
+  return animation_data;
 }

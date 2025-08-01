@@ -130,12 +130,12 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
           #ifdef DEBUG
-            SDL_Log("Added file to map: %s", file.c_str());
+            // SDL_Log("Added file to map: %s:%s", file.c_str(), current_archive.c_str());
           #endif
         }
       }
     }
-    *progress += 50 / resource_paths.size();
+    *progress += 33 / resource_paths.size();
   }
   resource_map_loaded = true;
   SDL_Log("Loading resource map done");
@@ -161,18 +161,66 @@ void ResourceManager::load_string_map(std::atomic<int> * progress) {
         this->string_map[string_id] = string;
       }
     }
-    *progress += 50 / lang_dlls.size();
+    *progress += 33 / lang_dlls.size();
   }
+}
+
+void ResourceManager::load_animation_map(std::atomic<int> * progress) {
+  std::vector<std::string> ani_files;
+  for (auto file : this->resource_map) {
+    std::string file_name = file.first;
+    if(file_name.ends_with(".ani")) {
+      ani_files.push_back(file_name);
+    }
+  }
+
+  for (int i = 0; i < ani_files.size(); i++) {
+    SDL_Log("Loading animation from %s", ani_files[i].c_str());
+    this->animation_map[ani_files[i]] = new AniFile(getResourceLocation(ani_files[i]), ani_files[i]);
+    *progress = 66 + ((float) 34 / (float) ani_files.size() * (float) i);
+  }
+}
+
+void ResourceManager::load_pallet_map(std::atomic<int> *progress) {
+  uint32_t start_time = SDL_GetTicks();
+  std::vector<std::string> pallet_files;
+  for (auto file : this->resource_map) {
+    std::string file_name = file.first;
+    if(file_name.ends_with(".pal") && !file_name.starts_with("ztatb/")) {
+      pallet_files.push_back(file_name);
+    }
+  }
+
+  for (int i = 0; i < pallet_files.size(); i++) {
+    // SDL_Log("Loading pallet %i of %i: %s", i + 1, pallet_files.size(), pallet_files[i].c_str());
+    int pallet_file_size = 0;
+    void * pallet_file_content = ZtdFile::getFileContent(getResourceLocation(pallet_files[i]), pallet_files[i], &pallet_file_size);
+    Pallet * pallet = (Pallet *) calloc(1, sizeof(Pallet));
+
+    SDL_RWops * pallet_rw = SDL_RWFromMem(pallet_file_content, pallet_file_size);
+    pallet->color_count =  SDL_ReadLE32(pallet_rw);
+
+    SDL_RWread(pallet_rw, pallet->colors, sizeof(uint32_t), (size_t) pallet->color_count);
+    SDL_RWclose(pallet_rw);
+    pallet_map[pallet_files[i]] = pallet;
+
+    *progress = 66 + ((float) 34 / (float) pallet_files.size() * (float) i);
+  }
+  SDL_Log("Loading pallets took %u milliseconds", SDL_GetTicks() - start_time);
 }
 
 void ResourceManager::load_all(std::atomic<int> * progress, std::atomic<bool> * is_done) {
   this->load_resource_map(progress);
 
   // Start playing the music after loading ztd resources
-  this->intro_music = this->getMusic(this->config->getMenuMusic());
-  Mix_PlayMusic(this->intro_music, -1);
+  if (this->config->getPlayMenuMusic()) {
+    this->intro_music = this->getMusic(this->config->getMenuMusic());
+    Mix_PlayMusic(this->intro_music, -1);
+  }
 
   this->load_string_map(progress);
+  // this->load_animation_map(progress);
+  this->load_pallet_map(progress);
   *is_done = true;
 }
 
@@ -215,6 +263,20 @@ AniFile * ResourceManager::getAniFile(const std::string &file_name) {
     std::string ani_file_name = file_name + ".ani";
     return new AniFile(getResourceLocation(ani_file_name), ani_file_name);
   }
+}
+
+AnimationData *ResourceManager::getAnimationData(const std::string &file_name)
+{
+  AniFile * ani_file = nullptr;
+  if(Utils::getFileExtension(file_name) == "ANI") {
+    ani_file = new AniFile(getResourceLocation(file_name), file_name);
+  } else {
+    std::string ani_file_name = file_name + ".ani";
+    ani_file = new AniFile(getResourceLocation(ani_file_name), ani_file_name);
+  }
+  
+  AnimationData * data = nullptr;
+  return data;
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {

@@ -30,7 +30,7 @@ IniReader::IniReader(const std::string &filename) {
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
-    this->printContent();
+    // this->printContent();
   #endif
 }
 
@@ -38,7 +38,7 @@ IniReader::IniReader(void *buffer, size_t size) {
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
-    this->printContent();
+    // this->printContent();
   #endif
 }
 
