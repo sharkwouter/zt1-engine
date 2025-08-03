@@ -10,7 +10,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
   
   SDL_Event event;
 
-  std::atomic<int> progress;
+  std::atomic<float> progress;
   std::atomic<bool> is_done = false;
   SDL_Color loading_bar_color = config->getProgressColor();
   SDL_Rect background_rect;

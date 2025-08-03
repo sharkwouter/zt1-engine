@@ -468,15 +468,17 @@ AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const st
   SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
 
   // Read optional header with shadow information
-  char header_string[8];
-  SDL_RWread(rw, header_string, sizeof(char), 8);
-  if(strncmp(header_string, "FATZ", 8) == 0) {
-      SDL_Log("FATZ found");
-      animation_data->has_background = SDL_ReadU8(rw);
-  } else {
-    SDL_RWseek(rw, 0,RW_SEEK_SET);
-    animation_data->has_background = SDL_FALSE;
-    SDL_Log("FATZ not found");
+  {
+    char header_string[8];
+    SDL_RWread(rw, header_string, sizeof(char), 8);
+    if(strncmp(header_string, "FATZ", 8) == 0) {
+        SDL_Log("FATZ found");
+        animation_data->has_background = SDL_ReadU8(rw);
+    } else {
+      SDL_RWseek(rw, 0,RW_SEEK_SET);
+      animation_data->has_background = SDL_FALSE;
+      SDL_Log("FATZ not found");
+    }
   }
 
   animation_data->frame_time_in_ms = SDL_ReadLE32(rw);

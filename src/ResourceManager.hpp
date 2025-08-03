@@ -15,6 +15,7 @@
 #include "AniFile.hpp"
 #include "FontManager.hpp"
 #include "Pallet.hpp"
+#include "PalletManager.hpp"
 
 
 class ResourceManager {
@@ -22,7 +23,7 @@ public:
   ResourceManager(Config * config);
   ~ResourceManager();
 
-  void load_all(std::atomic<int> * progress, std::atomic<bool> * is_done);
+  void load_all(std::atomic<float> * progress, std::atomic<bool> * is_done);
 
   void * getFileContent(const std::string &file_name, int * size);
   SDL_Texture * getTexture(SDL_Renderer * renderer, const std::string &file_name);
@@ -47,16 +48,16 @@ private:
 
   std::string getResourceLocation(const std::string &resoure_name);
 
-  void load_resource_map(std::atomic<int> * progress);
-  void load_string_map(std::atomic<int> * progress);
-  void load_animation_map(std::atomic<int> * progress);
-  void load_pallet_map(std::atomic<int> * progress);
-
+  void load_resource_map(std::atomic<float> * progress, float progress_goal);
+  void load_string_map(std::atomic<float> * progress, float progress_goal);
+  void load_animation_map(std::atomic<float> * progress, float progress_goal);
+  void load_pallet_map(std::atomic<float> * progress, float progress_goal);
 
   Mix_Music * intro_music = nullptr;
 
   Config * config;
   FontManager font_manager;
+  PalletManager pallet_manager;
 };
 
 #endif // RESOURCE_MANAGER_HPP
