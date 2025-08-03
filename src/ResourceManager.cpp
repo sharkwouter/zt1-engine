@@ -222,7 +222,8 @@ void ResourceManager::load_all(std::atomic<float> * progress, std::atomic<bool> 
   };
 
   for (size_t i = 0; i < load_functions.size(); i++) {
-    (this->*load_functions[i])(progress, 100.0 / (float) load_functions.size() * (float) (i + 1));
+    float progress_goal = 100.0 / load_functions.size() * (i + 1);
+    (this->*load_functions[i])(progress, progress_goal);
     if (this->resource_map_loaded && this->intro_music == nullptr && this->config->getPlayMenuMusic()) {
       this->intro_music = this->getMusic(this->config->getMenuMusic());
       Mix_PlayMusic(this->intro_music, -1);
