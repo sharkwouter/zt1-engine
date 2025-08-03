@@ -9,6 +9,8 @@
 
 #include "IniReader.hpp"
 #include "CompassDirection.hpp"
+#include "PalletManager.hpp"
+#include "Pallet.hpp"
 
 typedef struct {
     uint8_t offset;
@@ -41,21 +43,20 @@ typedef struct {
     uint16_t height;
     uint8_t has_background;
     uint32_t frame_time_in_ms;
-    uint32_t pallet_color_count;
-    uint32_t * pallet_colors;
+    Pallet * pallet;
     uint32_t frame_count;
     AnimationFrameInfo * frames;
 } AnimationData;
 
 class AniFile {
 public:
-    AniFile(const std::string &ztd_file, const std::string &file_name);
+    AniFile(PalletManager * pallet_manager, const std::string &ztd_file, const std::string &file_name);
     ~AniFile();
 
     void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::N);
     void draw(SDL_Renderer * renderer, SDL_Rect * draw_rect, CompassDirection direction=CompassDirection::N);
 
-    AnimationData * loadAnimationData(const std::string &ztd_file, const std::string &directory);
+    AnimationData * loadAnimationData(PalletManager * pallet_manager, const std::string &ztd_file, const std::string &directory);
 private:
     int current_frame = 0;
     CompassDirection last_direction = CompassDirection::N;

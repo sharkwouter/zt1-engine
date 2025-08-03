@@ -8,8 +8,9 @@
 #endif
 
 #include "ZtdFile.hpp"
+#include "Utils.hpp"
 
-AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
+AniFile::AniFile(PalletManager * pallet_manager, const std::string &ztd_file, const std::string &file_name) {
   IniReader * ini_reader = ZtdFile::getIniReader(ztd_file, file_name);
 
   this->file_name = file_name;
@@ -24,7 +25,8 @@ AniFile::AniFile(const std::string &ztd_file, const std::string &file_name) {
   std::string directory = this->getAnimationDirectory(ini_reader);
   for (std::string direction : ini_reader->getList("animation", "animation")) {
     // SDL_Log("Get animation for direction %s", direction.c_str());
-    this->animations[direction] = this->loadAnimationData(ztd_file, directory + "/" + direction);
+    // this->loadAnimation(ztd_file, directory + "/" + direction);
+    this->animations[direction] = this->loadAnimationData(pallet_manager, ztd_file, directory + "/" + direction);
   }
   free(ini_reader);
 
@@ -408,7 +410,7 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     frame.x_offset =  *(int16_t *) data;
     data = (char*)data + sizeof(int16_t);
 
-    // SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
+    SDL_Log("Frame is %ux%u pixels with offset %i,%i", frame.height, frame.width, frame.x_offset, frame.y_offset);
     // SDL_Log("Canvas size: %ix%i", this->width, this->height);
 
 
@@ -456,15 +458,21 @@ AniFile::Animation AniFile::loadAnimation(const std::string &ztd_file, const std
     animation.frames.push_back(frame);
     data = frame_end;
   }
+  free(data);
 
   return animation;
 }
 
-AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const std::string &file_name) {
+AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const std::string &ztd_file, const std::string &file_name) {
+  SDL_Log("Loading %s from %s", file_name.c_str(), ztd_file.c_str());
   AnimationData * animation_data = (AnimationData *) calloc(1, sizeof(AnimationData));
   
   int file_size = 0;
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
+  if (file_content == nullptr) {
+    SDL_Log("Could not get data from %s in %s, returning nullptr", file_name.c_str(), ztd_file.c_str());
+    return nullptr;
+  }
   SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
 
   // Read optional header with shadow information
@@ -487,26 +495,7 @@ AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const st
   uint32_t palette_file_name_length = SDL_ReadLE32(rw);  // There should be a \0 after the file name string
   char * palette_file_name = (char *) calloc(palette_file_name_length, sizeof(char));
   SDL_RWread(rw, palette_file_name, sizeof(char), (size_t) palette_file_name_length);
-
-  // Read the pallete file
-  if (pallet_colors == nullptr) {
-      SDL_Log("Palette file name: %s",palette_file_name);
-
-  int pallet_file_size = 0;
-  void * pallet_file_content = ZtdFile::getFileContent(ztd_file, std::string(palette_file_name), &pallet_file_size);
-  if (pallet_file_content == NULL) {
-    SDL_Log("Failed to load pallet, segfault inc");
-    return NULL;
-  }
-  SDL_RWops * pallet_rw = SDL_RWFromMem(pallet_file_content, pallet_file_size);
-
-  pallet_color_count =  SDL_ReadLE32(pallet_rw);
-  pallet_colors = (uint32_t *) calloc(animation_data->pallet_color_count, sizeof(uint32_t));
-  SDL_RWread(pallet_rw, pallet_colors, sizeof(uint32_t), (size_t) animation_data->pallet_color_count);
-  SDL_RWclose(pallet_rw);
-  }
-  animation_data->pallet_color_count = pallet_color_count;
-  animation_data->pallet_colors = pallet_colors;
+  animation_data->pallet = pallet_manager->getPallet(palette_file_name);
 
   // Continue reading animation data
   animation_data->frame_count =  SDL_ReadLE32(rw);
@@ -516,11 +505,8 @@ AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const st
   animation_data->frames = (AnimationFrameInfo *) calloc(frame_count, sizeof(AnimationFrameInfo));
   for(int i = 0; i < frame_count; i++) {
     int64_t frame_start = SDL_RWtell(rw);
-
-    SDL_Log("Reading some of the empty data from the metadata %u, %u, %u",animation_data->frames[i].metadata.size, animation_data->frames[i].metadata.height, animation_data->frames[i].metadata.width);
     SDL_RWread(rw, &(animation_data->frames[i].metadata), sizeof(AnimationFrameMetaData), 1);
-
-    int64_t frame_end = frame_start + animation_data->frames[i].metadata.size;
+    int64_t frame_end = frame_start + animation_data->frames[i].metadata.size + sizeof(animation_data->frames[i].metadata.size);
 
     animation_data->frames[i].is_shadow = false;
     if ((animation_data->frames[i].metadata.height & 0xFF) == 80) {
@@ -544,6 +530,8 @@ AnimationData * AniFile::loadAnimationData(const std::string &ztd_file, const st
     }
     SDL_RWseek(rw, frame_end, RW_SEEK_SET);
   }
+  SDL_RWclose(rw);
+  free(file_content);
 
   return animation_data;
 }

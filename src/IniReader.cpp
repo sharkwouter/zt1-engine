@@ -1,8 +1,10 @@
 #include "IniReader.hpp"
 
+#include <sstream>
+
 #include <SDL2/SDL.h>
 
-#include <sstream>
+#include "Utils.hpp"
 
 void IniReader::printContent() {
   std::string section = "";
@@ -46,17 +48,9 @@ IniReader::~IniReader() {
 
 }
 
-static std::string string_to_lower(const std::string &value) {
-  std::string new_string = "";
-  for (char character : value) {
-    new_string += std::tolower(character);
-  }
-  return new_string;
-}
-
 std::string IniReader::get(const std::string &section, const std::string &key, const std::string &default_value) {
-  std::string section_lower = string_to_lower(section);
-  std::string key_lower = string_to_lower(key);
+  std::string section_lower = Utils::string_to_lower(section);
+  std::string key_lower = Utils::string_to_lower(key);
   if (content.count(section_lower) != 0 && content[section_lower].count(key_lower) != 0) {
     return content[section_lower][key_lower];
   }

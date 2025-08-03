@@ -44,6 +44,14 @@ public:
 
       return file_name;
     }
+
+    static std::string string_to_lower(const std::string &value) {
+      std::string new_string = "";
+      for (char character : value) {
+        new_string += std::tolower((uint8_t) character);
+      }
+      return new_string;
+    }
 };
 
 #endif // UTILS_HPP

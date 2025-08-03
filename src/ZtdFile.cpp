@@ -25,15 +25,17 @@ std::vector<std::string> ZtdFile::getFileList(const std::string &ztd_file) {
 
 void * ZtdFile::getFileContent(const std::string &ztd_file, const std::string &file_name, int * size) {
   void * content = NULL;
-  if(zip_t * file = zip_open(ztd_file.c_str(), 0, NULL)) {
+  int error = 0;
+  if(zip_t * file = zip_open(ztd_file.c_str(), 0, &error)) {
     int index = 0;
     struct zip_stat finfo;
     zip_stat_init(&finfo);
     while ((zip_stat_index(file, index, 0, &finfo)) == 0) {
-      if(std::string(finfo.name) == file_name) {
+      if(Utils::string_to_lower(std::string(finfo.name)) == Utils::string_to_lower(file_name)) {
         content = calloc(finfo.size + 1, sizeof(uint8_t));
         zip_file_t * fd = zip_fopen_index(file, index, 0);
         zip_fread(fd, content, finfo.size);
+        zip_fclose(fd);
         if (size) {
           *size =  finfo.size;
         }
@@ -42,6 +44,10 @@ void * ZtdFile::getFileContent(const std::string &ztd_file, const std::string &f
       index++;
     }
     zip_close(file);
+  }
+  if (error != 0) {
+    SDL_Log("Could not open file %s, got error %i", ztd_file.c_str(), error);
+    exit(1);
   }
   return content;
 }

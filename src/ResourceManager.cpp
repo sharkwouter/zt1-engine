@@ -130,9 +130,6 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, float pro
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
-          #ifdef DEBUG
-            // SDL_Log("Added file to map: %s:%s", file.c_str(), current_archive.c_str());
-          #endif
         }
       }
     }
@@ -191,7 +188,7 @@ void ResourceManager::load_animation_map(std::atomic<float> * progress, float pr
   float progress_per_animation_load = (progress_goal - *progress) / (float) ani_files.size();
   for (int i = 0; i < ani_files.size(); i++) {
     SDL_Log("Loading animation from %s", ani_files[i].c_str());
-    this->animation_map[ani_files[i]] = new AniFile(getResourceLocation(ani_files[i]), ani_files[i]);
+    this->animation_map[ani_files[i]] = new AniFile(&this->pallet_manager, getResourceLocation(ani_files[i]), ani_files[i]);
 
     // Increase progress bar position
     if (*progress + progress_per_animation_load < progress_goal) {
@@ -203,10 +200,12 @@ void ResourceManager::load_animation_map(std::atomic<float> * progress, float pr
 }
 
 void ResourceManager::load_pallet_map(std::atomic<float> * progress, float progress_goal) {
-  std::unordered_map<std::string, std::string> pallet_files_map;
-  for (std::pair<std::string, std::string> file : this->resource_map) {
-    if(file.first.ends_with(".pal")) {
-      this->pallet_manager.addPalletFileToMap(&file);
+  for (auto file : this->resource_map) {
+    std::string pal_file = file.first;
+    if(Utils::getFileExtension(pal_file) == "PAL") {
+      std::string ztd_file = file.second;
+
+      this->pallet_manager.addPalletFileToMap(pal_file, ztd_file);
     }
   }
 
@@ -267,10 +266,10 @@ IniReader * ResourceManager::getIniReader(const std::string &file_name) {
 
 AniFile * ResourceManager::getAniFile(const std::string &file_name) {
   if(Utils::getFileExtension(file_name) == "ANI") {
-    return new AniFile(getResourceLocation(file_name), file_name);
+    return new AniFile(&this->pallet_manager, getResourceLocation(file_name), file_name);
   } else {
     std::string ani_file_name = file_name + ".ani";
-    return new AniFile(getResourceLocation(ani_file_name), ani_file_name);
+    return new AniFile(&this->pallet_manager, getResourceLocation(ani_file_name), ani_file_name);
   }
 }
 
@@ -278,10 +277,10 @@ AnimationData *ResourceManager::getAnimationData(const std::string &file_name)
 {
   AniFile * ani_file = nullptr;
   if(Utils::getFileExtension(file_name) == "ANI") {
-    ani_file = new AniFile(getResourceLocation(file_name), file_name);
+    ani_file = new AniFile(&this->pallet_manager, getResourceLocation(file_name), file_name);
   } else {
     std::string ani_file_name = file_name + ".ani";
-    ani_file = new AniFile(getResourceLocation(ani_file_name), ani_file_name);
+    ani_file = new AniFile(&this->pallet_manager, getResourceLocation(ani_file_name), ani_file_name);
   }
   
   AnimationData * data = nullptr;

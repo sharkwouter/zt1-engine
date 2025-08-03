@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   window.set_cursor(resource_manager.getCursor(9));
 
   LoadScreen::run(&window, &config, &resource_manager);
-  resource_manager.getAniFile("animals/iguano/y/headdown/headdown.ani");
+  // resource_manager.getAnimationData("animals/swcroc/m/swattail/swattail.ani");
 
   IniReader * lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);

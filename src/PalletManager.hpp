@@ -13,16 +13,17 @@ public:
   PalletManager();
   ~PalletManager();
 
+  Pallet * getPallet(char * file_name_c);
   Pallet * getPallet(std::string &file_name);
 
-  void addPalletFileToMap(std::pair<std::string, std::string> * pallet_map_item);
+  void addPalletFileToMap(const std::string &pallet_file, std::string ztd_file);
   void loadPalletMap(std::atomic<float> * progress, float progress_goal);
 
 private:
   std::unordered_map<std::string, std::string> pallet_files_map;
   std::unordered_map<std::string, Pallet> pallet_map;
 
-  void loadPallet(std::string file_name);
+  void loadPallet(const std::string &file_name);
 
   bool loaded = false;
 };
