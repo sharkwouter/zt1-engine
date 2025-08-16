@@ -16,27 +16,23 @@ typedef struct {
     uint8_t offset;
     uint8_t color_count;
     uint8_t * colors;
-} AnimationFrameDrawInstruction;
+} AnimationDrawInstruction;
 
 typedef struct {
     uint8_t instruction_count;
-    AnimationFrameDrawInstruction * instructions;
-} AnimationLineInfo;
+    AnimationDrawInstruction * instructions;
+} AnimationLineData;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     uint32_t size;
     uint16_t height;
     uint16_t width;
     int16_t offset_y;
     int16_t offset_x;
     uint16_t mystery_bytes;
-} AnimationFrameMetaData;
-
-typedef struct {
-    AnimationFrameMetaData metadata;
     bool is_shadow;
-    AnimationLineInfo * lines;
-} AnimationFrameInfo;
+    AnimationLineData * lines;
+} AnimationFrameData;
 
 typedef struct {
     uint16_t width;
@@ -45,7 +41,7 @@ typedef struct {
     uint32_t frame_time_in_ms;
     Pallet * pallet;
     uint32_t frame_count;
-    AnimationFrameInfo * frames;
+    AnimationFrameData * frames;
 } AnimationData;
 
 class AniFile {

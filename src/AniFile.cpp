@@ -502,25 +502,31 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
 
   int frame_count = (int)animation_data->frame_count + (int) animation_data->has_background;
   SDL_Log("Found %i frames %u", frame_count, animation_data->frame_count);
-  animation_data->frames = (AnimationFrameInfo *) calloc(frame_count, sizeof(AnimationFrameInfo));
+  animation_data->frames = (AnimationFrameData *) calloc(frame_count, sizeof(AnimationFrameData));
   for(int i = 0; i < frame_count; i++) {
+    animation_data->frames[i].size = SDL_ReadLE32(rw);
     int64_t frame_start = SDL_RWtell(rw);
-    SDL_RWread(rw, &(animation_data->frames[i].metadata), sizeof(AnimationFrameMetaData), 1);
-    int64_t frame_end = frame_start + animation_data->frames[i].metadata.size + sizeof(animation_data->frames[i].metadata.size);
+    animation_data->frames[i].height = SDL_ReadLE16(rw);
+    animation_data->frames[i].width = SDL_ReadLE16(rw);
+    animation_data->frames[i].offset_y = (int16_t) SDL_ReadLE16(rw);
+    animation_data->frames[i].offset_x = (int16_t) SDL_ReadLE16(rw);
+    animation_data->frames[i].mystery_bytes = SDL_ReadLE16(rw);
+
+    int64_t frame_end = frame_start + animation_data->frames[i].size;
 
     animation_data->frames[i].is_shadow = false;
-    if ((animation_data->frames[i].metadata.height & 0xFF) == 80) {
+    if ((animation_data->frames[i].height & 0x8000) > 0) {
       animation_data->frames[i].is_shadow = true;
-      animation_data->frames[i].metadata.height >>= 8;
+      animation_data->frames[i].height ^= 0x8000;
     }
 
-    SDL_Log("Frame is %ux%u pixels with offset %i,%i", animation_data->frames[i].metadata.height, animation_data->frames[i].metadata.width, animation_data->frames[i].metadata.offset_x, animation_data->frames[i].metadata.offset_y);
-    SDL_Log("Mystery bytes are %u", animation_data->frames[i].metadata.mystery_bytes);
+    SDL_Log("Frame is %ux%u pixels with offset %i,%i", animation_data->frames[i].width, animation_data->frames[i].height, animation_data->frames[i].offset_x, animation_data->frames[i].offset_y);
+    SDL_Log("Mystery bytes are %u and shadow is %i", animation_data->frames[i].mystery_bytes, animation_data->frames[i].is_shadow);
 
-    animation_data->frames[i].lines = (AnimationLineInfo *) calloc(animation_data->frames[i].metadata.height, sizeof(AnimationLineInfo));
-    for(int y = 0; y < animation_data->frames[i].metadata.height; y++) {
+    animation_data->frames[i].lines = (AnimationLineData *) calloc(animation_data->frames[i].height, sizeof(AnimationLineData));
+    for(int y = 0; y < animation_data->frames[i].height; y++) {
       animation_data->frames[i].lines[y].instruction_count = SDL_ReadU8(rw);
-      animation_data->frames[i].lines[y].instructions = (AnimationFrameDrawInstruction *) calloc(animation_data->frames[i].lines[y].instruction_count, sizeof(AnimationFrameDrawInstruction));
+      animation_data->frames[i].lines[y].instructions = (AnimationDrawInstruction *) calloc(animation_data->frames[i].lines[y].instruction_count, sizeof(AnimationDrawInstruction));
       for(int x = 0; x < animation_data->frames[i].lines[y].instruction_count; x++) {
           animation_data->frames[i].lines[y].instructions[x].offset = SDL_ReadU8(rw);
           animation_data->frames[i].lines[y].instructions[x].color_count = SDL_ReadU8(rw);
