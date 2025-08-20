@@ -6,11 +6,7 @@ PalletManager::PalletManager() {
 }
 
 PalletManager::~PalletManager() {
-  for(auto pallet_entry: this->pallet_map) {
-    if (pallet_entry.second.colors) {
-      free(pallet_entry.second.colors);
-    }
-  }
+
 }
 
 Pallet * PalletManager::getPallet(char * file_name_c) {
