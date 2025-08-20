@@ -29,6 +29,10 @@ IniReader::IniReader(const std::string &filename) {
   fseek(fd, 0, SEEK_SET);
   void * buffer = malloc(size);
   fread(buffer, sizeof(char), size, fd);
+  if (buffer == nullptr) {
+    SDL_Log("Could not load content of ini file %s", filename.c_str());  
+    return;
+  }
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
@@ -134,6 +138,10 @@ bool IniReader::isList(const std::string &section, const std::string &key) {
 }
 
 void IniReader::load(std::string file_content) {
+  if (file_content.empty()) {
+    return;
+  }
+
   size_t character_number = 0;
   bool skip_to_end_of_line = false;
   bool skip_to_value = false;
