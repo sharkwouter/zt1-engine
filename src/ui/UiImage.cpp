@@ -46,7 +46,7 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   if (!this->image && !this->animation && !this->image_path.empty()) {
     std::string extension = Utils::getFileExtension(this->image_path);
     if(extension.empty() || extension == "ANI") {
-      this->animation = this->resource_manager->getAniFile(this->image_path);
+      this->animation = this->resource_manager->getAnimation(this->image_path);
     } else {
       this->image = this->resource_manager->getTexture(renderer, this->image_path);
     }

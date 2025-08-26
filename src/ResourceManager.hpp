@@ -13,6 +13,7 @@
 #include "IniReader.hpp"
 #include "PeFile.hpp"
 #include "AniFile.hpp"
+#include "Animation.hpp"
 #include "FontManager.hpp"
 #include "Pallet.hpp"
 #include "PalletManager.hpp"
@@ -30,8 +31,7 @@ public:
   SDL_Cursor * getCursor(uint32_t cursor_id);
   Mix_Music * getMusic(const std::string &file_name);
   IniReader * getIniReader(const std::string &file_name);
-  AniFile * getAniFile(const std::string &file_name);
-  AnimationData * getAnimationData(const std::string &file_name);
+  Animation * getAnimation(const std::string &file_name);
   SDL_Texture * getLoadTexture(SDL_Renderer * renderer);
   SDL_Texture * getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color);
   std::string getString(uint32_t string_id);
@@ -39,7 +39,7 @@ public:
 private:
   std::unordered_map<std::string, std::string> resource_map;
   std::unordered_map<uint32_t, std::string> string_map;
-  std::unordered_map<std::string, AniFile *> animation_map;
+  std::unordered_map<std::string, Animation *> animation_map;
   std::unordered_map<std::string, Pallet *> pallet_map;
   bool resource_map_loaded = false;
 

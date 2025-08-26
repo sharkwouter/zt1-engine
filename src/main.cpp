@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
   window.set_cursor(resource_manager.getCursor(9));
 
   LoadScreen::run(&window, &config, &resource_manager);
-  resource_manager.getAnimationData("animals/baracuda/m/ssurfbrs/ssurfbrs.ani");
-  resource_manager.getAnimationData("animals/swcroc/m/swattail/swattail.ani");
+  Animation * barracuda = resource_manager.getAnimation("animals/baracuda/m/ssurfbrs/ssurfbrs.ani");
+  Animation * swcroc = resource_manager.getAnimation("animals/swcroc/m/swattail/swattail.ani");
 
   IniReader * lyt_reader = resource_manager.getIniReader("ui/startup.lyt");
   UiLayout * layout = new UiLayout(lyt_reader, &resource_manager);
@@ -79,6 +79,8 @@ int main(int argc, char *argv[]) {
         break;
     }
     layout->draw(window.renderer, NULL);
+    barracuda->draw(window.renderer, 100, 100, CompassDirection::N);
+    swcroc->draw(window.renderer, 100, 300, CompassDirection::N);
 
     window.present();
   }

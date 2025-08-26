@@ -188,7 +188,7 @@ void ResourceManager::load_animation_map(std::atomic<float> * progress, float pr
   float progress_per_animation_load = (progress_goal - *progress) / (float) ani_files.size();
   for (int i = 0; i < ani_files.size(); i++) {
     SDL_Log("Loading animation from %s", ani_files[i].c_str());
-    this->animation_map[ani_files[i]] = new AniFile(&this->pallet_manager, getResourceLocation(ani_files[i]), ani_files[i]);
+    this->animation_map[ani_files[i]] = this->getAnimation(ani_files[i]);
 
     // Increase progress bar position
     if (*progress + progress_per_animation_load < progress_goal) {
@@ -216,7 +216,9 @@ void ResourceManager::load_all(std::atomic<float> * progress, std::atomic<bool> 
   std::vector<void(ResourceManager::*)(std::atomic<float> *, float)> load_functions = {
     &ResourceManager::load_resource_map,
     &ResourceManager::load_string_map,
+    // #ifndef DEBUG
     &ResourceManager::load_pallet_map,
+    // #endif
     // &ResourceManager::load_animation_map,
   };
 
@@ -264,27 +266,8 @@ IniReader * ResourceManager::getIniReader(const std::string &file_name) {
   return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
 }
 
-AniFile * ResourceManager::getAniFile(const std::string &file_name) {
-  if(Utils::getFileExtension(file_name) == "ANI") {
-    return new AniFile(&this->pallet_manager, getResourceLocation(file_name), file_name);
-  } else {
-    std::string ani_file_name = file_name + ".ani";
-    return new AniFile(&this->pallet_manager, getResourceLocation(ani_file_name), ani_file_name);
-  }
-}
-
-AnimationData *ResourceManager::getAnimationData(const std::string &file_name)
-{
-  AniFile * ani_file = nullptr;
-  if(Utils::getFileExtension(file_name) == "ANI") {
-    ani_file = new AniFile(&this->pallet_manager, getResourceLocation(file_name), file_name);
-  } else {
-    std::string ani_file_name = file_name + ".ani";
-    ani_file = new AniFile(&this->pallet_manager, getResourceLocation(ani_file_name), ani_file_name);
-  }
-  
-  AnimationData * data = nullptr;
-  return data;
+Animation *ResourceManager::getAnimation(const std::string &file_name) {
+  return AniFile::getAnimation(&this->pallet_manager, getResourceLocation(file_name), file_name);
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
