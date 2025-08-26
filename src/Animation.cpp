@@ -24,12 +24,9 @@ Animation::~Animation() {
 }
 
 void Animation::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direction) {
-  SDL_Log("Starting draw 1");
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
-  SDL_Log("Determined direction string");
   SDL_Rect rect = {x, y, 0, 0};
   if (!this->textures[direction_string].empty()) {
-    SDL_Log("We have a texture");
     SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, &rect.w, &rect.h);
   } else {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
@@ -37,23 +34,18 @@ void Animation::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection dir
     rect.w = this->surfaces[direction_string][this->current_frame]->w;
     rect.h = this->surfaces[direction_string][this->current_frame]->h;
   }
-  SDL_Log("Something happened");
   assert(rect.h > 0);
   assert(rect.w > 0);
   this->draw(renderer, &rect, direction);
 }
 
 void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirection direction) {
-  SDL_Log("Starting draw");
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
-  SDL_Log("Direction string is %s", direction_string.c_str());
   if (direction_string.empty()) {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
     this->textures[direction_string] = std::vector<SDL_Texture *>();
     if (!direction_string.empty()) {
-      SDL_Log("Going through %i surfaces to create textures", this->surfaces[direction_string].size());
       for (SDL_Surface * surface: this->surfaces[direction_string]) {
-        SDL_Log("Adding to textures");
         this->textures[direction_string].push_back(
           SDL_CreateTextureFromSurface(renderer, surface)
         );
@@ -65,7 +57,6 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
       return;
     }
   }
-  SDL_Log("Texture should exist now");
   assert(!this->textures[direction_string].empty());
 
   if (direction != this->last_direction) {
@@ -90,7 +81,6 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
 
   // Draw background
   if (this->has_background) {
-    SDL_Log("Drawing background");
     SDL_RenderCopyEx(renderer, this->textures[direction_string][this->textures[direction_string].size() - 1], NULL, dest_rect, 0, NULL, this->renderer_flip);
   }
 
@@ -99,7 +89,6 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
     // SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
   #endif
 
-  SDL_Log("Drawing actual texture");
   SDL_RenderCopyEx(renderer, this->textures[direction_string][this->current_frame], NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
@@ -325,12 +314,9 @@ void Animation::loadSurfaces(std::string direction_string, AnimationData * data)
   assert(data->height > 0);
 
   // TODO: Determine offset
-  SDL_Log("Setting surfaces");
   this->surfaces[direction_string] = std::vector<SDL_Surface *>();
-  SDL_Log("Passed setting surfaces");
   for(int i = 0; i < ((int) data->frame_count + (int) data->has_background); i++) {
     this->surfaces[direction_string].push_back(SDL_CreateRGBSurfaceWithFormat(0, data->width, data->height, 0, SDL_PIXELFORMAT_RGBA32));
-    SDL_Log("Created new surface");
     for(int y = 0; y < data->frames[i].height; y++) {
       int x = 0;
       for(int instruction = 0; instruction < data->frames[i].lines[y].instruction_count; instruction++) {
@@ -341,7 +327,7 @@ void Animation::loadSurfaces(std::string direction_string, AnimationData * data)
               break;
             }
             if (data->frames[i].is_shadow) {
-              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * y + x] = 0x000000FF;
+              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * y + x] = 0xFF000000;
             } else {
               ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * y + x] = data->pallet->colors[*(uint8_t *)data];
             }
