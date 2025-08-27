@@ -71,6 +71,8 @@ zt1-engine uses external libraries:
 - libzip
 - libz
 
+The icon was made using [a picture from Magda Ehlers from Pexels](https://www.pexels.com/photo/zebra-s-eye-760958/).
+
 Freetype2 has the following license:
 
 ```
