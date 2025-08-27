@@ -30,7 +30,6 @@ void Animation::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection dir
     SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, &rect.w, &rect.h);
   } else {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
-    SDL_Log("Look at surface of frame %i of %i", this->current_frame, this->surfaces[direction_string].size());
     rect.w = this->surfaces[direction_string][this->current_frame]->w;
     rect.h = this->surfaces[direction_string][this->current_frame]->h;
   }
@@ -300,6 +299,43 @@ std::string Animation::convertCompassDirectionToExistingAnimationString(CompassD
   return direction_string;
 }
 
+static void calculateOffset(AnimationData * data, int16_t * offset_x, int16_t * offset_y) {
+  if (data->has_background) {
+    *offset_x = (data->width / 2) - (data->frames[data->frame_count].width / 2) + data->frames[data->frame_count].offset_x;
+    *offset_y = (data->height / 2) - (data->frames[data->frame_count].height / 2) + data->frames[data->frame_count].offset_y;
+    return;
+  }
+
+  for(int i = 0; i < ((int) data->frame_count + (int) data->has_background); i++) {
+    int16_t current_frame_offset_x = (data->width / 2) - (data->frames[i].width / 2) + data->frames[i].offset_x;
+    int16_t current_frame_offset_y = (data->height / 2) - (data->frames[i].height / 2) + data->frames[i].offset_y;
+
+    bool all_frames_fit = true;
+    for(int j = 0; j < ((int) data->frame_count + (int) data->has_background); j++) {
+      if (i == j) {
+        continue;
+      }
+      if (
+        current_frame_offset_x - data->frames[j].offset_x < 0 ||
+        data->frames[j].width + current_frame_offset_x - data->frames[j].offset_x > data->width ||
+        current_frame_offset_y - data->frames[j].offset_y < 0 ||
+        data->frames[j].height + current_frame_offset_y - data->frames[j].offset_y > data->height
+      ) {
+        SDL_Log("No");
+        all_frames_fit = false;
+        break;
+      }
+    }
+    if (all_frames_fit) {
+      SDL_Log("Yes  ");
+      *offset_x = current_frame_offset_x;
+      *offset_y = current_frame_offset_y;
+      return;
+    }
+  }
+  SDL_Log("Failed to set offset to use");
+}
+
 
 void Animation::loadSurfaces(std::string direction_string, AnimationData * data) {
   if (data == nullptr || data->frame_count == 0) {
@@ -314,22 +350,26 @@ void Animation::loadSurfaces(std::string direction_string, AnimationData * data)
   assert(data->height > 0);
 
   // TODO: Determine offset
+  int16_t offset_x = 0;
+  int16_t offset_y = 0;
+  calculateOffset(data, &offset_x, &offset_y);
+
   this->surfaces[direction_string] = std::vector<SDL_Surface *>();
   for(int i = 0; i < ((int) data->frame_count + (int) data->has_background); i++) {
     this->surfaces[direction_string].push_back(SDL_CreateRGBSurfaceWithFormat(0, data->width, data->height, 0, SDL_PIXELFORMAT_RGBA32));
     for(int y = 0; y < data->frames[i].height; y++) {
-      int x = 0;
+      int x = offset_x - data->frames[i].offset_x;
       for(int instruction = 0; instruction < data->frames[i].lines[y].instruction_count; instruction++) {
         x += data->frames[i].lines[y].instructions[instruction].offset;
         for(int p = 0; p < data->frames[i].lines[y].instructions[instruction].color_count; p++, x++) {
           if (x < 0 || x >= data->width || y < 0 || y >= data->height) {
-              SDL_Log("Failure to draw within the bounds");
+              SDL_Log("Failure to draw within the bounds. %i,%i does not fit in a %i,%i rectangle", x, y, data->width, data->height);
               break;
             }
             if (data->frames[i].is_shadow) {
-              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * y + x] = 0xFF000000;
+              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * (y + offset_y - data->frames[i].offset_y) + x] = 0xFF000000;
             } else {
-              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * y + x] = data->pallet->colors[*(uint8_t *)data];
+              ((uint32_t *) this->surfaces[direction_string][i]->pixels)[data->width * (y + offset_y - data->frames[i].offset_y) + x] = data->pallet->colors[data->frames[i].lines[y].instructions[instruction].colors[p]];
             }
         }
       }

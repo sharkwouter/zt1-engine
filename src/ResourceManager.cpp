@@ -216,9 +216,7 @@ void ResourceManager::load_all(std::atomic<float> * progress, std::atomic<bool> 
   std::vector<void(ResourceManager::*)(std::atomic<float> *, float)> load_functions = {
     &ResourceManager::load_resource_map,
     &ResourceManager::load_string_map,
-    // #ifndef DEBUG
     &ResourceManager::load_pallet_map,
-    // #endif
     // &ResourceManager::load_animation_map,
   };
 

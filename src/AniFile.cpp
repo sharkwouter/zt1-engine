@@ -18,7 +18,8 @@ Animation * AniFile::getAnimation(PalletManager * pallet_manager, const std::str
     (*animations)[direction] = AniFile::loadAnimationData(pallet_manager, ztd_file, directory + "/" + direction);
     (*animations)[direction]->width = width;
     (*animations)[direction]->height = height;
-    // SDL_Log("Width is %i and in AnimationData it is %i", width, );
+    SDL_Log("Width and height of animationData are %u,%u", (*animations)[direction]->width, (*animations)[direction]->height);
+    break;
   }
 
   return new Animation(animations);
@@ -74,7 +75,6 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
   }
 
   animation_data->frame_time_in_ms = SDL_ReadLE32(rw);
-  SDL_Log("Frame time: %u", animation_data->frame_time_in_ms);
 
   uint32_t palette_file_name_length = SDL_ReadLE32(rw);  // There should be a \0 after the file name string
   char * palette_file_name = (char *) calloc(palette_file_name_length, sizeof(char));
@@ -85,7 +85,6 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
   animation_data->frame_count =  SDL_ReadLE32(rw);
 
   int frame_count = (int)animation_data->frame_count + (int) animation_data->has_background;
-  SDL_Log("Found %i frames %u", frame_count, animation_data->frame_count);
   animation_data->frames = (AnimationFrameData *) calloc(frame_count, sizeof(AnimationFrameData));
   for(int i = 0; i < frame_count; i++) {
     animation_data->frames[i].size = SDL_ReadLE32(rw);
@@ -114,8 +113,12 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
       for(int x = 0; x < animation_data->frames[i].lines[y].instruction_count; x++) {
           animation_data->frames[i].lines[y].instructions[x].offset = SDL_ReadU8(rw);
           animation_data->frames[i].lines[y].instructions[x].color_count = SDL_ReadU8(rw);
-          animation_data->frames[i].lines[y].instructions[x].colors = (uint8_t *) calloc(animation_data->frames[i].lines[y].instructions[x].color_count, sizeof(uint8_t));
-          SDL_RWread(rw, animation_data->frames[i].lines[y].instructions[x].colors, sizeof(uint8_t), animation_data->frames[i].lines[y].instructions[x].color_count);
+          if (!animation_data->frames[i].is_shadow) {
+            animation_data->frames[i].lines[y].instructions[x].colors = (uint8_t *) calloc(animation_data->frames[i].lines[y].instructions[x].color_count, sizeof(uint8_t));
+            SDL_RWread(rw, animation_data->frames[i].lines[y].instructions[x].colors, sizeof(uint8_t), animation_data->frames[i].lines[y].instructions[x].color_count);
+          } else {
+            animation_data->frames[i].lines[y].instructions[x].colors = nullptr;
+          }
       }
     }
     SDL_RWseek(rw, frame_end, RW_SEEK_SET);
