@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1")
 
 file(GLOB_RECURSE SRC src/*.cpp)
 
-if (WIN32 AND CMAKE_BUILD_TYPE == "Release")
+if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
     add_executable(${PROJECT_NAME} WIN32 ${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/appicon.rc)
 else()
     add_executable(${PROJECT_NAME} ${SRC})
