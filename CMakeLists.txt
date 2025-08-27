@@ -10,7 +10,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1")
 
 file(GLOB_RECURSE SRC src/*.cpp)
 
-add_executable(${PROJECT_NAME} ${SRC})
+if (WIN32 AND CMAKE_BUILD_TYPE == "Release")
+    add_executable(${PROJECT_NAME} WIN32 ${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/appicon.rc)
+else()
+    add_executable(${PROJECT_NAME} ${SRC})
+endif()
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 
