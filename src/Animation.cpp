@@ -81,6 +81,9 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
   // Draw background
   if (this->has_background) {
     SDL_RenderCopyEx(renderer, this->textures[direction_string][this->textures[direction_string].size() - 1], NULL, dest_rect, 0, NULL, this->renderer_flip);
+    if (this->current_frame >= this->textures[direction_string].size() - 1) {
+      this->current_frame = 0;
+    }
   }
 
   // Draw object
