@@ -39,7 +39,7 @@ std::string Config::getMenuMusic()
   return reader->get("ui", "menuMusic", "");
 }
 
-bool Config::playMenuMusic()
+bool Config::getPlayMenuMusic()
 {
   return (reader->get("ui", "noMenuMusic") == "0");
 }

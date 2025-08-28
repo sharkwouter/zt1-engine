@@ -20,7 +20,7 @@ SDL_Surface *PeFile::getLoadScreenSurface()
   SDL_Surface * surface = NULL;
   uint32_t size = 0;
 
-  uint8_t * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_BITMAP, LANGUAGE_ID, LOAD_SCREEN_ID, &size);
+  void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_BITMAP, LANGUAGE_ID, LOAD_SCREEN_ID, &size);
   if (data) {
     SDL_RWops * rw = SDL_RWFromMem(data, size);
     surface = IMG_LoadTyped_RW(rw, 1, "BMP");
@@ -35,7 +35,7 @@ SDL_Surface *PeFile::getCursor(uint32_t cursor_id) {
   SDL_Surface * surface = NULL;
   uint32_t size = 0;
 
-  uint8_t * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_CURSOR, 0, cursor_id, &size);
+  void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_CURSOR, 0, cursor_id, &size);
   if (data) {
     SDL_RWops * rw = SDL_RWFromMem(data, size);
     surface = IMG_LoadTyped_RW(rw, 1, "CUR");
@@ -67,7 +67,7 @@ std::string PeFile::getString(uint32_t string_id) {
     return "";
   }
   uint32_t string_length;
-  uint8_t * c_string = PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, NULL);
+  char * c_string = (char *) PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, NULL);
   if (!c_string) {
     return "";
   }

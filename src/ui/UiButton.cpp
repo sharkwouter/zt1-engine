@@ -20,7 +20,7 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
 
   std::string animation_path = ini_reader->get(name, "animation");
   if (!animation_path.empty()) {
-    this->animation = resource_manager->getAniFile(animation_path);
+    this->animation = resource_manager->getAnimation(animation_path);
   }
 }
 

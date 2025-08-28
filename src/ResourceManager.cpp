@@ -108,7 +108,7 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
   return this->resource_map[resource_name];
 }
 
-void ResourceManager::load_resource_map(std::atomic<int> * progress) {
+void ResourceManager::load_resource_map(std::atomic<float> * progress, float progress_goal) {
   if (resource_map_loaded) {
     SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,"Resource maps was already loaded");
     return;
@@ -118,6 +118,7 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
   SDL_Log("Loading resource map...");
 
   std::vector<std::string> resource_paths = config->getResourcePaths();
+  float progress_per_resource_path_load = (progress_goal - *progress) / (float) resource_paths.size();
   for (std::string path : resource_paths) {
     path = fixPath(path);
     for (std::filesystem::directory_entry archive : std::filesystem::directory_iterator(path)) {
@@ -129,19 +130,22 @@ void ResourceManager::load_resource_map(std::atomic<int> * progress) {
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
-          #ifdef DEBUG
-            SDL_Log("Added file to map: %s", file.c_str());
-          #endif
         }
       }
     }
-    *progress += 50 / resource_paths.size();
+
+    // Increase progress bar position
+    if (*progress + progress_per_resource_path_load < progress_goal) {
+      *progress = *progress + progress_per_resource_path_load;
+    } else {
+      *progress = progress_goal;
+    }
   }
   resource_map_loaded = true;
   SDL_Log("Loading resource map done");
 }
 
-void ResourceManager::load_string_map(std::atomic<int> * progress) {
+void ResourceManager::load_string_map(std::atomic<float> * progress, float progress_goal) {
   std::vector<std::string> lang_dlls;
   for (std::filesystem::directory_entry lang_dll : std::filesystem::directory_iterator(Utils::getExecutableDirectory())) {
     std::string current_dll = lang_dll.path().filename().string();
@@ -152,6 +156,7 @@ void ResourceManager::load_string_map(std::atomic<int> * progress) {
   }
   std::sort(lang_dlls.begin(), lang_dlls.end());
 
+  float progress_per_dll_load = (progress_goal - *progress) / (float) lang_dlls.size();
   for (std::string lang_dll : lang_dlls) {
     SDL_Log("Loading strings from %s", lang_dll.c_str());
     PeFile pe_file(lang_dll);
@@ -161,18 +166,69 @@ void ResourceManager::load_string_map(std::atomic<int> * progress) {
         this->string_map[string_id] = string;
       }
     }
-    *progress += 50 / lang_dlls.size();
+
+    // Increase progress bar position
+    if (*progress + progress_per_dll_load < progress_goal) {
+      *progress = *progress + progress_per_dll_load;
+    } else {
+      *progress = progress_goal;
+    }
   }
 }
 
-void ResourceManager::load_all(std::atomic<int> * progress, std::atomic<bool> * is_done) {
-  this->load_resource_map(progress);
+void ResourceManager::load_animation_map(std::atomic<float> * progress, float progress_goal) {
+  std::vector<std::string> ani_files;
+  for (auto file : this->resource_map) {
+    std::string file_name = file.first;
+    if(file_name.ends_with(".ani")) {
+      ani_files.push_back(file_name);
+    }
+  }
 
-  // Start playing the music after loading ztd resources
-  this->intro_music = this->getMusic(this->config->getMenuMusic());
-  Mix_PlayMusic(this->intro_music, -1);
+  float progress_per_animation_load = (progress_goal - *progress) / (float) ani_files.size();
+  for (int i = 0; i < ani_files.size(); i++) {
+    SDL_Log("Loading animation from %s", ani_files[i].c_str());
+    this->animation_map[ani_files[i]] = this->getAnimation(ani_files[i]);
 
-  this->load_string_map(progress);
+    // Increase progress bar position
+    if (*progress + progress_per_animation_load < progress_goal) {
+      *progress = *progress + progress_per_animation_load;
+    } else {
+      *progress = progress_goal;
+    }
+  }
+}
+
+void ResourceManager::load_pallet_map(std::atomic<float> * progress, float progress_goal) {
+  for (auto file : this->resource_map) {
+    std::string pal_file = file.first;
+    if(Utils::getFileExtension(pal_file) == "PAL") {
+      std::string ztd_file = file.second;
+
+      this->pallet_manager.addPalletFileToMap(pal_file, ztd_file);
+    }
+  }
+
+  this->pallet_manager.loadPalletMap(progress, progress_goal);
+}
+
+void ResourceManager::load_all(std::atomic<float> * progress, std::atomic<bool> * is_done) {
+  std::vector<void(ResourceManager::*)(std::atomic<float> *, float)> load_functions = {
+    &ResourceManager::load_resource_map,
+    &ResourceManager::load_string_map,
+    &ResourceManager::load_pallet_map,
+    // &ResourceManager::load_animation_map,
+  };
+
+  for (size_t i = 0; i < load_functions.size(); i++) {
+    float progress_goal = 100.0 / load_functions.size() * (i + 1);
+    (this->*load_functions[i])(progress, progress_goal);
+    if (this->resource_map_loaded && this->intro_music == nullptr && this->config->getPlayMenuMusic()) {
+      this->intro_music = this->getMusic(this->config->getMenuMusic());
+      Mix_PlayMusic(this->intro_music, -1);
+    }
+  }
+
   *is_done = true;
 }
 
@@ -208,13 +264,8 @@ IniReader * ResourceManager::getIniReader(const std::string &file_name) {
   return ZtdFile::getIniReader(getResourceLocation(file_name), file_name);
 }
 
-AniFile * ResourceManager::getAniFile(const std::string &file_name) {
-  if(Utils::getFileExtension(file_name) == "ANI") {
-    return new AniFile(getResourceLocation(file_name), file_name);
-  } else {
-    std::string ani_file_name = file_name + ".ani";
-    return new AniFile(getResourceLocation(ani_file_name), ani_file_name);
-  }
+Animation *ResourceManager::getAnimation(const std::string &file_name) {
+  return AniFile::getAnimation(&this->pallet_manager, getResourceLocation(file_name), file_name);
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {

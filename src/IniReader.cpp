@@ -1,8 +1,10 @@
 #include "IniReader.hpp"
 
+#include <sstream>
+
 #include <SDL2/SDL.h>
 
-#include <sstream>
+#include "Utils.hpp"
 
 void IniReader::printContent() {
   std::string section = "";
@@ -27,10 +29,14 @@ IniReader::IniReader(const std::string &filename) {
   fseek(fd, 0, SEEK_SET);
   void * buffer = malloc(size);
   fread(buffer, sizeof(char), size, fd);
+  if (buffer == nullptr) {
+    SDL_Log("Could not load content of ini file %s", filename.c_str());  
+    return;
+  }
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
-    this->printContent();
+    // this->printContent();
   #endif
 }
 
@@ -38,7 +44,7 @@ IniReader::IniReader(void *buffer, size_t size) {
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
-    this->printContent();
+    // this->printContent();
   #endif
 }
 
@@ -46,17 +52,9 @@ IniReader::~IniReader() {
 
 }
 
-static std::string string_to_lower(const std::string &value) {
-  std::string new_string = "";
-  for (char character : value) {
-    new_string += std::tolower(character);
-  }
-  return new_string;
-}
-
 std::string IniReader::get(const std::string &section, const std::string &key, const std::string &default_value) {
-  std::string section_lower = string_to_lower(section);
-  std::string key_lower = string_to_lower(key);
+  std::string section_lower = Utils::string_to_lower(section);
+  std::string key_lower = Utils::string_to_lower(key);
   if (content.count(section_lower) != 0 && content[section_lower].count(key_lower) != 0) {
     return content[section_lower][key_lower];
   }
@@ -140,6 +138,10 @@ bool IniReader::isList(const std::string &section, const std::string &key) {
 }
 
 void IniReader::load(std::string file_content) {
+  if (file_content.empty()) {
+    return;
+  }
+
   size_t character_number = 0;
   bool skip_to_end_of_line = false;
   bool skip_to_value = false;
