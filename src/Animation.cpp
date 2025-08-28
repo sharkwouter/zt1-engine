@@ -87,10 +87,6 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
   }
 
   // Draw object
-  #ifdef DEBUG
-    // SDL_Log("Frame %i/%i image at %i,%i size %ix%i", this->current_frame + 1, this->animations[direction_string].frame_count, dest_rect->x, dest_rect->y, dest_rect->w, dest_rect->h);
-  #endif
-
   SDL_RenderCopyEx(renderer, this->textures[direction_string][this->current_frame], NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
@@ -324,13 +320,11 @@ static void calculateOffset(AnimationData * data, int16_t * offset_x, int16_t * 
         current_frame_offset_y - data->frames[j].offset_y < 0 ||
         data->frames[j].height + current_frame_offset_y - data->frames[j].offset_y > data->height
       ) {
-        SDL_Log("No");
         all_frames_fit = false;
         break;
       }
     }
     if (all_frames_fit) {
-      SDL_Log("Yes  ");
       *offset_x = current_frame_offset_x;
       *offset_y = current_frame_offset_y;
       return;

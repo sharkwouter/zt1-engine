@@ -18,8 +18,6 @@ Animation * AniFile::getAnimation(PalletManager * pallet_manager, const std::str
     (*animations)[direction] = AniFile::loadAnimationData(pallet_manager, ztd_file, directory + "/" + direction);
     (*animations)[direction]->width = width;
     (*animations)[direction]->height = height;
-    SDL_Log("Width and height of animationData are %u,%u", (*animations)[direction]->width, (*animations)[direction]->height);
-    break;
   }
 
   return new Animation(animations);
