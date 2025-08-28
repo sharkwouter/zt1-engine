@@ -95,12 +95,7 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
     std::string resource_name_with_slash = resource_name + "/";
     if(this->resource_map.count(resource_name_with_slash) == 0) {
       SDL_Log("Could not find resource %s", resource_name.c_str());
-      #ifdef DEBUG
-        for(auto pair : this->resource_map) {
-          SDL_Log("%s", pair.first.c_str());
-        }
-      #endif
-      exit(500);
+      return "";
     }
     return this->resource_map[resource_name_with_slash];
   }
@@ -265,7 +260,14 @@ IniReader * ResourceManager::getIniReader(const std::string &file_name) {
 }
 
 Animation *ResourceManager::getAnimation(const std::string &file_name) {
-  return AniFile::getAnimation(&this->pallet_manager, getResourceLocation(file_name), file_name);
+  std::string resource_location = getResourceLocation(file_name);
+  if (!resource_location.empty()) {
+    return AniFile::getAnimation(&this->pallet_manager, resource_location, file_name);
+  } else {
+    std::string full_file_name = file_name + ".ani";
+    resource_location = getResourceLocation(full_file_name);
+    return AniFile::getAnimation(&this->pallet_manager, resource_location, full_file_name);
+  }
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
