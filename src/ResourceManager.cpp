@@ -10,6 +10,7 @@
 #include "ZtdFile.hpp"
 #include "Utils.hpp"
 #include "FontManager.hpp"
+#include "Expansion.hpp"
 
 ResourceManager::ResourceManager(Config * config) : config(config) {
 
@@ -271,12 +272,20 @@ Animation *ResourceManager::getAnimation(const std::string &file_name) {
 }
 
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
-  PeFile pe_file(this->config->getLangDllName());
+  Expansion expansion = Utils::getExpansion();
+  uint32_t loading_screen_id = 502;
+  std::string lang_dll_path = Utils::getExpansionLangDllPath(expansion);
 
-  SDL_Surface * surface = pe_file.getLoadScreenSurface();
+  if (expansion == Expansion::ALL) {
+    loading_screen_id = 505;
+  } else if (expansion == Expansion::MARINE_MANIA) {
+    loading_screen_id = 504;
+  }
+
+  PeFile pe_file(lang_dll_path);
+  SDL_Surface * surface = pe_file.getLoadScreenSurface(loading_screen_id);
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_FreeSurface(surface);
-
   return texture;
 }
 

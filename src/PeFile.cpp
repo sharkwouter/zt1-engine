@@ -15,12 +15,12 @@ PeFile::~PeFile() {
   }
 }
 
-SDL_Surface *PeFile::getLoadScreenSurface()
+SDL_Surface *PeFile::getLoadScreenSurface(uint32_t loading_screen_id)
 {
   SDL_Surface * surface = NULL;
   uint32_t size = 0;
 
-  void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_BITMAP, LANGUAGE_ID, LOAD_SCREEN_ID, &size);
+  void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_BITMAP, LANGUAGE_ID, loading_screen_id, &size);
   if (data) {
     SDL_RWops * rw = SDL_RWFromMem(data, size);
     surface = IMG_LoadTyped_RW(rw, 1, "BMP");

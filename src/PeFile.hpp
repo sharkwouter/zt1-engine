@@ -12,7 +12,7 @@ public:
     PeFile(const std::string &pe_file);
     ~PeFile();
 
-    SDL_Surface * getLoadScreenSurface();
+    SDL_Surface * getLoadScreenSurface(uint32_t loading_screen_id);
     SDL_Surface * getCursor(uint32_t cursor_id);
     std::vector<uint32_t> getStringIds();
     std::string getString(uint32_t string_id);

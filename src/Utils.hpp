@@ -4,8 +4,12 @@
 #define UTILS_HPP
 
 #include <string>
+#include <filesystem>
 
 #include <SDL2/SDL.h>
+
+
+#include "Expansion.hpp"
 
 class Utils {
 public:
@@ -51,6 +55,41 @@ public:
         new_string += std::tolower((uint8_t) character);
       }
       return new_string;
+    }
+
+    static std::string getExpansionLangDllPath(Expansion expansion) {
+      std::string base_path = Utils::getExecutableDirectory();
+      switch (expansion) {
+        case Expansion::NONE:
+          return base_path + "lang0.dll";
+          break;
+        case Expansion::DINOSAUR_DIGS:
+          return base_path + "lang100.dll";
+          break;
+        case Expansion::MARINE_MANIA:
+          return base_path + "lang200.dll";
+          break;
+        case Expansion::ALL:
+          return base_path + "lang200.dll";
+          break;
+      }
+    }
+
+    static Expansion getExpansion() {
+      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA)) && std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS))) {
+        SDL_Log("Found all expansions");
+        return Expansion::ALL;
+      }
+
+      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA))) {
+        return Expansion::MARINE_MANIA;
+      }
+
+      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS))) {
+        return Expansion::DINOSAUR_DIGS;
+      }
+
+      return Expansion::NONE;
     }
 };
 
