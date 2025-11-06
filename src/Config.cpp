@@ -5,7 +5,7 @@
 #include "Utils.hpp"
 
 Config::Config(const std::string &filename) {
-  reader = new IniReader(Utils::getExecutableDirectory() + filename);
+  reader = new IniReader(Utils::fixPath(filename));
 }
 
 Config::~Config(){

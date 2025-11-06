@@ -5,6 +5,7 @@
 
 #include <string>
 #include <filesystem>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -13,84 +14,126 @@
 
 class Utils {
 public:
-    static std::string getExecutableDirectory() {
-      std::string exe_directory = "./";
-      char * sdl_base_path = SDL_GetBasePath();
-      if (sdl_base_path) {
-        exe_directory = std::string(sdl_base_path);
-        SDL_free(sdl_base_path);
+  static std::string getExecutableDirectory() {
+    std::string exe_directory = "./";
+    char * sdl_base_path = SDL_GetBasePath();
+    if (sdl_base_path) {
+      exe_directory = std::string(sdl_base_path);
+      SDL_free(sdl_base_path);
+    }
+    return exe_directory;
+  }
+
+  static std::string getFileExtension(const std::string &file_path) {
+    std::string extension = "";
+
+    size_t last_dot = file_path.find_last_of(".");
+    if(last_dot != std::string::npos && last_dot >= (file_path.length() - 4)) {
+      for(size_t i = last_dot + 1; i < file_path.length(); i++) {
+        extension += std::toupper(file_path[i]);
       }
-      return exe_directory;
     }
 
-    static std::string getFileExtension(const std::string &file_path) {
-      std::string extension = "";
+    return extension;
+  }
 
-      size_t last_dot = file_path.find_last_of(".");
-      if(last_dot != std::string::npos && last_dot >= (file_path.length() - 4)) {
-        for(size_t i = last_dot + 1; i < file_path.length(); i++) {
-          extension += std::toupper(file_path[i]);
+  static std::string getFileName(const std::string &file_path) {
+    std::string file_name = "";
+
+    size_t last_slash = file_path.find_last_of("/");
+    if(last_slash != std::string::npos) {
+      for(size_t i = last_slash + 1; i < file_path.length(); i++) {
+        file_name += file_path[i];
+      }
+    }
+
+    return file_name;
+  }
+
+  static std::string string_to_lower(const std::string &value) {
+    std::string new_string = "";
+    for (char character : value) {
+      new_string += std::tolower((uint8_t) character);
+    }
+    return new_string;
+  }
+
+  static std::string getCorrectCaseFilename(std::string base_path, std::string file_name) {
+    std::string current_file_name = "";
+    std::string matching_file = "";
+    for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(base_path)) {
+      current_file_name = file.path().filename().string();
+      if (current_file_name.length() != file_name.length()) {
+        continue;
+      }
+
+      bool match = true;
+      for (int i = 0; i < file_name.length(); i++) {
+        if(std::toupper(current_file_name[i]) != std::toupper(file_name[i])) {
+          match = false;
+          break;
         }
       }
-
-      return extension;
-    }
-
-    static std::string getFileName(const std::string &file_path) {
-      std::string file_name = "";
-
-      size_t last_slash = file_path.find_last_of("/");
-      if(last_slash != std::string::npos) {
-        for(size_t i = last_slash + 1; i < file_path.length(); i++) {
-          file_name += file_path[i];
-        }
-      }
-
-      return file_name;
-    }
-
-    static std::string string_to_lower(const std::string &value) {
-      std::string new_string = "";
-      for (char character : value) {
-        new_string += std::tolower((uint8_t) character);
-      }
-      return new_string;
-    }
-
-    static std::string getExpansionLangDllPath(Expansion expansion) {
-      std::string base_path = Utils::getExecutableDirectory();
-      switch (expansion) {
-        case Expansion::NONE:
-          return base_path + "lang0.dll";
-          break;
-        case Expansion::DINOSAUR_DIGS:
-          return base_path + "lang100.dll";
-          break;
-        case Expansion::MARINE_MANIA:
-          return base_path + "lang200.dll";
-          break;
-        case Expansion::ALL:
-          return base_path + "lang200.dll";
-          break;
+      if (match) {
+        matching_file = current_file_name;
+        break;
       }
     }
 
-    static Expansion getExpansion() {
-      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA)) && std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS))) {
-        SDL_Log("Found all expansions");
-        return Expansion::ALL;
-      }
+    return matching_file;
+  }
 
-      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA))) {
-        return Expansion::MARINE_MANIA;
-      }
+  static std::string fixPath(std::string path_string) {
+    std::filesystem::path path = std::filesystem::path(path_string);
 
-      if (std::filesystem::exists(Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS))) {
-        return Expansion::DINOSAUR_DIGS;
-      }
-
-      return Expansion::NONE;
+    std::filesystem::path new_path = std::filesystem::path("/");
+    if (!path.is_absolute()) {
+      new_path =  std::filesystem::path(Utils::getExecutableDirectory());
     }
+    for (std::filesystem::path part : path) {
+      if (part == "/" || part == ".") {
+        continue;
+      }
+      std::string new_part = Utils::getCorrectCaseFilename(new_path, part);
+      if (new_part.empty())
+        return "";
+      new_path = new_path / new_part;
+    }
+    return new_path;
+  }
+
+  static std::string getExpansionLangDllPath(Expansion expansion) {
+    switch (expansion) {
+      case Expansion::NONE:
+        return Utils::fixPath("lang0.dll");
+        break;
+      case Expansion::DINOSAUR_DIGS:
+        return Utils::fixPath("lang100.dll");
+        break;
+      case Expansion::MARINE_MANIA:
+        return Utils::fixPath("lang200.dll");
+        break;
+      case Expansion::ALL:
+        return Utils::fixPath("lang200.dll");
+        break;
+    }
+  }
+
+  static Expansion getExpansion() {
+    if (!Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA).empty() && !Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS).empty()) {
+      return Expansion::ALL;
+    }
+
+    if (!Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA).empty()) {
+      return Expansion::MARINE_MANIA;
+    }
+
+    if (!Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS).empty()) {
+      return Expansion::DINOSAUR_DIGS;
+    }
+
+    return Expansion::NONE;
+  }
 };
 
 #endif // UTILS_HPP

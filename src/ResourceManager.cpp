@@ -23,74 +23,6 @@ ResourceManager::~ResourceManager() {
   }
 }
 
-std::string ResourceManager::getCorrectCaseFilename(std::string &base_path, std::string file_name) {
-  std::string current_file_name = "";
-  std::string matching_file = "";
-  for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(base_path)) {
-    current_file_name = file.path().filename().string();
-    if (current_file_name.length() != file_name.length()) {
-      continue;
-    }
-
-    bool match = true;
-    for (int i = 0; i < file_name.length(); i++) {
-      if(std::toupper(current_file_name[i]) != std::toupper(file_name[i])) {
-        match = false;
-        break;
-      }
-    }
-    if (match) {
-      matching_file = current_file_name;
-      break;
-    }
-  }
-
-  return matching_file;
-}
-
-std::string ResourceManager::fixPath(std::string &path) {
-  std::vector<std::string> parts = std::vector<std::string>();
-  size_t part_number = 0;
-
-  // Split the path into parts
-  for (char character : path) {
-    if (character == '/' || character == '\\' ) {
-      part_number++;
-      continue;
-    }
-    if (parts.size() == part_number) {
-      parts.push_back("");
-    }
-    parts[part_number] += character;
-  }
-
-  // Get the path of the executable
-  std::string exe_directory = Utils::getExecutableDirectory();
-
-  // Check if the paths really exist as they are and correct them
-  std::string base_dir = exe_directory;
-  for(size_t i = 0; i < parts.size(); i++) {
-    if(parts[i] == ".") {
-      continue;
-    }
-    base_dir = exe_directory;
-    for(size_t j = 0; j < i; j++) {
-      base_dir += parts[j] + "/";
-    }
-    std::string new_part = getCorrectCaseFilename(base_dir, parts[i]);
-    if (!new_part.empty()) {
-      parts[i] = new_part;
-    }
-  }
-
-  std::string fixed_path = exe_directory;
-  for(std::string part : parts) {
-    fixed_path += "/" + part;
-  }
-
-  return fixed_path;
-}
-
 std::string ResourceManager::getResourceLocation(const std::string &resource_name) {
   if (this->resource_map.count(resource_name) == 0) {
     std::string resource_name_with_slash = resource_name + "/";
@@ -116,10 +48,12 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, float pro
   std::vector<std::string> resource_paths = config->getResourcePaths();
   float progress_per_resource_path_load = (progress_goal - *progress) / (float) resource_paths.size();
   for (std::string path : resource_paths) {
-    path = fixPath(path);
+    path = Utils::fixPath(path);
+    if (path.empty())
+      continue;
     for (std::filesystem::directory_entry archive : std::filesystem::directory_iterator(path)) {
       current_archive = archive.path().string();
-      if (!current_archive.ends_with(".ztd")) {
+      if (Utils::getFileExtension(current_archive) != "ZTD") {
         continue;
       }
       // SDL_Log("Adding resources from %s", archive.path().c_str());

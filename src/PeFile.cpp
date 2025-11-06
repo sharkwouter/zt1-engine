@@ -5,8 +5,12 @@
 
 #include <SDL2/SDL_image.h>
 
+#include "Utils.hpp"
+
+
 PeFile::PeFile(const std::string &pe_file) {
-  this->loader = PeResourceLoader_Open(pe_file.c_str());
+  std::string fixed_path = Utils::fixPath(pe_file);
+  this->loader = PeResourceLoader_Open(fixed_path.c_str());
 }
 
 PeFile::~PeFile() {

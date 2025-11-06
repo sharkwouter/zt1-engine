@@ -43,9 +43,6 @@ private:
   std::unordered_map<std::string, Pallet *> pallet_map;
   bool resource_map_loaded = false;
 
-  std::string getCorrectCaseFilename(std::string &base_path, std::string file_name);
-  std::string fixPath(std::string &path);
-
   std::string getResourceLocation(const std::string &resoure_name);
 
   void load_resource_map(std::atomic<float> * progress, float progress_goal);
