@@ -59,5 +59,5 @@ void FontManager::loadFont(const int font) {
       break;
   }
 
-  this->fonts[font] = TTF_OpenFont(std::string(Utils::getExecutableDirectory() +"font/" + font_file).c_str(), font_size);
+  this->fonts[font] = TTF_OpenFont(Utils::fixPath("font/" + font_file).c_str(), font_size);
 }

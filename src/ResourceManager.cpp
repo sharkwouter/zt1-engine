@@ -79,7 +79,7 @@ void ResourceManager::load_string_map(std::atomic<float> * progress, float progr
   std::vector<std::string> lang_dlls;
   for (std::filesystem::directory_entry lang_dll : std::filesystem::directory_iterator(Utils::getExecutableDirectory())) {
     std::string current_dll = lang_dll.path().filename().string();
-    if (!current_dll.starts_with("lang") || !current_dll.ends_with(".dll")) {
+    if (!Utils::string_to_lower(current_dll).starts_with("lang") || Utils::getFileExtension(current_dll) != "DLL") {
       continue;
     }
     lang_dlls.push_back(lang_dll.path().string());
