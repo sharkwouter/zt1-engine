@@ -94,12 +94,12 @@ public:
       if (part == "/" || part == ".") {
         continue;
       }
-      std::string new_part = Utils::getCorrectCaseFilename(new_path, part);
+      std::string new_part = Utils::getCorrectCaseFilename(new_path.string(), part);
       if (new_part.empty())
         return "";
       new_path = new_path / new_part;
     }
-    return new_path;
+    return new_path.string();
   }
 
   static std::string getExpansionLangDllPath(Expansion expansion) {
