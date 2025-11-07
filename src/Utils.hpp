@@ -94,7 +94,7 @@ public:
       if (part == "/" || part == ".") {
         continue;
       }
-      std::string new_part = Utils::getCorrectCaseFilename(new_path.string(), part);
+      std::string new_part = Utils::getCorrectCaseFilename(new_path.string(), part.string());
       if (new_part.empty())
         return "";
       new_path = new_path / new_part;
