@@ -52,6 +52,11 @@ void FontManager::loadFont(const int font) {
       font_file = "Aileron-Black.otf";
       font_size = 12;
       break;
+    case 14004:  // Map description text in freeform menu
+    case 11520:  // Labels in freeform
+      font_file = "Aileron-Black.otf";
+      font_size = 12;
+      break;
     default:
       SDL_Log("Could not load unknown font %i, using default", font);
       font_file = "Aileron-Regular.otf";
