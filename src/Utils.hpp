@@ -58,6 +58,11 @@ public:
     return new_string;
   }
 
+#ifdef _WIN32
+  static std::string fixPath(std::string path_string) {
+    return path_string;
+  }
+#else
   static std::string getCorrectCaseFilename(std::string base_path, std::string file_name) {
     std::string current_file_name = "";
     std::string matching_file = "";
@@ -101,6 +106,7 @@ public:
     }
     return new_path.string();
   }
+#endif
 
   static std::string getExpansionLangDllPath(Expansion expansion) {
     switch (expansion) {
