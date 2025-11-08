@@ -65,8 +65,12 @@ protected:
 
   void drawChildren(SDL_Renderer * renderer, SDL_Rect * parent_rect) {
     // TODO: Figure out if layers need to be taken into account here
-    for (UiElement * child : this->children) {
-      child->draw(renderer, parent_rect);
+    for (int layer=0; layer < (8 + 1); layer++) {
+      for (UiElement * child : this->children) {
+        if (child->layer == layer) {
+          child->draw(renderer, parent_rect);
+        }
+      }
     }
   }
 
