@@ -56,6 +56,8 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
           if (target != 0) {
             action = (UiAction) target;
           }
+        } else if(this->ini_reader->getInt(this->name, "action", 0) == 2){
+          action = UiAction::CREDITS_EXIT;
         } else {
           action = this->getActionBasedOnName();
         }
