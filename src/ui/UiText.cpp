@@ -34,7 +34,7 @@ UiAction UiText::handleInputs(std::vector<Input> &inputs) {
 }
 
 void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
-  if (!this->text) {
+  if (!this->text_string.empty() && (!this->text || !this->shadow)) {
     std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");
     SDL_Color color = {
       (uint8_t) std::stoi(color_values[0]),
@@ -43,12 +43,17 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
       255,
     };
     this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
+    this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
   }
-  SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+  dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "right") {
     dest_rect.x = layout_rect->x + layout_rect->w - dest_rect.w;
   }
+
+  shadow_rect = {dest_rect.x - 1, dest_rect.y + 1, dest_rect.w, dest_rect.h};
+  SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
+
   SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
   this->drawChildren(renderer, &dest_rect);
 }
