@@ -53,11 +53,16 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   }
 
   SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+  // if (this->ini_reader->get(this->name, "justify") == "center") {
+  //   dest_rect.x -= dest_rect.w / 2;
+  // } else if (this->ini_reader->get(this->name, "justify") == "right") {
+  //   dest_rect.x -= dest_rect.w;
+  // }
   if (this->image) {
     SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
   }
   if (this->animation) {
-    this->animation->draw(renderer, dest_rect.x, dest_rect.y, CompassDirection::N);
+    this->animation->draw(renderer, &dest_rect, CompassDirection::N);
   }
   this->drawChildren(renderer, &dest_rect);
 }

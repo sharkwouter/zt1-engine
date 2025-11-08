@@ -93,19 +93,32 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   }
 
   dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+  SDL_Rect text_rect = {dest_rect.x, dest_rect.y, 0, 0};
+  if (this->animation != nullptr) {
+    this->animation->draw(renderer, &dest_rect, CompassDirection::N);
 
-  if (this->animation != nullptr)
-    this->animation->draw(renderer, dest_rect.x, dest_rect.y, CompassDirection::N);
-
-  SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
-  if (this->ini_reader->get(this->name, "justify") == "center") {
-    dest_rect.x = layout_rect-> x + (layout_rect->w / 2) - (dest_rect.w / 2);
+    // Prepare position for text drawing
+    if (this->ini_reader->get(this->name, "justify") == "center") {
+      text_rect.x += dest_rect.w / 2;
+      text_rect.y += dest_rect.h / 2;
+    }
   }
 
-  shadow_rect = {dest_rect.x - 2, dest_rect.y + 2, dest_rect.w, dest_rect.h};
+  SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
+  if (this->ini_reader->get(this->name, "justify") == "center") {
+    text_rect.x -= text_rect.w / 2;
+    text_rect.y -= text_rect.h / 2;
+  }
+
+  // Make sure dest_rect has a size so mouse selection works
+  if (dest_rect.w == 0 || dest_rect.h == 0) {
+    dest_rect = text_rect;
+  }
+
+  shadow_rect = {text_rect.x - 1, text_rect.y + 1, text_rect.w, text_rect.h};
   SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
 
-  SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
+  SDL_RenderCopy(renderer, this->text, NULL, &text_rect);
   this->drawChildren(renderer, &dest_rect);
 }
 

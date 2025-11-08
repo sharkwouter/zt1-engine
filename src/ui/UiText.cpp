@@ -47,10 +47,17 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   }
   dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
-  if (this->ini_reader->get(this->name, "justify") == "right") {
-    dest_rect.x = layout_rect->x + layout_rect->w - dest_rect.w;
+  if (this->ini_reader->get(this->name, "justify") == "center") {
+    dest_rect.x -= dest_rect.w / 2;
+  } else if (this->ini_reader->get(this->name, "justify") == "right") {
+    dest_rect.x -= dest_rect.w;
   }
 
+  // Fix for version text on main menu
+  if (this->ini_reader->get(this->name, "y") == "bottom") {
+    dest_rect.y -= dest_rect.h;
+  }
+  
   shadow_rect = {dest_rect.x - 1, dest_rect.y + 1, dest_rect.w, dest_rect.h};
   SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
 

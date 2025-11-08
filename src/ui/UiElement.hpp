@@ -84,10 +84,26 @@ protected:
   SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect = {0, 0, 0, 0};
 
+    if (map.contains("dx")) {
+      if (map["dx"] == "whole") {
+        rect.w = layout_rect->w;
+      } else {
+        rect.w = std::stoi(map["dx"]);
+      }
+    }
+
+    if (map.contains("dy") && map["dy"] != "fitfont") {
+       if (map["dy"] == "whole") {
+        rect.h = layout_rect->h;
+      } else {
+        rect.h = std::stoi(map["dy"]);
+      }
+    }
+
     if (map["x"] == "center") {
-      rect.x = layout_rect->w / 2;
-     } else if (map["x"] == "right") {
-        rect.x = layout_rect->w;
+      rect.x = layout_rect->w / 2 - rect.w / 2;
+    } else if (map["x"] == "right") {
+      rect.x = layout_rect->w - rect.w;
     } else if (map["x"] == "left") {
       rect.x = 0;
     } else {
@@ -95,38 +111,21 @@ protected:
     }
 
     if (map["y"] == "center") {
-      rect.y = layout_rect->h / 2;
+      rect.y = layout_rect->h / 2 - rect.h / 2;
     } else if (map["y"] == "bottom") {
-      rect.y = layout_rect->h;
+      rect.y = layout_rect->h - rect.h;
     } else if (map["y"] == "top") {
       rect.y = 0;
     } else {
       rect.y = std::stoi(map["y"]);
     }
 
-    if(!map.contains("dx") || map["dx"] == "whole") {
-      rect.w = layout_rect->w;
-    } else {
-      rect.w = std::stoi(map["dx"]);
-    }
-
-    if(!map.contains("dy") || map["dy"] == "whole") {
-      rect.h = layout_rect->h;
-    } else if (map["dy"] == "fitfont") {
-      rect.h = FONT_SIZE;
-    } else {
-      rect.h = std::stoi(map["dy"]);
-    }
-
-    if (map["x"] == "center" || (map.contains("justify") && map["justify"] == "center" )) {
-      rect.x -= rect.w / 2;
-    }
-    if (map["y"] == "center") {
-      rect.y -= rect.h / 2;
-    }
-    if (map.contains("justify") && map["justify"] == "right") {
-      rect.x -= rect.w;
-      rect.y -= rect.h;
+    if (map.contains("justify")) {
+      if (map["justify"] == "center") {
+        rect.x += rect.w / 2;
+      } else if (map["justify"] == "right") {
+        rect.x += rect.w;
+      }
     }
 
     rect.x += layout_rect->x;

@@ -78,6 +78,10 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
     SDL_RenderFillRect(renderer, dest_rect);
   #endif
 
+  if (dest_rect->w == 0 || dest_rect->h == 0) {
+    SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, &dest_rect->w, &dest_rect->h);
+  }
+
   // Draw background
   if (this->has_background) {
     SDL_RenderCopyEx(renderer, this->textures[direction_string][this->textures[direction_string].size() - 1], NULL, dest_rect, 0, NULL, this->renderer_flip);
