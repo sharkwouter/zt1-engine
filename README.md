@@ -7,8 +7,9 @@ Currently it has the following features:
 - Display the loading screen.
 - Map the resources found in ztd files.
 - Map the strings found in lang*.dll files.
-- Load the into music.
+- Load the intro music.
 - Display the main menu.
+- Load an display animations.
 
 Please do not use this unless you want to help make an open source engine for Zoo Tycoon a reality. This is very far from playable.
 
@@ -66,7 +67,7 @@ zt1-engine uses external libraries:
 - SDL2_image
 - SDL2_mixer
 - SDL2_ttf
-- Freetype2
+- FreeType2
 - pe-resource-loader
 - libzip
 - libz
