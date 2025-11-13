@@ -9,7 +9,7 @@ Currently it has the following features:
 - Map the strings found in lang*.dll files.
 - Load the intro music.
 - Display the main menu.
-- Load an display animations.
+- Load and display animations.
 
 Please do not use this unless you want to help make an open source engine for Zoo Tycoon a reality. This is very far from playable.
 
