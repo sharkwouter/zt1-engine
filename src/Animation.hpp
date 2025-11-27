@@ -21,6 +21,7 @@ public:
     void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::N);
     void draw(SDL_Renderer * renderer, SDL_Rect * draw_rect, CompassDirection direction=CompassDirection::N);
 
+    void queryTexture(CompassDirection direction, int * w, int * h);
 private:
     int current_frame = 0;
     CompassDirection last_direction = CompassDirection::N;

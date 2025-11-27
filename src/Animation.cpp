@@ -94,6 +94,21 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
   SDL_RenderCopyEx(renderer, this->textures[direction_string][this->current_frame], NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
+void Animation::queryTexture(CompassDirection direction, int * w, int * h) {
+  std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
+  if (!this->textures[direction_string].empty()) {
+    SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, w, h);
+  } else {
+    direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
+    if (w != nullptr) {
+      *w = this->surfaces[direction_string][this->current_frame]->w;
+    }
+    if (h != nullptr) {
+      *h = this->surfaces[direction_string][this->current_frame]->h;
+    }
+  }
+}
+
 std::string Animation::convertCompassDirectionToString(CompassDirection direction) {
   std::string direction_string = "";
   
@@ -122,6 +137,12 @@ std::string Animation::convertCompassDirectionToString(CompassDirection directio
     case CompassDirection::W:
         direction_string = "W";
         break;
+    case CompassDirection::G:
+      direction_string = "G";
+      break;
+    case CompassDirection::H:
+      direction_string = "H";
+      break;
     default:
       SDL_Log("Direction used has no string equivalent direction used!");
       break;
@@ -294,6 +315,24 @@ std::string Animation::convertCompassDirectionToExistingAnimationString(CompassD
         this->renderer_flip = SDL_FLIP_NONE;
       }
       break;
+    case CompassDirection::G:
+        if (animation_map.contains("G")) {
+          direction_string = "G";
+          this->renderer_flip = SDL_FLIP_NONE;
+        } else {
+          direction_string = "N";
+          this->renderer_flip = SDL_FLIP_NONE;
+        }
+        break;
+    case CompassDirection::H:
+        if (animation_map.contains("H")) {
+          direction_string = "H";
+          this->renderer_flip = SDL_FLIP_NONE;
+        } else {
+          direction_string = "N";
+          this->renderer_flip = SDL_FLIP_NONE;
+        }
+        break;
     default:
       SDL_Log("Unhandled direction used!");
       break;

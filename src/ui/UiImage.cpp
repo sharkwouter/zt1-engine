@@ -59,11 +59,21 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   //   dest_rect.x -= dest_rect.w;
   // }
   if (this->image) {
-    if (dest_rect.w == 0 || dest_rect.h == 0)
+    if (dest_rect.w == 0 || dest_rect.h == 0) {
       SDL_QueryTexture(this->image, NULL, NULL, &dest_rect.w, &dest_rect.h);
+    }
+    if (this->ini_reader->get(this->name, "y") == "bottom") {
+      dest_rect.y -= dest_rect.h;
+    }
     SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
   }
   if (this->animation) {
+    if (dest_rect.w == 0 || dest_rect.h == 0) {
+      this->animation->queryTexture(CompassDirection::N, &dest_rect.w, &dest_rect.h);
+    }
+    if (this->ini_reader->get(this->name, "y") == "bottom") {
+      dest_rect.y -= dest_rect.h;
+    }
     this->animation->draw(renderer, &dest_rect, CompassDirection::N);
   }
   this->drawChildren(renderer, &dest_rect);
