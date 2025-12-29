@@ -9,7 +9,9 @@ enum class CompassDirection {
     N,
     E,
     S,
-    W
+    W,
+    H, // Specific to buttons
+    G // Specific to buttons
 };
 
 #endif  // COMPASS_DIRECTION_HPP
