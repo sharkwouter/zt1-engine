@@ -18,6 +18,7 @@ endif()
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Prevent pe-resource-loader from building shared library" FORCE)
 set(PE_BITMAP_LOADER OFF CACHE INTERNAL "Prevent pe-resource-loader from building the pe_bitmap_loader binary" FORCE)
 set(PE_STRING_LOADER OFF CACHE INTERNAL "Prevent pe-resource-loader from building the pe_string_loader binary" FORCE)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vendor/pe-resource-loader)
@@ -102,7 +103,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    pe_resource_loader
+    pe_resource_loader_static
     SDL2::SDL2-static
     SDL2_image
     SDL2_ttf
