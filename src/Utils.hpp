@@ -73,7 +73,7 @@ public:
       }
 
       bool match = true;
-      for (int i = 0; i < file_name.length(); i++) {
+      for (size_t i = 0; i < file_name.length(); i++) {
         if(std::toupper(current_file_name[i]) != std::toupper(file_name[i])) {
           match = false;
           break;

@@ -16,7 +16,7 @@ std::vector<Input> InputManager::getInputs() {
     Input input = {
       .type = InputType::NONE,
       .event = InputEvent::NONE,
-      .position = {0, 0}
+      .position = {0, 0},
     };
 
     switch (event.type) {
