@@ -25,12 +25,20 @@ ResourceManager::~ResourceManager() {
 
 std::string ResourceManager::getResourceLocation(const std::string &resource_name) {
   if (this->resource_map.count(resource_name) == 0) {
+    // Try with a slash behind it
     std::string resource_name_with_slash = resource_name + "/";
-    if(this->resource_map.count(resource_name_with_slash) == 0) {
-      SDL_Log("Could not find resource %s", resource_name.c_str());
-      return "";
+    if(this->resource_map.count(resource_name_with_slash) > 0) {
+      return this->resource_map[resource_name_with_slash];
     }
-    return this->resource_map[resource_name_with_slash];
+    // If we got some weird list, just take the first item
+    int semicolon_position = resource_name.find(";");
+    std::string resource_name_no_list = resource_name.substr(0, semicolon_position);
+    if(this->resource_map.count(resource_name_no_list) > 0) {
+      return this->resource_map[resource_name_no_list];
+    }
+    // Give up
+    SDL_Log("Could not find resource %s", resource_name.c_str());
+    return "";
   }
 
   return this->resource_map[resource_name];
@@ -198,6 +206,14 @@ Animation *ResourceManager::getAnimation(const std::string &file_name) {
   std::string resource_location = getResourceLocation(file_name);
   if (!resource_location.empty()) {
     return AniFile::getAnimation(&this->pallet_manager, resource_location, file_name);
+  } else if (file_name.find(";") != std::string::npos) {
+    int semicolon_position = file_name.find(";");
+    std::string full_file_name = file_name.substr(0, semicolon_position);
+    if (!full_file_name.ends_with(".ani")) {
+      full_file_name += ".ani";
+    }
+    resource_location = getResourceLocation(full_file_name);
+    return AniFile::getAnimation(&this->pallet_manager, resource_location, full_file_name);
   } else {
     std::string full_file_name = file_name + ".ani";
     resource_location = getResourceLocation(full_file_name);
