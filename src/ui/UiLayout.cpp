@@ -1,5 +1,7 @@
 #include "UiLayout.hpp"
 
+#include <algorithm>
+
 #include "UiImage.hpp"
 #include "UiText.hpp"
 #include "UiButton.hpp"
@@ -89,6 +91,10 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
 void UiLayout::process_layout(ResourceManager *resource_manager, std::string layout) {
   if (layout.empty()) {
     return;
+  }
+  if (layout != "ui/infocomC.lyt") {
+    // infocomC.lyt is the only lyt file that has a capital letter in the name
+    std::transform(layout.begin(), layout.end(), layout.begin(), ::tolower);
   }
   IniReader * ini_reader = resource_manager->getIniReader(layout);
   process_sections(ini_reader, resource_manager);
