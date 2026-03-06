@@ -68,6 +68,9 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, float pro
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
+          if(Utils::getFileExtension(file) == "PAL") {
+            this->pallet_manager.addPalletFileToMap(file, current_archive);
+          }
         }
       }
     }
@@ -138,15 +141,6 @@ void ResourceManager::load_animation_map(std::atomic<float> * progress, float pr
 }
 
 void ResourceManager::load_pallet_map(std::atomic<float> * progress, float progress_goal) {
-  for (auto file : this->resource_map) {
-    std::string pal_file = file.first;
-    if(Utils::getFileExtension(pal_file) == "PAL") {
-      std::string ztd_file = file.second;
-
-      this->pallet_manager.addPalletFileToMap(pal_file, ztd_file);
-    }
-  }
-
   this->pallet_manager.loadPalletMap(progress, progress_goal);
 }
 
@@ -154,7 +148,7 @@ void ResourceManager::load_all(std::atomic<float> * progress, std::atomic<bool> 
   std::vector<void(ResourceManager::*)(std::atomic<float> *, float)> load_functions = {
     &ResourceManager::load_resource_map,
     &ResourceManager::load_string_map,
-    &ResourceManager::load_pallet_map,
+    // &ResourceManager::load_pallet_map,
     // &ResourceManager::load_animation_map,
   };
 
