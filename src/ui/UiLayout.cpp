@@ -21,6 +21,10 @@ UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std
   this->process_layout(resource_manager, ini_reader->get(name, "layout"));
 }
 
+UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std::string name, bool active) : UiLayout::UiLayout(ini_reader, resource_manager) {
+  this->active = active;
+}
+
 UiLayout::~UiLayout() {
     for (UiElement * element : this->children) {
       free(element);

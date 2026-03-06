@@ -13,16 +13,17 @@
 #include "../ResourceManager.hpp"
 #include "../Input.hpp"
 
-class UiLayout : UiElement {
+class UiLayout : public UiElement {
 public:
   UiLayout(IniReader * ini_reader, ResourceManager * resource_manager);
   UiLayout(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
+  UiLayout(IniReader * ini_reader, ResourceManager * resource_manager, std::string name, bool active);
   ~UiLayout();
 
   UiAction handleInputs(std::vector<Input> &inputs);
   void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
 
-private:
+protected:
   std::string name = "layoutinfo";
   int id = 0;
   int layer_count = 0;

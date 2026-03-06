@@ -53,6 +53,9 @@ public:
     SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "This code should never be reached, which was the child not added?");
   }
 
+  bool getActive() {return this->active;};
+  void setActive(bool active) {this->active = active;};
+
 protected:
   IniReader * ini_reader = nullptr;
   ResourceManager * resource_manager = nullptr;
@@ -60,6 +63,7 @@ protected:
   int id = 0;
   int layer = 0;
   int anchor = 0;
+  bool active = true;
 
   std::vector<UiElement*> children;
 
