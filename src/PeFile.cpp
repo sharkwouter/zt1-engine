@@ -70,7 +70,7 @@ std::string PeFile::getString(uint32_t string_id) {
   if (!this->loader) {
     return "";
   }
-  char * c_string = (char *) PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, NULL, NULL);
+  char * c_string = (char *) PeResourceLoader_GetResource(this->loader, PRL_TYPE_STRING, LANGUAGE_ID, string_id, NULL);
   if (!c_string) {
     return "";
   }
