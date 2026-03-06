@@ -9,6 +9,7 @@
 #include "../IniReader.hpp"
 #include "../Animation.hpp"
 #include "../ResourceManager.hpp"
+#include "../CompassDirection.hpp"
 
 class UiButton : UiElement {
 public:
@@ -27,6 +28,7 @@ private:
   bool selected = false;
   bool selected_updated = false;
   bool has_select_color = false;
+  CompassDirection current_button_image = CompassDirection::N;
   SDL_Rect dest_rect = {0, 0, 0, 0};
   SDL_Rect shadow_rect = {0, 0, 0, 0};
 

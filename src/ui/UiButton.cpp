@@ -76,8 +76,10 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     std::vector<std::string> color_values;
     if (this->selected && this->has_select_color && !ini_reader->getList(name, "selectcolor").empty()) {
       color_values = ini_reader->getList(name, "selectcolor");
+      this->current_button_image = CompassDirection::S;
     } else {
       color_values = ini_reader->getList(name, "forecolor");
+      this->current_button_image = CompassDirection::N;
     }
     SDL_Color color = {0, 0, 0, 255};
     if (color_values.size() == 3) {
