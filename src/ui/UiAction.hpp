@@ -1,15 +1,22 @@
 #ifndef UI_ACTION_HPP
 #define UI_ACTION_HPP
 
-enum class UiAction {
+enum class Action {
     NONE=0,
-    STARTUP_EXIT,
-    CREDITS_EXIT=2,
-    STARTUP_PLAY_SCENARIO=32,
-    STARTUP_ZOO_ITEMS=35,
-    STARTUP_PLAY_FREEFORM=39,
-    STARTUP_CREDITS=40,
-    SCENARIO_BACK_TO_MAIN_MENU,
+    SHOW_TARGET_LAYOUT=1,
+    HIDE_TARGET_LAYOUT=2,
+    TOGGLE_TARGET_LAYOUT=3,
+    SWITCH_TO_TARGET_LAYOUT=4,
 };
+
+enum class ActionSource {
+    MAIN_MENU_EXIT=7116,
+};
+
+typedef struct {
+    Action action;
+    int target;
+    int source;
+} UiAction;
 
 #endif // UI_ACTION_HPP

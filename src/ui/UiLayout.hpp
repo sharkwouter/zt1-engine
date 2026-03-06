@@ -25,7 +25,6 @@ public:
 
 protected:
   std::string name = "layoutinfo";
-  int id = 0;
   int layer_count = 0;
   SDL_Window * window = nullptr;
 

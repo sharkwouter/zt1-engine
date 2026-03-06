@@ -2,6 +2,7 @@
 #define LOAD_SCREEN_HPP
 
 #include "ResourceManager.hpp"
+#include "LayoutManager.hpp"
 #include "Config.hpp"
 #include "Window.hpp"
 

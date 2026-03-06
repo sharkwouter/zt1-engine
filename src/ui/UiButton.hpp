@@ -28,11 +28,11 @@ private:
   bool selected = false;
   bool selected_updated = false;
   bool has_select_color = false;
+  int target = 0;
+  Action action = Action::NONE;
   CompassDirection current_button_image = CompassDirection::N;
   SDL_Rect dest_rect = {0, 0, 0, 0};
   SDL_Rect shadow_rect = {0, 0, 0, 0};
-
-  UiAction getActionBasedOnName();
 };
 
 #endif // UI_BUTTON_HPP

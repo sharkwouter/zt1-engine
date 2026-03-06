@@ -26,6 +26,7 @@ public:
   int getLayer() {return this->layer;};
   int getAnchor() {return this->anchor;};
 
+  int getId() {return id;};
   bool hasId(int id) {
     if (id == this->id) {
       return true;
@@ -79,14 +80,14 @@ protected:
   }
 
   UiAction handleInputChildren(std::vector<Input> &inputs) {
-    UiAction action = UiAction::NONE;
+    UiAction result = {Action::NONE, 0, 0};
     for (UiElement * child : this->children) {
-      UiAction new_action = child->handleInputs(inputs);
-      if (new_action != UiAction::NONE) {
-        action = new_action;
+      UiAction new_result = child->handleInputs(inputs);
+      if (new_result.source != 0) {
+        result = new_result;
       }
     }
-    return action;
+    return result;
   }
 
   SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
