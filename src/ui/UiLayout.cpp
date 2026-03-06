@@ -7,7 +7,6 @@
 #include "UiButton.hpp"
 
 UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
-  this->name = "layoutinfo";
   this->id = ini_reader->getInt(this->name, "id", 0);
   this->layer = ini_reader->getInt(this->name, "layer", 1);
 
@@ -15,11 +14,7 @@ UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
 }
 
 UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std::string name) {
-  this->name = name;
-  this->id = ini_reader->getInt(name, "id", 0);
-  this->layer = ini_reader->getInt(name, "layer", 1);
-  this->anchor = ini_reader->getInt(name, "anchor", 0);
-
+  this->active = ini_reader->getInt(name, "state", 0) != 1;
   this->process_layout(resource_manager, ini_reader->get(name, "layout"));
 }
 
@@ -49,11 +44,11 @@ void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
 }
 
 void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource_manager) {
-  this->id = ini_reader->getInt(name, "id", 0);
-  this->layer_count = ini_reader->getInt(name, "layer", 0);
+  this->id = ini_reader->getInt("layoutinfo", "id", 0);
+  this->layer = ini_reader->getInt("layoutinfo", "layer", 0);
 
   for(std::string section: ini_reader->getSections()) {
-    if (section == this->name || section == "layoutinfo") {
+    if (section == "layoutinfo") {
       continue;
     }
 

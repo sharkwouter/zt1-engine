@@ -10,12 +10,11 @@
 #include "../ResourceManager.hpp"
 #include "../Animation.hpp"
 
-class UiImage : UiElement {
+class UiImage : public UiElement {
 public:
   UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
   ~UiImage();
 
-  UiAction handleInputs(std::vector<Input> &inputs);
   void draw(SDL_Renderer *renderer, SDL_Rect * layout_rect);
 
 private:

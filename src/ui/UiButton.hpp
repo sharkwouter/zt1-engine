@@ -11,7 +11,7 @@
 #include "../ResourceManager.hpp"
 #include "../CompassDirection.hpp"
 
-class UiButton : UiElement {
+class UiButton : public UiElement {
 public:
   UiButton(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
   ~UiButton();
@@ -28,10 +28,7 @@ private:
   bool selected = false;
   bool selected_updated = false;
   bool has_select_color = false;
-  int target = 0;
-  Action action = Action::NONE;
   CompassDirection current_button_image = CompassDirection::N;
-  SDL_Rect dest_rect = {0, 0, 0, 0};
   SDL_Rect shadow_rect = {0, 0, 0, 0};
 };
 

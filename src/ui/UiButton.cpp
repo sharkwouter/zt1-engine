@@ -51,6 +51,7 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
     }
     this->selected = true;
     this->selected_updated = true;
+    SDL_Log("Button %i on layer %i has been hovered over", id, layer);
     switch (input.event) {
       case InputEvent::LEFT_CLICK:
         result = {action, target, id};

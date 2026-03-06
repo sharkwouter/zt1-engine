@@ -17,60 +17,64 @@ LayoutManager::~LayoutManager() {
 }
 
 bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
-  for(auto kv : layouts) {
-    UiLayout * layout = layouts[kv.first];
-    if (layout == nullptr || !layout->getActive()) {
-      continue;
-    }
-    UiAction action = layout->handleInputs(inputs);
-    if (action.source != 0) {
-      switch (action.action) {
-        case Action::SHOW_TARGET_LAYOUT:
-          for(auto kv : layouts) {
-            UiLayout * layout = layouts[kv.first];
-            if (layout->hasId(action.target)) {
-              layout->setActive(true);
+  for (int layer=8; layer > (0 - 1); layer--) {
+    for(auto kv : layouts) {
+      UiLayout * layout = layouts[kv.first];
+      if (layout == nullptr || layout->getLayer() != layer || !layout->getActive()) {
+        continue;
+      }
+      UiAction action = layout->handleInputs(inputs);
+      if (action.source != 0) {
+        SDL_Log("Source of input is %i on layer %i", action.source, layer);
+        switch (action.action) {
+          case Action::SHOW_TARGET_LAYOUT:
+            for(auto kv : layouts) {
+              UiLayout * layout = layouts[kv.first];
+              if (layout->hasId(action.target)) {
+                layout->setActive(true);
+              }
             }
-          }
-          break;
-        case Action::HIDE_TARGET_LAYOUT:
-          for(auto kv : layouts) {
-            UiLayout * layout = layouts[kv.first];
-            if (layout->hasId(action.target)) {
-              layout->setActive(false);
-            } else if (action.target == -1 && layout->hasId(action.source)) {
-              layout->setActive(false);
+            break;
+          case Action::HIDE_TARGET_LAYOUT:
+            for(auto kv : layouts) {
+              UiLayout * layout = layouts[kv.first];
+              if (layout->hasId(action.target)) {
+                layout->setActive(false);
+              } else if (action.target == -1 && layout->hasId(action.source)) {
+                layout->setActive(false);
+              }
             }
-          }
-          break;
-        case Action::TOGGLE_TARGET_LAYOUT:
-          for(auto kv : layouts) {
-            UiLayout * layout = layouts[kv.first];
-            if (layout->hasId(action.target)) {
-              layout->setActive(!layout->getActive());
+            break;
+          case Action::TOGGLE_TARGET_LAYOUT:
+            for(auto kv : layouts) {
+              UiLayout * layout = layouts[kv.first];
+              if (layout->hasId(action.target)) {
+                layout->setActive(!layout->getActive());
+              }
             }
-          }
-          break;
-        case Action::SWITCH_TO_TARGET_LAYOUT:
-          for(auto kv : layouts) {
-            UiLayout * layout = layouts[kv.first];
-            if (layout->hasId(action.target)) {
-              layout->setActive(true);
+            break;
+          case Action::SWITCH_TO_TARGET_LAYOUT:
+            for(auto kv : layouts) {
+              UiLayout * layout = layouts[kv.first];
+              if (layout->hasId(action.target)) {
+                layout->setActive(true);
+              }
+              if (layout->hasId(action.source)) {
+                layout->setActive(false);
+              }
             }
-            if (layout->hasId(action.source)) {
-              layout->setActive(false);
+            break;
+          case Action::NONE:
+            {
+              bool running = handleTargetlessAction(action);
+              if (!running)
+                return false;
             }
-          }
-          break;
-        case Action::NONE:
-          {
-            bool running = handleTargetlessAction(action);
-            if (!running)
-              return false;
-          }
-          break;
-        default:
-          break;
+            break;
+          default:
+            break;
+        }
+        return true;
       }
     }
   }

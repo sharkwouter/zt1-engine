@@ -10,6 +10,7 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
+
   this->anchor = ini_reader->getInt(name, "anchor", 0);
 
   std::string normal = ini_reader->get(name, "normal");
@@ -38,43 +39,41 @@ UiImage::~UiImage() {
   }
 }
 
-UiAction UiImage::handleInputs(std::vector<Input> &inputs) {
-  return handleInputChildren(inputs);
-}
-
-void UiImage::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
-  if (!this->image && !this->animation && !this->image_path.empty()) {
+void UiImage::draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
+  if (!this->image && !this->animation && !this->image_path.empty())
+  {
     std::string extension = Utils::getFileExtension(this->image_path);
-    if(extension.empty() || extension == "ANI") {
+    if (extension.empty() || extension == "ANI")
+    {
       this->animation = this->resource_manager->getAnimation(this->image_path);
     } else {
-      this->image = this->resource_manager->getTexture(renderer, this->image_path);
-    }
+    this->image = this->resource_manager->getTexture(renderer, this->image_path);
   }
+}
 
-  SDL_Rect dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  // if (this->ini_reader->get(this->name, "justify") == "center") {
-  //   dest_rect.x -= dest_rect.w / 2;
-  // } else if (this->ini_reader->get(this->name, "justify") == "right") {
-  //   dest_rect.x -= dest_rect.w;
-  // }
-  if (this->image) {
-    if (dest_rect.w == 0 || dest_rect.h == 0) {
-      SDL_QueryTexture(this->image, NULL, NULL, &dest_rect.w, &dest_rect.h);
-    }
-    if (this->ini_reader->get(this->name, "y") == "bottom") {
-      dest_rect.y -= dest_rect.h;
-    }
-    SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+// if (this->ini_reader->get(this->name, "justify") == "center") {
+//   dest_rect.x -= dest_rect.w / 2;
+// } else if (this->ini_reader->get(this->name, "justify") == "right") {
+//   dest_rect.x -= dest_rect.w;
+// }
+if (this->image) {
+  if (dest_rect.w == 0 || dest_rect.h == 0) {
+    SDL_QueryTexture(this->image, NULL, NULL, &dest_rect.w, &dest_rect.h);
   }
-  if (this->animation) {
-    if (dest_rect.w == 0 || dest_rect.h == 0) {
-      this->animation->queryTexture(CompassDirection::N, &dest_rect.w, &dest_rect.h);
-    }
-    if (this->ini_reader->get(this->name, "y") == "bottom") {
-      dest_rect.y -= dest_rect.h;
-    }
-    this->animation->draw(renderer, &dest_rect, CompassDirection::N);
+  if (this->ini_reader->get(this->name, "y") == "bottom") {
+    dest_rect.y -= dest_rect.h;
   }
-  this->drawChildren(renderer, &dest_rect);
+  SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+}
+if (this->animation) {
+  if (dest_rect.w == 0 || dest_rect.h == 0) {
+    this->animation->queryTexture(CompassDirection::N, &dest_rect.w, &dest_rect.h);
+  }
+  if (this->ini_reader->get(this->name, "y") == "bottom") {
+    dest_rect.y -= dest_rect.h;
+  }
+  this->animation->draw(renderer, &dest_rect, CompassDirection::N);
+}
+this->drawChildren(renderer, &dest_rect);
 }

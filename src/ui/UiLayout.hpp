@@ -25,7 +25,6 @@ public:
 
 protected:
   std::string name = "layoutinfo";
-  int layer_count = 0;
   SDL_Window * window = nullptr;
 
   std::vector<UiElement*> elements;

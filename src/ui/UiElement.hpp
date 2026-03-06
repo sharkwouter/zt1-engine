@@ -19,7 +19,32 @@ class UiElement {
 public:
   virtual ~UiElement() {};
 
-  virtual UiAction handleInputs(std::vector<Input> &inputs) = 0;
+  virtual UiAction handleInputs(std::vector<Input> &inputs) {
+    UiAction result = {Action::NONE, 0, 0};
+    for (Input input : inputs) {
+      if (input.type != InputType::POSITIONED) {
+        continue;
+      }
+      if (input.position.x < this->dest_rect.x || input.position.x > this->dest_rect.x + this->dest_rect.w) {
+        continue;
+      }
+      if (input.position.y < this->dest_rect.y || input.position.y > this->dest_rect.y + this->dest_rect.h) {
+        continue;
+      }
+      switch (input.event) {
+        case InputEvent::LEFT_CLICK:
+          result = {action, target, id};
+          break;
+        default:
+          break;
+      }
+    }
+    if (result.source == 0) {
+      result = handleInputChildren(inputs);
+    }
+    return result;
+  }
+
   virtual void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) = 0;
 
   std::string getName() {return this->name;};
@@ -64,7 +89,10 @@ protected:
   int id = 0;
   int layer = 0;
   int anchor = 0;
+  int target = 0;
   bool active = true;
+  Action action = Action::NONE;
+  SDL_Rect dest_rect = {0, 0, 0, 0};
 
   std::vector<UiElement*> children;
 
@@ -81,10 +109,14 @@ protected:
 
   UiAction handleInputChildren(std::vector<Input> &inputs) {
     UiAction result = {Action::NONE, 0, 0};
-    for (UiElement * child : this->children) {
-      UiAction new_result = child->handleInputs(inputs);
-      if (new_result.source != 0) {
-        result = new_result;
+    for (int l=8; l > (0 - 1); l--) {
+      for (UiElement * child : this->children) {
+        if (child == NULL || child->getLayer() != l || !child->getActive())
+          continue;
+        UiAction new_result = child->handleInputs(inputs);
+        if (new_result.source != 0) {
+          return new_result;
+        }
       }
     }
     return result;
@@ -140,6 +172,7 @@ protected:
     rect.x += layout_rect->x;
     rect.y += layout_rect->y;
 
+    dest_rect = rect;
     return rect;
   };
 };

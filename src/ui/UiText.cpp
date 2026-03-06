@@ -29,10 +29,6 @@ UiText::~UiText() {
   }
 }
 
-UiAction UiText::handleInputs(std::vector<Input> &inputs) {
-  return this->handleInputChildren(inputs);
-}
-
 void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   if (!this->text_string.empty() && (!this->text || !this->shadow)) {
     std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");

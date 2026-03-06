@@ -9,12 +9,11 @@
 #include "../IniReader.hpp"
 #include "../ResourceManager.hpp"
 
-class UiText : UiElement {
+class UiText : public UiElement {
 public:
   UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
   ~UiText();
 
-  UiAction handleInputs(std::vector<Input> &inputs);
   void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
 
 private:
