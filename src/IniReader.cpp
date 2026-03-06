@@ -62,7 +62,7 @@ std::string IniReader::get(const std::string &section, const std::string &key, c
   return default_value;
 }
 
-std::vector<std::string> IniReader::getList(const std::string &section, const std::string &key, const std::vector<std::string> &default_value)
+std::vector<std::string> IniReader::getList(const std::string &section, const std::string &key)
 {
   std::vector<std::string> list = {};
   std::string value = get(section, key, "");
@@ -96,7 +96,7 @@ uint32_t IniReader::getUnsignedInt(const std::string &section, const std::string
   return result;
 }
 
-std::vector<int> IniReader::getIntList(const std::string &key, const std::string &value, const std::vector<int> &default_value)
+std::vector<int> IniReader::getIntList(const std::string &key, const std::string &value)
 {
   std::vector<int> list = {};
   std::vector<std::string> strings = this->getList(key, value);

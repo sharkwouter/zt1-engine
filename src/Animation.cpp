@@ -69,7 +69,7 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
     }
   }
 
-  if (this->current_frame >= this->textures[direction_string].size()) {
+  if (this->current_frame >= (int) this->textures[direction_string].size()) {
     this->current_frame = 0;
   }
 
