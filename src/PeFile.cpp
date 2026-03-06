@@ -54,10 +54,10 @@ std::vector<uint32_t> PeFile::getStringIds() {
   std::vector<uint32_t> string_ids;
 
   if (this->loader) {
-    uint32_t string_count;
+    uint16_t string_count;
     uint32_t * string_ids_c = PeResourceLoader_GetResourceIds(this->loader, PRL_TYPE_STRING, &string_count);
     string_ids.reserve((size_t) string_count);
-    for (uint32_t i = 0; i < string_count; i++) {
+    for (uint16_t i = 0; i < string_count; i++) {
       string_ids.push_back(string_ids_c[i]);
     }
     free(string_ids_c);
