@@ -40,7 +40,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
               UiLayout * layout = layouts[kv.first];
               if (layout->getId() == action.target) {
                 layout->setActive(false);
-              } else if (action.target == -1 && layout->getId() == action.source) {
+              } else if (action.target == -1 && layout->hasId(action.source)) {
                 layout->setActive(false);
               }
             }
@@ -59,7 +59,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
               if (layout->getId() == action.target) {
                 layout->setActive(true);
               }
-              if (layout->getId() == action.source) {
+              if (layout->hasId(action.source)) {
                 layout->setActive(false);
               }
             }
