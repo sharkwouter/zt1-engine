@@ -41,22 +41,22 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
   }
-  dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_QueryTexture(this->text, NULL, NULL, &dest_rect.w, &dest_rect.h);
+  this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
+  SDL_QueryTexture(this->text, NULL, NULL, &draw_rect.w, &draw_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
-    dest_rect.x -= dest_rect.w / 2;
+    draw_rect.x -= draw_rect.w / 2;
   } else if (this->ini_reader->get(this->name, "justify") == "right") {
-    dest_rect.x -= dest_rect.w;
+    draw_rect.x -= draw_rect.w;
   }
 
   // Fix for version text on main menu
   if (this->ini_reader->get(this->name, "y") == "bottom") {
-    dest_rect.y -= dest_rect.h;
+    draw_rect.y -= draw_rect.h;
   }
   
-  shadow_rect = {dest_rect.x - 1, dest_rect.y + 1, dest_rect.w, dest_rect.h};
+  shadow_rect = {draw_rect.x - 1, draw_rect.y + 1, draw_rect.w, draw_rect.h};
   SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
 
-  SDL_RenderCopy(renderer, this->text, NULL, &dest_rect);
-  this->drawChildren(renderer, &dest_rect);
+  SDL_RenderCopy(renderer, this->text, NULL, &draw_rect);
+  this->drawChildren(renderer, &draw_rect);
 }

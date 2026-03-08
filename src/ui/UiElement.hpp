@@ -25,10 +25,10 @@ public:
       if (input.type != InputType::POSITIONED) {
         continue;
       }
-      if (input.position.x < this->dest_rect.x || input.position.x > this->dest_rect.x + this->dest_rect.w) {
+      if (input.position.x < this->draw_rect.x || input.position.x > this->draw_rect.x + this->draw_rect.w) {
         continue;
       }
-      if (input.position.y < this->dest_rect.y || input.position.y > this->dest_rect.y + this->dest_rect.h) {
+      if (input.position.y < this->draw_rect.y || input.position.y > this->draw_rect.y + this->draw_rect.h) {
         continue;
       }
       switch (input.event) {
@@ -92,12 +92,11 @@ protected:
   int target = 0;
   bool active = true;
   Action action = Action::NONE;
-  SDL_Rect dest_rect = {0, 0, 0, 0};
+  SDL_Rect draw_rect = {0, 0, 0, 0};
 
   std::vector<UiElement*> children;
 
   void drawChildren(SDL_Renderer * renderer, SDL_Rect * parent_rect) {
-    // TODO: Figure out if layers need to be taken into account here
     for (int l=0; l < (8 + 1); l++) {
       for (UiElement * child : this->children) {
         if (child->layer == l) {
@@ -110,18 +109,22 @@ protected:
   UiAction handleInputChildren(std::vector<Input> &inputs) {
     for (int l=8; l > (0 - 1); l--) {
       for (UiElement * child : this->children) {
-        if (child == NULL || child->getLayer() != l || !child->getActive())
+        if (child == NULL || child->getLayer() != l || !child->getActive()) {
           continue;
+        }
         UiAction result = child->handleInputs(inputs);
         if (result.source != 0) {
+          SDL_Log("Got event from %s (%i) at layer %i: action=%i, target=%i, source=%i", child->getName().c_str(), child->getId(), child->getLayer(), (int) result.action, result.target, result.source);
           return result;
+        } else if (result.action != Action::NONE) {
+          SDL_Log("Got event without source from %i", child->getId());
         }
       }
     }
     return {Action::NONE, 0, 0};
   }
 
-  SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
+  void getDrawRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect = {0, 0, 0, 0};
 
     if (map.contains("dx")) {
@@ -171,8 +174,7 @@ protected:
     rect.x += layout_rect->x;
     rect.y += layout_rect->y;
 
-    dest_rect = rect;
-    return rect;
+    this->draw_rect = rect;
   };
 };
 

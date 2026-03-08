@@ -39,22 +39,30 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
     if (input.type != InputType::POSITIONED) {
       continue;
     }
-    if (input.position.x < this->dest_rect.x || input.position.x > this->dest_rect.x + this->dest_rect.w) {
-      this->selected_updated = true;
+    if (input.position.x < this->draw_rect.x || input.position.x > this->draw_rect.x + this->draw_rect.w) {
+      if (this->selected) {
+        this->selected_updated = true;
+      }
       this->selected = false;
       continue;
     }
-    if (input.position.y < this->dest_rect.y || input.position.y > this->dest_rect.y + this->dest_rect.h) {
-      this->selected_updated = true;
+    if (input.position.y < this->draw_rect.y || input.position.y > this->draw_rect.y + this->draw_rect.h) {
+      if (this->selected) {
+        this->selected_updated = true;
+      }
       this->selected = false;
       continue;
+    }
+
+    if (!this->selected) {
+      this->selected_updated = true;
     }
     this->selected = true;
-    this->selected_updated = true;
-    SDL_Log("Button %i on layer %i has been hovered over", id, layer);
+    SDL_Log("Button %i on layer %i has been hovered over", this->id, this->layer);
     switch (input.event) {
       case InputEvent::LEFT_CLICK:
-        result = {action, target, id};
+        SDL_Log("Button %i on layer %i has been clicked on", this->id, this->layer);
+        result = {this->action, this->target, this->id};
         break;
       default:
         break;
@@ -89,15 +97,15 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, {0, 0, 0, 255});
   }
 
-  dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_Rect text_rect = {dest_rect.x, dest_rect.y, 0, 0};
+  this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
+  SDL_Rect text_rect = {draw_rect.x, draw_rect.y, 0, 0};
   if (this->animation != nullptr) {
-    this->animation->draw(renderer, &dest_rect, CompassDirection::N);
+    this->animation->draw(renderer, &draw_rect, CompassDirection::N);
 
     // Prepare position for text drawing
     if (this->ini_reader->get(this->name, "justify") == "center") {
-      text_rect.x += dest_rect.w / 2;
-      text_rect.y += dest_rect.h / 2;
+      text_rect.x += draw_rect.w / 2;
+      text_rect.y += draw_rect.h / 2;
     }
   }
 
@@ -107,14 +115,14 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     text_rect.y -= text_rect.h / 2;
   }
 
-  // Make sure dest_rect has a size so mouse selection works
-  if (dest_rect.w == 0 || dest_rect.h == 0) {
-    dest_rect = text_rect;
+  // Make sure draw_rect has a size so mouse selection works
+  if (draw_rect.w == 0 || draw_rect.h == 0) {
+    draw_rect = text_rect;
   }
 
   shadow_rect = {text_rect.x - 1, text_rect.y + 1, text_rect.w, text_rect.h};
   SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
 
   SDL_RenderCopy(renderer, this->text, NULL, &text_rect);
-  this->drawChildren(renderer, &dest_rect);
+  this->drawChildren(renderer, &draw_rect);
 }

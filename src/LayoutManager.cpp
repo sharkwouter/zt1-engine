@@ -25,7 +25,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
       }
       UiAction action = layout->handleInputs(inputs);
       if (action.source != 0) {
-        SDL_Log("Source of input is %i on layer %i", action.source, layer);
+        SDL_Log("Source of input is %i from layout %i at layer %i", action.source, layout->getId(), layer);
         switch (action.action) {
           case Action::SHOW_TARGET_LAYOUT:
             for(auto kv : layouts) {

@@ -21,7 +21,6 @@ private:
   SDL_Texture * text = nullptr;
   SDL_Texture * shadow = nullptr;
   int font = 0;
-  SDL_Rect dest_rect = {0, 0, 0, 0};
   SDL_Rect shadow_rect = {0, 0, 0, 0};
 };
 

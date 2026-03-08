@@ -10,6 +10,7 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
+  SDL_Log("Image %s (%i) is on layer %i", name.c_str(), this->id, this->layer);
 
   this->anchor = ini_reader->getInt(name, "anchor", 0);
 
@@ -40,8 +41,7 @@ UiImage::~UiImage() {
 }
 
 void UiImage::draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
-  if (!this->image && !this->animation && !this->image_path.empty())
-  {
+  if (!this->image && !this->animation && !this->image_path.empty()) {
     std::string extension = Utils::getFileExtension(this->image_path);
     if (extension.empty() || extension == "ANI")
     {
@@ -50,30 +50,29 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
     this->image = this->resource_manager->getTexture(renderer, this->image_path);
   }
 }
-
-dest_rect = this->getRect(this->ini_reader->getSection(this->name), layout_rect);
+this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
 // if (this->ini_reader->get(this->name, "justify") == "center") {
-//   dest_rect.x -= dest_rect.w / 2;
+//   draw_rect.x -= draw_rect.w / 2;
 // } else if (this->ini_reader->get(this->name, "justify") == "right") {
-//   dest_rect.x -= dest_rect.w;
+//   draw_rect.x -= draw_rect.w;
 // }
 if (this->image) {
-  if (dest_rect.w == 0 || dest_rect.h == 0) {
-    SDL_QueryTexture(this->image, NULL, NULL, &dest_rect.w, &dest_rect.h);
+  if (draw_rect.w == 0 || draw_rect.h == 0) {
+    SDL_QueryTexture(this->image, NULL, NULL, &draw_rect.w, &draw_rect.h);
   }
   if (this->ini_reader->get(this->name, "y") == "bottom") {
-    dest_rect.y -= dest_rect.h;
+    draw_rect.y -= draw_rect.h;
   }
-  SDL_RenderCopy(renderer, this->image, NULL, &dest_rect);
+  SDL_RenderCopy(renderer, this->image, NULL, &draw_rect);
 }
 if (this->animation) {
-  if (dest_rect.w == 0 || dest_rect.h == 0) {
-    this->animation->queryTexture(CompassDirection::N, &dest_rect.w, &dest_rect.h);
+  if (draw_rect.w == 0 || draw_rect.h == 0) {
+    this->animation->queryTexture(CompassDirection::N, &draw_rect.w, &draw_rect.h);
   }
   if (this->ini_reader->get(this->name, "y") == "bottom") {
-    dest_rect.y -= dest_rect.h;
+    draw_rect.y -= draw_rect.h;
   }
-  this->animation->draw(renderer, &dest_rect, CompassDirection::N);
+  this->animation->draw(renderer, &draw_rect, CompassDirection::N);
 }
-this->drawChildren(renderer, &dest_rect);
+this->drawChildren(renderer, &draw_rect);
 }
