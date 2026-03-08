@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
       }
     }
     if (running) {
+      SDL_Log("Processing inputs:");
       running = layout_manager->HandleInputs(inputs);
       layout_manager->Draw(window.renderer, NULL);
 

@@ -21,27 +21,49 @@ public:
 
   virtual UiAction handleInputs(std::vector<Input> &inputs) {
     UiAction result = {Action::NONE, 0, 0};
-    for (Input input : inputs) {
-      if (input.type != InputType::POSITIONED) {
-        continue;
+
+    // Go through layers from high to low
+    for (int l=8; l > (0 - 1); l--) {
+      // Process event in children where the current layer matches first
+      for (UiElement * child : this->children) {
+        if (child == NULL || child->getLayer() != l || !child->getActive()) {
+          continue;
+        }
+        result = child->handleInputs(inputs);
+        if (result.source != 0) {
+          SDL_Log("Got event from %s (%i) at layer %i: action=%i, target=%i, source=%i", child->getName().c_str(), child->getId(), child->getLayer(), (int) result.action, result.target, result.source);
+          return result;
+        } else if (result.action != Action::NONE) {
+          SDL_Log("Got event without source from %i", child->getId());
+        }
       }
-      if (input.position.x < this->draw_rect.x || input.position.x > this->draw_rect.x + this->draw_rect.w) {
-        continue;
-      }
-      if (input.position.y < this->draw_rect.y || input.position.y > this->draw_rect.y + this->draw_rect.h) {
-        continue;
-      }
-      switch (input.event) {
-        case InputEvent::LEFT_CLICK:
-          result = {this->action, this->target, this->id};
-          break;
-        default:
-          break;
+      // Process event in self if the layer matches
+      if (l == this->layer) {
+        for (Input input : inputs) {
+          if (input.type != InputType::POSITIONED) {
+            continue;
+          }
+          if (input.position.x < this->draw_rect.x || input.position.x > this->draw_rect.x + this->draw_rect.w) {
+            continue;
+          }
+          if (input.position.y < this->draw_rect.y || input.position.y > this->draw_rect.y + this->draw_rect.h) {
+            continue;
+          }
+          switch (input.event) {
+            case InputEvent::LEFT_CLICK:
+              result = {this->action, this->target, this->id};
+              break;
+            default:
+              break;
+          }
+          if (result.source != 0) {
+            return result;
+          }
+        }
       }
     }
-    if (result.source == 0) {
-      result = handleInputChildren(inputs);
-    }
+
+    // Return our sad empty result
     return result;
   }
 
