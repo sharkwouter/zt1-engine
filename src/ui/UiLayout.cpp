@@ -7,19 +7,12 @@
 #include "UiButton.hpp"
 
 UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
-  this->id = ini_reader->getInt(this->name, "id", 0);
-  this->layer = ini_reader->getInt(this->name, "layer", 1);
-
   this->process_sections(ini_reader, resource_manager);
 }
 
 UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std::string name) {
   this->active = ini_reader->getInt(name, "state", 0) != 1;
   this->process_layout(resource_manager, ini_reader->get(name, "layout"));
-}
-
-UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std::string name, bool active) : UiLayout::UiLayout(ini_reader, resource_manager) {
-  this->active = active;
 }
 
 UiLayout::~UiLayout() {

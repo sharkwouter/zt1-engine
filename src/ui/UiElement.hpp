@@ -33,7 +33,7 @@ public:
       }
       switch (input.event) {
         case InputEvent::LEFT_CLICK:
-          result = {action, target, id};
+          result = {this->action, this->target, this->id};
           break;
         default:
           break;
@@ -98,9 +98,9 @@ protected:
 
   void drawChildren(SDL_Renderer * renderer, SDL_Rect * parent_rect) {
     // TODO: Figure out if layers need to be taken into account here
-    for (int layer=0; layer < (8 + 1); layer++) {
+    for (int l=0; l < (8 + 1); l++) {
       for (UiElement * child : this->children) {
-        if (child->layer == layer) {
+        if (child->layer == l) {
           child->draw(renderer, parent_rect);
         }
       }
@@ -108,18 +108,17 @@ protected:
   }
 
   UiAction handleInputChildren(std::vector<Input> &inputs) {
-    UiAction result = {Action::NONE, 0, 0};
     for (int l=8; l > (0 - 1); l--) {
       for (UiElement * child : this->children) {
         if (child == NULL || child->getLayer() != l || !child->getActive())
           continue;
-        UiAction new_result = child->handleInputs(inputs);
-        if (new_result.source != 0) {
-          return new_result;
+        UiAction result = child->handleInputs(inputs);
+        if (result.source != 0) {
+          return result;
         }
       }
     }
-    return result;
+    return {Action::NONE, 0, 0};
   }
 
   SDL_Rect getRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {

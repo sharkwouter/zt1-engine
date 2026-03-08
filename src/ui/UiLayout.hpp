@@ -17,7 +17,6 @@ class UiLayout : public UiElement {
 public:
   UiLayout(IniReader * ini_reader, ResourceManager * resource_manager);
   UiLayout(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
-  UiLayout(IniReader * ini_reader, ResourceManager * resource_manager, std::string name, bool active);
   ~UiLayout();
 
   UiAction handleInputs(std::vector<Input> &inputs);

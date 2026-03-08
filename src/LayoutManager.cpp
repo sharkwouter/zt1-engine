@@ -30,7 +30,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
           case Action::SHOW_TARGET_LAYOUT:
             for(auto kv : layouts) {
               UiLayout * layout = layouts[kv.first];
-              if (layout->hasId(action.target)) {
+              if (layout->getId() == action.target) {
                 layout->setActive(true);
               }
             }
@@ -38,9 +38,9 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
           case Action::HIDE_TARGET_LAYOUT:
             for(auto kv : layouts) {
               UiLayout * layout = layouts[kv.first];
-              if (layout->hasId(action.target)) {
+              if (layout->getId() == action.target) {
                 layout->setActive(false);
-              } else if (action.target == -1 && layout->hasId(action.source)) {
+              } else if (action.target == -1 && layout->getId() == action.source) {
                 layout->setActive(false);
               }
             }
@@ -48,7 +48,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
           case Action::TOGGLE_TARGET_LAYOUT:
             for(auto kv : layouts) {
               UiLayout * layout = layouts[kv.first];
-              if (layout->hasId(action.target)) {
+              if (layout->getId() == action.target) {
                 layout->setActive(!layout->getActive());
               }
             }
@@ -56,10 +56,10 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
           case Action::SWITCH_TO_TARGET_LAYOUT:
             for(auto kv : layouts) {
               UiLayout * layout = layouts[kv.first];
-              if (layout->hasId(action.target)) {
+              if (layout->getId() == action.target) {
                 layout->setActive(true);
               }
-              if (layout->hasId(action.source)) {
+              if (layout->getId() == action.source) {
                 layout->setActive(false);
               }
             }
@@ -101,7 +101,6 @@ void LayoutManager::generateLayouts(IniReader *ini_reader, ResourceManager * res
     }
 
     std::string type = ini_reader->get(section, "type");
-    bool active = ini_reader->getInt(section, "state", 0) != 1;
     if (type == "UILayout") {
       SDL_Log("Loading layout %s", section.c_str());
       std::string layout = ini_reader->get(section, "layout");
@@ -109,12 +108,11 @@ void LayoutManager::generateLayouts(IniReader *ini_reader, ResourceManager * res
         // infocomC.lyt is the only lyt file that has a capital letter in the name
         std::transform(layout.begin(), layout.end(), layout.begin(), ::tolower);
       }
-      this->layouts[section] = new UiLayout(resource_manager->getIniReader(layout), resource_manager, section, active);
-      if (active){
-        this->current_layout = this->layouts[section];
-      }
+      this->layouts[section] = new UiLayout(ini_reader, resource_manager, section);
+    } else {
+      // TODO: Implement support for ZTMapView, ZTMessageQueue and UIText here
+      SDL_Log("Cannot load elements of type %s in layout manager yet, not implemented", type.c_str());
     }
-    // TODO: Implement support for ZTMapView, ZTMessageQueue and UIText here
   }
 }
 
