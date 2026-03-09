@@ -74,6 +74,7 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
             parent->addChild(new_element);
           } else {
             SDL_Log("The id %i was not found while trying to attach %i to it in layout %s", anchor_id, new_element->getId(), this->name.c_str());
+            this->children.push_back(new_element);
           }
         }
       }
