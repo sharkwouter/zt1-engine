@@ -58,7 +58,10 @@ std::string IniReader::get(const std::string &section, const std::string &key, c
   if (content.count(section_lower) != 0 && content[section_lower].count(key_lower) != 0) {
     return content[section_lower][key_lower];
   }
-  SDL_Log("Value of %s:%s not found, returning default", section.c_str(), key.c_str());
+  #ifdef DEBUG
+    SDL_Log("Value of %s:%s not found, returning default", section.c_str(), key.c_str());
+  #endif
+
   return default_value;
 }
 

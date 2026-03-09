@@ -47,7 +47,9 @@ std::string AniFile::getAnimationDirectory(IniReader * ini_reader) {
 }
 
 AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const std::string &ztd_file, const std::string &file_name) {
-  SDL_Log("Loading %s from %s", file_name.c_str(), ztd_file.c_str());
+  #ifdef DEBUG
+    SDL_Log("Loading %s from %s", file_name.c_str(), ztd_file.c_str());
+  #endif
   AnimationData * animation_data = (AnimationData *) calloc(1, sizeof(AnimationData));
   
   int file_size = 0;
@@ -63,12 +65,16 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
     char header_string[8];
     SDL_RWread(rw, header_string, sizeof(char), 8);
     if(strncmp(header_string, "FATZ", 8) == 0) {
-        SDL_Log("FATZ found");
+        #ifdef DEBUG
+          SDL_Log("FATZ found");
+        #endif
         animation_data->has_background = SDL_ReadU8(rw);
     } else {
       SDL_RWseek(rw, 0,RW_SEEK_SET);
       animation_data->has_background = SDL_FALSE;
-      SDL_Log("FATZ not found");
+      #ifdef DEBUG
+        SDL_Log("FATZ not found");
+      #endif
     }
   }
 
@@ -101,8 +107,10 @@ AnimationData * AniFile::loadAnimationData(PalletManager * pallet_manager, const
       animation_data->frames[i].height ^= 0x8000;
     }
 
-    SDL_Log("Frame is %ux%u pixels with offset %i,%i", animation_data->frames[i].width, animation_data->frames[i].height, animation_data->frames[i].offset_x, animation_data->frames[i].offset_y);
-    SDL_Log("Mystery bytes are %u and shadow is %i", animation_data->frames[i].mystery_bytes, animation_data->frames[i].is_shadow);
+    #ifdef DEBUG
+      SDL_Log("Frame is %ux%u pixels with offset %i,%i", animation_data->frames[i].width, animation_data->frames[i].height, animation_data->frames[i].offset_x, animation_data->frames[i].offset_y);
+      SDL_Log("Mystery bytes are %u and shadow is %i", animation_data->frames[i].mystery_bytes, animation_data->frames[i].is_shadow);
+    #endif
 
     animation_data->frames[i].lines = (AnimationLineData *) calloc(animation_data->frames[i].height, sizeof(AnimationLineData));
     for(int y = 0; y < animation_data->frames[i].height; y++) {

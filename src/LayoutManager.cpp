@@ -25,7 +25,6 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
       }
       UiAction action = layout->handleInputs(inputs);
       if (action.source != 0) {
-        SDL_Log("Source of input is %i from layout %i at layer %i", action.source, layout->getId(), layer);
         switch (action.action) {
           case Action::SHOW_TARGET_LAYOUT:
             for(auto kv : layouts) {
@@ -102,7 +101,9 @@ void LayoutManager::generateLayouts(IniReader *ini_reader, ResourceManager * res
 
     std::string type = ini_reader->get(section, "type");
     if (type == "UILayout") {
-      SDL_Log("Loading layout %s", section.c_str());
+      #ifdef DEBUG
+        SDL_Log("Loading layout %s", section.c_str());
+      #endif
       std::string layout = ini_reader->get(section, "layout");
       if (layout != "ui/infocomC.lyt") {
         // infocomC.lyt is the only lyt file that has a capital letter in the name

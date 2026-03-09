@@ -122,6 +122,9 @@ public:
       case Expansion::ALL:
         return Utils::fixPath("lang200.dll");
         break;
+      default:
+        return Utils::fixPath("lang0.dll");
+        break;
     }
   }
 

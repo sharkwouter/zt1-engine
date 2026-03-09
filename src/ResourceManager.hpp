@@ -43,7 +43,7 @@ private:
   std::unordered_map<std::string, Pallet *> pallet_map;
   bool resource_map_loaded = false;
 
-  std::string getResourceLocation(const std::string &resoure_name);
+  std::string getResourceLocation(const std::string &resoure_name, bool failure_is_critical=true);
 
   void load_resource_map(std::atomic<float> * progress, float progress_goal);
   void load_string_map(std::atomic<float> * progress, float progress_goal);

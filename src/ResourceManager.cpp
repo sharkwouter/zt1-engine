@@ -23,7 +23,7 @@ ResourceManager::~ResourceManager() {
   }
 }
 
-std::string ResourceManager::getResourceLocation(const std::string &resource_name) {
+std::string ResourceManager::getResourceLocation(const std::string &resource_name, bool failure_is_critical) {
   if (this->resource_map.count(resource_name) == 0) {
     // Try with a slash behind it
     std::string resource_name_with_slash = resource_name + "/";
@@ -37,7 +37,13 @@ std::string ResourceManager::getResourceLocation(const std::string &resource_nam
       return this->resource_map[resource_name_no_list];
     }
     // Give up
-    SDL_Log("Could not find resource %s", resource_name.c_str());
+    if (failure_is_critical) {
+      SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not find resource %s", resource_name.c_str());
+    } else {
+      #ifdef DEBUG
+        SDL_Log("Could not find resource %s", resource_name.c_str());
+      #endif
+    }
     return "";
   }
 
@@ -127,7 +133,7 @@ void ResourceManager::load_animation_map(std::atomic<float> * progress, float pr
   }
 
   float progress_per_animation_load = (progress_goal - *progress) / (float) ani_files.size();
-  for (int i = 0; i < ani_files.size(); i++) {
+  for (size_t i = 0; i < ani_files.size(); i++) {
     SDL_Log("Loading animation from %s", ani_files[i].c_str());
     this->animation_map[ani_files[i]] = this->getAnimation(ani_files[i]);
 
@@ -197,7 +203,7 @@ IniReader * ResourceManager::getIniReader(const std::string &file_name) {
 }
 
 Animation *ResourceManager::getAnimation(const std::string &file_name) {
-  std::string resource_location = getResourceLocation(file_name);
+  std::string resource_location = getResourceLocation(file_name, false);
   if (!resource_location.empty()) {
     return AniFile::getAnimation(&this->pallet_manager, resource_location, file_name);
   } else if (file_name.find(";") != std::string::npos) {
@@ -206,7 +212,7 @@ Animation *ResourceManager::getAnimation(const std::string &file_name) {
     if (!full_file_name.ends_with(".ani")) {
       full_file_name += ".ani";
     }
-    resource_location = getResourceLocation(full_file_name);
+    resource_location = getResourceLocation(full_file_name, false);
     return AniFile::getAnimation(&this->pallet_manager, resource_location, full_file_name);
   } else {
     std::string full_file_name = file_name + ".ani";

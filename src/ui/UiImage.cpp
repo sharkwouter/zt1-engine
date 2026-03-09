@@ -10,8 +10,6 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
-  SDL_Log("Image %s (%i) is on layer %i", name.c_str(), this->id, this->layer);
-
   this->anchor = ini_reader->getInt(name, "anchor", 0);
 
   std::string normal = ini_reader->get(name, "normal");

@@ -23,7 +23,7 @@ public:
   void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
 
 protected:
-  std::string name = "layoutinfo";
+  std::string name = "";
   SDL_Window * window = nullptr;
 
   std::vector<UiElement*> elements;

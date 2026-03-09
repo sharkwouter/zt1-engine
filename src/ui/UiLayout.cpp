@@ -11,8 +11,9 @@ UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
 }
 
 UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std::string name) {
-  this->active = ini_reader->getInt(name, "state", 0) != 1;
-  this->process_layout(resource_manager, ini_reader->get(name, "layout"));
+  this->name = name;
+  this->active = ini_reader->getInt(this->name, "state", 0) != 1;
+  this->process_layout(resource_manager, ini_reader->get(this->name, "layout"));
 }
 
 UiLayout::~UiLayout() {
@@ -48,7 +49,7 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
     UiElement * new_element = nullptr;
     std::string element_type = ini_reader->get(section, "type");
     if (element_type.empty()) {
-      SDL_Log("Could not determine type of section %s", section.c_str());
+      SDL_Log("Could not determine type of section %s in layout %s", section.c_str(), this->name.c_str());
     }
     if (element_type == "UIImage") {
       new_element = (UiElement *) new UiImage(ini_reader, resource_manager, section);
@@ -68,7 +69,7 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
           if (element->hasId(new_element->getAnchor())) {
             element->addChild(new_element);
           } else {
-            SDL_Log("id was not found");
+            SDL_Log("The id %i was not found while trying to attach %i to it", new_element->getAnchor(), new_element->getId());
           }
         }
       }

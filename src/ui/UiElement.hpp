@@ -31,10 +31,10 @@ public:
         }
         result = child->handleInputs(inputs);
         if (result.source != 0) {
-          SDL_Log("Got event from %s (%i) at layer %i: action=%i, target=%i, source=%i", child->getName().c_str(), child->getId(), child->getLayer(), (int) result.action, result.target, result.source);
+          #ifdef DEBUG
+            SDL_Log("Got event from %s (%i) at layer %i: action=%i, target=%i, source=%i", child->getName().c_str(), child->getId(), child->getLayer(), (int) result.action, result.target, result.source);
+          #endif
           return result;
-        } else if (result.action != Action::NONE) {
-          SDL_Log("Got event without source from %i", child->getId());
         }
       }
       // Process event in self if the layer matches
