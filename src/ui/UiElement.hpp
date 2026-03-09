@@ -74,6 +74,7 @@ public:
   int getAnchor() {return this->anchor;};
 
   int getId() {return id;};
+
   bool hasId(int id) {
     if (id == this->id) {
       return true;
@@ -84,6 +85,21 @@ public:
       }
     }
     return false;
+  }
+
+  UiElement * getChildWithId(int id) {
+    if (id == this->id) {
+      return this;
+    }
+    for (UiElement * child : this->children) {
+      if (id == child->getId()) {
+        return child;
+      }
+      if (child->hasId(id)) {
+        return child->getChildWithId(id);
+      }
+    }
+    return nullptr;
   }
 
   void addChild(UiElement * new_child) {

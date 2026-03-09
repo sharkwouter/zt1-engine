@@ -65,11 +65,15 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
       if (!new_element->getAnchor() || new_element->getAnchor() == 0 || new_element->getAnchor() == this->id) {
         this->children.push_back(new_element);
       } else {
+        int anchor_id = new_element->getAnchor();
         for(UiElement * element : children) {
-          if (element->hasId(new_element->getAnchor())) {
+          if (element->hasId(anchor_id)) {
             element->addChild(new_element);
+          } else if(this->hasId(anchor_id)) {
+            UiElement * parent = this->getChildWithId(anchor_id);
+            parent->addChild(new_element);
           } else {
-            SDL_Log("The id %i was not found while trying to attach %i to it", new_element->getAnchor(), new_element->getId());
+            SDL_Log("The id %i was not found while trying to attach %i to it in layout %s", anchor_id, new_element->getId(), this->name.c_str());
           }
         }
       }
