@@ -46,38 +46,19 @@ void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource
       continue;
     }
 
-    UiElement * new_element = nullptr;
     std::string element_type = ini_reader->get(section, "type");
     if (element_type.empty()) {
       SDL_Log("Could not determine type of section %s in layout %s", section.c_str(), this->name.c_str());
-    }
-    if (element_type == "UIImage") {
-      new_element = (UiElement *) new UiImage(ini_reader, resource_manager, section);
+    } else if (element_type == "UIImage") {
+      this->children.push_back((UiElement *) new UiImage(ini_reader, resource_manager, section));
     } else if (element_type == "UIButton") {
-      new_element = (UiElement *) new UiButton(ini_reader, resource_manager, section);
+      this->children.push_back((UiElement *) new UiButton(ini_reader, resource_manager, section));
     } else if (element_type == "UIText") {
-      new_element = (UiElement *) new UiText(ini_reader, resource_manager, section);
+      this->children.push_back((UiElement *) new UiText(ini_reader, resource_manager, section));
     } else if (element_type == "UILayout") {
-      new_element = (UiElement *) new UiLayout(ini_reader, resource_manager, section);
-    }
-
-    if (new_element) {
-      if (!new_element->getAnchor() || new_element->getAnchor() == 0 || new_element->getAnchor() == this->id) {
-        this->children.push_back(new_element);
-      } else {
-        int anchor_id = new_element->getAnchor();
-        for(UiElement * element : children) {
-          if (element->hasId(anchor_id)) {
-            element->addChild(new_element);
-          } else if(this->hasId(anchor_id)) {
-            UiElement * parent = this->getChildWithId(anchor_id);
-            parent->addChild(new_element);
-          } else {
-            SDL_Log("The id %i was not found while trying to attach %i to it in layout %s", anchor_id, new_element->getId(), this->name.c_str());
-            this->children.push_back(new_element);
-          }
-        }
-      }
+      this->children.push_back((UiElement *) new UiLayout(ini_reader, resource_manager, section));
+    } else {
+      SDL_Log("Support for element type %s is not yet implemented", element_type.c_str());
     }
   }
 }
