@@ -50,8 +50,6 @@ private:
 
   std::string getResourceLocation(const std::string &resoure_name, bool failure_is_critical=true);
 
-
-
   Mix_Music * menu_music = nullptr;
 
   Config * config;
