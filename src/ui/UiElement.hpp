@@ -71,7 +71,8 @@ public:
 
   std::string getName() {return this->name;};
   int getLayer() {return this->layer;};
-  int getAnchor() {return this->anchor;};
+  std::vector<int> getAnchors() {return this->anchors;};
+  SDL_Rect * getDrawRect() {return &this->draw_rect;};
 
   int getId() {return id;};
 
@@ -102,21 +103,6 @@ public:
     return nullptr;
   }
 
-  void addChild(UiElement * new_child) {
-    if(new_child->anchor == this->id) {
-      this->children.push_back(new_child);
-      return;
-    } else {
-      for (UiElement * child : this->children) {
-        if (child->hasId(new_child->anchor)) {
-          child->addChild(new_child);
-          return;
-        }
-      }
-    }
-    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "This code should never be reached, which was the child not added?");
-  }
-
   bool getActive() {return this->active;};
   void setActive(bool active) {this->active = active;};
 
@@ -126,10 +112,10 @@ protected:
   std::string name;
   int id = 0;
   int layer = 0;
-  int anchor = 0;
   int target = 0;
   bool active = true;
   Action action = Action::NONE;
+  std::vector<int> anchors;
   SDL_Rect draw_rect = {0, 0, 0, 0};
 
   std::vector<UiElement*> children;
@@ -138,6 +124,19 @@ protected:
     for (int l=0; l < (8 + 1); l++) {
       for (UiElement * child : this->children) {
         if (child->layer == l) {
+          if (!child->getAnchors().empty()) {
+            UiElement * parent = nullptr;
+            for (int anchor : child->getAnchors()) {
+              if (!this->hasId(anchor)) {
+                continue;
+              }
+              parent = this->getChildWithId(anchor);
+              child->draw(renderer, parent->getDrawRect());
+            }
+            if (parent != nullptr) {
+              continue;
+            }
+          }
           child->draw(renderer, parent_rect);
         }
       }
@@ -162,7 +161,7 @@ protected:
     return {Action::NONE, 0, 0};
   }
 
-  void getDrawRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
+  void generateDrawRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect = {0, 0, 0, 0};
 
     if (map.contains("dx")) {

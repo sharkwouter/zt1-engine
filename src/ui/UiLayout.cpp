@@ -38,11 +38,10 @@ void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
 }
 
 void UiLayout::process_sections(IniReader *ini_reader, ResourceManager *resource_manager) {
-  this->id = ini_reader->getInt("layoutinfo", "id", 0);
-  this->layer = ini_reader->getInt("layoutinfo", "layer", 0);
-
   for(std::string section: ini_reader->getSections()) {
     if (section == "layoutinfo") {
+      this->id = ini_reader->getInt(section, "id", 0);
+      this->layer = ini_reader->getInt(section, "layer", 0);
       continue;
     }
 

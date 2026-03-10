@@ -7,8 +7,15 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
-  this->anchor = ini_reader->getInt(name, "anchor", 0);
-
+  if (ini_reader->getInt(name, "anchor", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor"));
+  }
+  if (ini_reader->getInt(name, "anchor1", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor1"));
+  }
+  if (ini_reader->getInt(name, "anchor2", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor2"));
+  }
   this->font = ini_reader->getInt(name, "font");
   uint32_t string_id = (uint32_t) ini_reader->getUnsignedInt(name, "id");
   this->text_string = this->resource_manager->getString(string_id);
@@ -41,7 +48,7 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
   }
-  this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
+  this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_QueryTexture(this->text, NULL, NULL, &draw_rect.w, &draw_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
     draw_rect.x -= draw_rect.w / 2;

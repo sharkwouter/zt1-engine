@@ -9,9 +9,17 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
-  this->anchor = ini_reader->getInt(name, "anchor", 0);
   this->target = ini_reader->getInt(name, "target", 0);
   this->action = (Action) ini_reader->getInt(name, "action", 0);
+  if (ini_reader->getInt(name, "anchor", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor"));
+  }
+  if (ini_reader->getInt(name, "anchor1", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor1"));
+  }
+  if (ini_reader->getInt(name, "anchor2", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor2"));
+  }
 
   this->has_select_color = !ini_reader->get(name, "selectcolor", "").empty();
 
@@ -95,7 +103,7 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, {0, 0, 0, 255});
   }
 
-  this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
+  this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_Rect text_rect = {draw_rect.x, draw_rect.y, 0, 0};
   if (this->animation != nullptr) {
     this->animation->draw(renderer, &draw_rect, CompassDirection::N);

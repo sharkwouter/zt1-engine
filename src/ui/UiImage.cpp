@@ -10,7 +10,15 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 
   this->id = ini_reader->getInt(name, "id");
   this->layer = ini_reader->getInt(name, "layer", 1);
-  this->anchor = ini_reader->getInt(name, "anchor", 0);
+  if (ini_reader->getInt(name, "anchor", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor"));
+  }
+  if (ini_reader->getInt(name, "anchor1", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor1"));
+  }
+  if (ini_reader->getInt(name, "anchor2", 0) != 0) {
+    this->anchors.push_back(ini_reader->getInt(name, "anchor2"));
+  }
 
   std::string normal = ini_reader->get(name, "normal");
   if (!normal.empty()) {
@@ -48,7 +56,7 @@ void UiImage::draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
     this->image = this->resource_manager->getTexture(renderer, this->image_path);
   }
 }
-this->getDrawRect(this->ini_reader->getSection(this->name), layout_rect);
+this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
 // if (this->ini_reader->get(this->name, "justify") == "center") {
 //   draw_rect.x -= draw_rect.w / 2;
 // } else if (this->ini_reader->get(this->name, "justify") == "right") {
