@@ -4,9 +4,7 @@
 #include <algorithm>
 
 LayoutManager::LayoutManager(ResourceManager * resource_manager) {
-  IniReader * ini_reader = resource_manager->getIniReader("ui/gamescrn.lyt");
-  generateLayouts(ini_reader, resource_manager);
-  free(ini_reader);
+  this->resource_manager = resource_manager;
 }
 
 LayoutManager::~LayoutManager() {
@@ -92,29 +90,47 @@ void LayoutManager::Draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
   }
 }
 
-void LayoutManager::generateLayouts(IniReader *ini_reader, ResourceManager * resource_manager) {
+void LayoutManager::Load(std::atomic<float> *progress, std::atomic<bool> *is_done) {
+    if (this->loaded) {
+    *progress = 100.0f;
+    *is_done = true;
+    return;
+  }
+
+  // Load all the layouts from ui/gamescrn.lyt
+  IniReader * ini_reader = resource_manager->getIniReader("ui/gamescrn.lyt");
+  float progress_per_layout_load = (100.0f - *progress) / (float) ini_reader->getSections().size();
   for(std::string section : ini_reader->getSections()) {
     if (section == "layoutinfo") {
       this->id = ini_reader->getInt(section, "id");
-      continue;
+    } else {
+      std::string type = ini_reader->get(section, "type");
+      if (type == "UILayout") {
+        #ifdef DEBUG
+          SDL_Log("Loading layout %s", section.c_str());
+        #endif
+        std::string layout = ini_reader->get(section, "layout");
+        if (layout != "ui/infocomC.lyt") {
+          // infocomC.lyt is the only lyt file that has a capital letter in the name
+          std::transform(layout.begin(), layout.end(), layout.begin(), ::tolower);
+        }
+        this->layouts[section] = new UiLayout(ini_reader, resource_manager, section);
+      } else {
+        // TODO: Implement support for ZTMapView, ZTMessageQueue and UIText here
+        SDL_Log("Cannot load elements of type %s in layout manager yet, not implemented", type.c_str());
+      }
     }
 
-    std::string type = ini_reader->get(section, "type");
-    if (type == "UILayout") {
-      #ifdef DEBUG
-        SDL_Log("Loading layout %s", section.c_str());
-      #endif
-      std::string layout = ini_reader->get(section, "layout");
-      if (layout != "ui/infocomC.lyt") {
-        // infocomC.lyt is the only lyt file that has a capital letter in the name
-        std::transform(layout.begin(), layout.end(), layout.begin(), ::tolower);
-      }
-      this->layouts[section] = new UiLayout(ini_reader, resource_manager, section);
+    // Increase progress
+    if (*progress + progress_per_layout_load < 100.0f) {
+      *progress = *progress + progress_per_layout_load;
     } else {
-      // TODO: Implement support for ZTMapView, ZTMessageQueue and UIText here
-      SDL_Log("Cannot load elements of type %s in layout manager yet, not implemented", type.c_str());
+      *progress = 100.0f;
     }
   }
+  this->loaded = true;
+  free(ini_reader);
+  *is_done = true;
 }
 
 bool LayoutManager::handleTargetlessAction(UiAction action) {

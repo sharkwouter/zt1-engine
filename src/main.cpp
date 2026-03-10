@@ -16,14 +16,14 @@ int main(int argc, char *argv[]) {
 
   Config config;
   ResourceManager resource_manager(&config);
+  LayoutManager layout_manager(&resource_manager);
   InputManager input_manager;
   std::vector<Input> inputs;
 
   Window window("ZT1-Engine", config.getScreenWidth(), config.getScreenHeight(), 60.0f);
   window.set_cursor(resource_manager.getCursor(9));
 
-  LoadScreen::run(&window, &config, &resource_manager);
-  LayoutManager * layout_manager = new LayoutManager(&resource_manager);
+  LoadScreen::run(&window, &config, &resource_manager, &layout_manager);
 
   int running = 1;
   while (running > 0) {
@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
       }
     }
     if (running) {
-      running = layout_manager->HandleInputs(inputs);
-      layout_manager->Draw(window.renderer, NULL);
+      running = layout_manager.HandleInputs(inputs);
+      layout_manager.Draw(window.renderer, NULL);
 
       window.present();
     }

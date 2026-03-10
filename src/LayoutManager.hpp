@@ -18,14 +18,14 @@ public:
   bool HandleInputs(std::vector<Input> &inputs);
   void Draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
 
-  void load_all(std::atomic<float> * progress, std::atomic<bool> * is_done);
+  void Load(std::atomic<float> * progress, std::atomic<bool> * is_done);
 
 private:
   std::unordered_map<std::string, UiLayout*> layouts;
   UiLayout * current_layout;
   int id = 0;
-
-  void generateLayouts(IniReader * ini_reader, ResourceManager * resource_manager);
+  bool loaded = false;
+  ResourceManager * resource_manager = nullptr;
 
   bool handleTargetlessAction(UiAction);
 };

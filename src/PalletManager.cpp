@@ -32,21 +32,22 @@ void PalletManager::addPalletFileToMap(const std::string &pallet_file, std::stri
   this->pallet_files_map[pallet_file] = ztd_file;
 }
 
-void PalletManager::loadPalletMap(std::atomic<float> * progress, float progress_goal) {
+void PalletManager::loadPalletMap(std::atomic<float> * progress, std::atomic<bool> * is_done) {
   if (this->loaded) {
-    *progress = progress_goal;
+    *progress = 100.0f;
+    *is_done = true;
     return;
   }
 
-  float progress_per_pallet_load = (progress_goal - *progress) / (float) this->pallet_files_map.size();
+  float progress_per_pallet_load = (100.0f - *progress) / (float) this->pallet_files_map.size();
   for (auto pallet_file_map_item : this->pallet_files_map) {
     std::string file_name = pallet_file_map_item.first; 
 
     // Increase progress bar position
-    if (*progress + progress_per_pallet_load < progress_goal) {
+    if (*progress + progress_per_pallet_load < 100.0f) {
       *progress = *progress + progress_per_pallet_load;
     } else {
-      *progress = progress_goal;
+      *progress = 100.0f;
     }
   
     // Skip ztatb in initial load, there are just too many of them
@@ -58,6 +59,7 @@ void PalletManager::loadPalletMap(std::atomic<float> * progress, float progress_
   }
 
   this->loaded = true;
+  *is_done = true;
 }
 
 void PalletManager::loadPallet(const std::string &file_name) {

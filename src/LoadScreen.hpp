@@ -8,7 +8,7 @@
 
 class LoadScreen {
 public:
-  static void run(Window * window, Config * config, ResourceManager * resource_manager);
+  static void run(Window * window, Config * config, ResourceManager * resource_manager, LayoutManager * layout_manager);
 };
 
 #endif // LOAD_SCREEN_HPP

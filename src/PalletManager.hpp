@@ -17,7 +17,7 @@ public:
   Pallet * getPallet(std::string &file_name);
 
   void addPalletFileToMap(const std::string &pallet_file, std::string ztd_file);
-  void loadPalletMap(std::atomic<float> * progress, float progress_goal);
+  void loadPalletMap(std::atomic<float> * progress, std::atomic<bool> * is_done);
 
 private:
   std::unordered_map<std::string, std::string> pallet_files_map;
