@@ -166,7 +166,7 @@ protected:
 
     if (map.contains("dx") && map["dx"] != "whole") {
       rect.w = std::stoi(map["dx"]);
-    } else {
+    } else if (map["type"] != "UIButton") {
       rect.w = layout_rect->w;
     }
 
@@ -176,7 +176,7 @@ protected:
       } else {
         rect.h = std::stoi(map["dy"]);
       }
-    } else {
+    } else if (map["type"] != "UIButton") {
       rect.h = layout_rect->h;
     }
 

@@ -30,7 +30,6 @@ UiLayout::~UiLayout() {
 
 void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
   this->generateDrawRect(this->ini_reader->getSection("layoutinfo"), layout_rect);
-  SDL_Log("Got draw rect %i, %i, %i, %i", draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h);
   drawChildren(renderer, &this->draw_rect);
 }
 
