@@ -15,7 +15,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
   SDL_Color loading_bar_color = config->getProgressColor();
   SDL_Rect background_rect;
   SDL_QueryTexture(background, NULL, NULL, &background_rect.w, &background_rect.h);
-  SDL_Rect window_rect;
+  SDL_Rect * window_rect;
   SDL_Rect loading_bar_rect = config->getProgressPosition();
 
   std::thread * loading_resources_thread = nullptr;;
@@ -30,9 +30,9 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
           break;
       }
     }
-    SDL_GetWindowSize(window->window, &window_rect.w, &window_rect.h);
-    background_rect.x = window_rect.w /2 - background_rect.w / 2;
-    background_rect.y = window_rect.h /2 - background_rect.h / 2;
+    window_rect = window->getWindowRect();
+    background_rect.x = window_rect->w /2 - background_rect.w / 2;
+    background_rect.y = window_rect->h /2 - background_rect.h / 2;
     SDL_RenderCopy(window->renderer, background, NULL, &background_rect);
 
     float overall_progress = (resources_progress.load() + strings_progress.load() + layouts_progress.load()) / 3.0f;
@@ -55,6 +55,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
     // Only start loading layouts after the resources have been loaded
     if (resources_done.load() && loading_layouts_thread == nullptr) {
       resource_manager->PlayMenuMusic();
+      SDL_Log("Started loading layouts");
       loading_layouts_thread = new std::thread(&LayoutManager::Load, layout_manager, &layouts_progress, &layouts_done);
     }
   }

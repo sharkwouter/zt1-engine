@@ -28,11 +28,11 @@ IniReader::IniReader(const std::string &filename) {
   size_t size = ftell(fd) + 1;
   fseek(fd, 0, SEEK_SET);
   void * buffer = malloc(size);
-  fread(buffer, sizeof(char), size, fd);
   if (buffer == nullptr) {
     SDL_Log("Could not load content of ini file %s", filename.c_str());  
     return;
   }
+  fread(buffer, sizeof(char), size, fd);
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG

@@ -24,16 +24,16 @@ ResourceManager::~ResourceManager() {
 }
 
 std::string ResourceManager::getResourceLocation(const std::string &resource_name, bool failure_is_critical) {
-  if (this->resource_map.count(resource_name) == 0) {
+  if (!this->resource_map.contains(resource_name)) {
     // Try with a slash behind it
     std::string resource_name_with_slash = resource_name + "/";
-    if(this->resource_map.count(resource_name_with_slash) > 0) {
+    if(this->resource_map.contains(resource_name_with_slash)) {
       return this->resource_map[resource_name_with_slash];
     }
     // If we got some weird list, just take the first item
     int semicolon_position = resource_name.find(";");
     std::string resource_name_no_list = resource_name.substr(0, semicolon_position);
-    if(this->resource_map.count(resource_name_no_list) > 0) {
+    if(this->resource_map.contains(resource_name_no_list)) {
       return this->resource_map[resource_name_no_list];
     }
     // Give up

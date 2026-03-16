@@ -164,38 +164,38 @@ protected:
   void generateDrawRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
     SDL_Rect rect = {0, 0, 0, 0};
 
-    if (map.contains("dx")) {
-      if (map["dx"] == "whole") {
-        rect.w = layout_rect->w;
-      } else {
-        rect.w = std::stoi(map["dx"]);
-      }
+    if (map.contains("dx") && map["dx"] != "whole") {
+      rect.w = std::stoi(map["dx"]);
+    } else {
+      rect.w = layout_rect->w;
     }
 
-    if (map.contains("dy") && map["dy"] != "fitfont") {
-       if (map["dy"] == "whole") {
-        rect.h = layout_rect->h;
+    if (map.contains("dy") && map["dy"] != "whole") {
+       if (map["dy"] == "fitfont") {
+        rect.h = 0;
       } else {
         rect.h = std::stoi(map["dy"]);
       }
+    } else {
+      rect.h = layout_rect->h;
     }
 
-    if (map["x"] == "center") {
+    if (!map.contains("x") || map["x"].empty() || map["x"] == "left") {
+      rect.x = 0;
+    } else if (map["x"] == "center") {
       rect.x = layout_rect->w / 2 - rect.w / 2;
     } else if (map["x"] == "right") {
       rect.x = layout_rect->w - rect.w;
-    } else if (map["x"].empty() || map["x"] == "left") {
-      rect.x = 0;
     } else {
       rect.x = std::stoi(map["x"]);
     }
 
-    if (map["y"] == "center") {
+    if (!map.contains("y") || map["y"].empty() || map["y"] == "top") {
+      rect.y = 0;
+    } else if (map["y"] == "center") {
       rect.y = layout_rect->h / 2 - rect.h / 2;
     } else if (map["y"] == "bottom") {
       rect.y = layout_rect->h - rect.h;
-    } else if (map["y"].empty() || map["y"] == "top") {
-      rect.y = 0;
     } else {
       rect.y = std::stoi(map["y"]);
     }

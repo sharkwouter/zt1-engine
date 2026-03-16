@@ -78,19 +78,19 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
   return true;
 }
 
-void LayoutManager::Draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
+void LayoutManager::Draw(SDL_Renderer * renderer, SDL_Rect * window_rect) {
   for (int layer=0; layer < (8 + 1); layer++) {
     for(auto kv : layouts) {
       UiLayout * layout = layouts[kv.first];
       if (layout == nullptr || layout->getLayer() != layer || !layout->getActive()) {
         continue;
       }
-      layout->draw(renderer, layout_rect);
+      layout->draw(renderer, window_rect);
     }
   }
 }
 
-void LayoutManager::Load(std::atomic<float> *progress, std::atomic<bool> *is_done) {
+void LayoutManager::Load(std::atomic<float> * progress, std::atomic<bool> * is_done) {
     if (this->loaded) {
     *progress = 100.0f;
     *is_done = true;
@@ -98,7 +98,7 @@ void LayoutManager::Load(std::atomic<float> *progress, std::atomic<bool> *is_don
   }
 
   // Load all the layouts from ui/gamescrn.lyt
-  IniReader * ini_reader = resource_manager->getIniReader("ui/gamescrn.lyt");
+  IniReader * ini_reader = this->resource_manager->getIniReader("ui/gamescrn.lyt");
   float progress_per_layout_load = (100.0f - *progress) / (float) ini_reader->getSections().size();
   for(std::string section : ini_reader->getSections()) {
     if (section == "layoutinfo") {
@@ -107,7 +107,7 @@ void LayoutManager::Load(std::atomic<float> *progress, std::atomic<bool> *is_don
       std::string type = ini_reader->get(section, "type");
       if (type == "UILayout") {
         #ifdef DEBUG
-          SDL_Log("Loading layout %s", section.c_str());
+          SDL_Log("Loading layout %s at %s", section.c_str(), ini_reader->get(section, "layout").c_str());
         #endif
         std::string layout = ini_reader->get(section, "layout");
         if (layout != "ui/infocomC.lyt") {

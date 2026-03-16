@@ -29,6 +29,9 @@ Window::Window(const std::string &title, int width, int height, float fps_target
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "couldn't create window: %s", SDL_GetError());
         exit(4);
     }
+    this->window_rect.w = width;
+    this->window_rect.h = height;
+
 
     this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (this->renderer == nullptr) {
@@ -41,6 +44,11 @@ Window::Window(const std::string &title, int width, int height, float fps_target
 
     this->start_frame = SDL_GetTicks();
     this->frame_delay = 1000.0 / fps_target;
+}
+
+SDL_Rect * Window::getWindowRect() {
+    SDL_GetWindowSize(this->window, &window_rect.w, &window_rect.h);
+    return &window_rect;
 }
 
 void Window::clear() {

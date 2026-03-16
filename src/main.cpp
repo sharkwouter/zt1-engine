@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     }
     if (running) {
       running = layout_manager.HandleInputs(inputs);
-      layout_manager.Draw(window.renderer, NULL);
+      layout_manager.Draw(window.renderer, window.getWindowRect());
 
       window.present();
     }

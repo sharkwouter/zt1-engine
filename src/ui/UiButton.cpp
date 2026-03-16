@@ -83,11 +83,11 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
 void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   if (!this->text_string.empty() && (this->text == nullptr || (this->selected_updated && this->has_select_color))) {
     std::vector<std::string> color_values;
-    if (this->selected && this->has_select_color && !ini_reader->getList(name, "selectcolor").empty()) {
-      color_values = ini_reader->getList(name, "selectcolor");
+    if (this->selected && this->has_select_color && !this->ini_reader->getList(name, "selectcolor").empty()) {
+      color_values = this->ini_reader->getList(name, "selectcolor");
       this->current_button_image = CompassDirection::S;
     } else {
-      color_values = ini_reader->getList(name, "forecolor");
+      color_values = this->ini_reader->getList(name, "forecolor");
       this->current_button_image = CompassDirection::N;
     }
     SDL_Color color = {0, 0, 0, 255};
