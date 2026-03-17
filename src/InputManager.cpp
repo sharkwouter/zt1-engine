@@ -20,20 +20,20 @@ std::vector<Input> InputManager::getInputs() {
     };
 
     switch (event.type) {
-      case SDL_QUIT:
+      case SDL_EVENT_QUIT:
         input.type = InputType::BUTTON;
         input.event = InputEvent::QUIT;
         break;
-      case SDL_KEYDOWN:
+      case SDL_EVENT_KEY_DOWN:
         input.type = InputType::BUTTON;
         input.event = InputEvent::NONE;
         break;
-      case SDL_MOUSEBUTTONDOWN:
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
         input.type = InputType::POSITIONED;
         SDL_GetMouseState(&input.position.x, &input.position.y);
         input.event = getEventFromMouseButton(event.button.button);
         break;
-      case SDL_MOUSEMOTION:
+      case SDL_EVENT_MOUSE_MOTION:
         input.type = InputType::POSITIONED;
         input.event = InputEvent::CURSOR_MOVE;
         SDL_GetMouseState(&input.position.x, &input.position.y);

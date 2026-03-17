@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "IniReader.hpp"
 
@@ -21,7 +21,7 @@ public:
   std::string getLangDllName();
   std::string getResDllName();
   SDL_Color getProgressColor();
-  SDL_Rect getProgressPosition();
+  SDL_FRect getProgressPosition();
 private:
   IniReader * reader = NULL;
 };

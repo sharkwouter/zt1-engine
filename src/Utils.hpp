@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <vector>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 
 #include "Expansion.hpp"
@@ -16,10 +16,9 @@ class Utils {
 public:
   static std::string getExecutableDirectory() {
     std::string exe_directory = "./";
-    char * sdl_base_path = SDL_GetBasePath();
+    const char * sdl_base_path = SDL_GetBasePath();
     if (sdl_base_path) {
       exe_directory = std::string(sdl_base_path);
-      SDL_free(sdl_base_path);
     }
     return exe_directory;
   }

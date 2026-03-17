@@ -80,7 +80,7 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
   return result;
 }
 
-void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
+void UiButton::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   if (!this->text_string.empty() && (this->text == nullptr || (this->selected_updated && this->has_select_color))) {
     std::vector<std::string> color_values;
     if (this->selected && this->has_select_color && !this->ini_reader->getList(name, "selectcolor").empty()) {
@@ -104,31 +104,31 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
   }
 
   this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_Rect text_rect = {draw_rect.x, draw_rect.y, 0, 0};
+  SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
   if (this->animation != nullptr) {
     this->animation->draw(renderer, &draw_rect, CompassDirection::N);
 
     // Prepare position for text drawing
     if (this->ini_reader->get(this->name, "justify") == "center") {
-      text_rect.x += draw_rect.w / 2;
-      text_rect.y += draw_rect.h / 2;
+      text_rect.x += draw_rect.w / 2.0f;
+      text_rect.y += draw_rect.h / 2.0f;
     }
   }
 
-  SDL_QueryTexture(this->text, NULL, NULL, &text_rect.w, &text_rect.h);
+  SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
     text_rect.x -= text_rect.w / 2;
     text_rect.y -= text_rect.h / 2;
   }
 
   // Make sure draw_rect has a size so mouse selection works
-  if (draw_rect.w == 0 || draw_rect.h == 0) {
+  if (draw_rect.w == 0.0f || draw_rect.h == 0.0f) {
     draw_rect = text_rect;
   }
 
-  shadow_rect = {text_rect.x - 1, text_rect.y + 1, text_rect.w, text_rect.h};
-  SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
+  shadow_rect = {text_rect.x - 1.0f, text_rect.y + 1.0f, text_rect.w, text_rect.h};
+  SDL_RenderTexture(renderer, this->shadow, NULL, &shadow_rect);
 
-  SDL_RenderCopy(renderer, this->text, NULL, &text_rect);
+  SDL_RenderTexture(renderer, this->text, NULL, &text_rect);
   this->drawChildren(renderer, &draw_rect);
 }

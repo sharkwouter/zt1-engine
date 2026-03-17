@@ -36,7 +36,7 @@ UiText::~UiText() {
   }
 }
 
-void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
+void UiText::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   if (!this->text_string.empty() && (!this->text || !this->shadow)) {
     std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");
     SDL_Color color = {
@@ -49,9 +49,9 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
   }
   this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_QueryTexture(this->text, NULL, NULL, &draw_rect.w, &draw_rect.h);
+  SDL_GetTextureSize(this->text, &draw_rect.w, &draw_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
-    draw_rect.x -= draw_rect.w / 2;
+    draw_rect.x -= draw_rect.w / 2.0f;
   } else if (this->ini_reader->get(this->name, "justify") == "right") {
     draw_rect.x -= draw_rect.w;
   }
@@ -61,9 +61,9 @@ void UiText::draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) {
     draw_rect.y -= draw_rect.h;
   }
   
-  shadow_rect = {draw_rect.x - 1, draw_rect.y + 1, draw_rect.w, draw_rect.h};
-  SDL_RenderCopy(renderer, this->shadow, NULL, &shadow_rect);
+  shadow_rect = {draw_rect.x - 1.0f, draw_rect.y + 1.0f, draw_rect.w, draw_rect.h};
+  SDL_RenderTexture(renderer, this->shadow, NULL, &shadow_rect);
 
-  SDL_RenderCopy(renderer, this->text, NULL, &draw_rect);
+  SDL_RenderTexture(renderer, this->text, NULL, &draw_rect);
   this->drawChildren(renderer, &draw_rect);
 }

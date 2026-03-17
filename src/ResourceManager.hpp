@@ -6,7 +6,7 @@
 #include <atomic>
 #include <cstdint>
 
-#include <SDL2/SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include "Config.hpp"
 #include "ZtdFile.hpp"
@@ -32,7 +32,7 @@ public:
   void * getFileContent(const std::string &file_name, int * size);
   SDL_Texture * getTexture(SDL_Renderer * renderer, const std::string &file_name);
   SDL_Cursor * getCursor(uint32_t cursor_id);
-  Mix_Music * getMusic(const std::string &file_name);
+  MIX_Audio * getMusic(const std::string &file_name);
   IniReader * getIniReader(const std::string &file_name);
   Animation * getAnimation(const std::string &file_name);
   SDL_Texture * getLoadTexture(SDL_Renderer * renderer);
@@ -50,7 +50,7 @@ private:
 
   std::string getResourceLocation(const std::string &resoure_name, bool failure_is_critical=true);
 
-  Mix_Music * menu_music = nullptr;
+  MIX_Audio * menu_music = nullptr;
 
   Config * config;
   FontManager font_manager;

@@ -1,6 +1,6 @@
 #include "LoadScreen.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include <thread>
 #include <atomic>
@@ -13,10 +13,10 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
   std::atomic<float> resources_progress, strings_progress, layouts_progress = 0.0f;
   std::atomic<bool> resources_done, strings_done, layouts_done = false;
   SDL_Color loading_bar_color = config->getProgressColor();
-  SDL_Rect background_rect;
-  SDL_QueryTexture(background, NULL, NULL, &background_rect.w, &background_rect.h);
-  SDL_Rect * window_rect;
-  SDL_Rect loading_bar_rect = config->getProgressPosition();
+  SDL_FRect background_rect;
+  SDL_GetTextureSize(background, &background_rect.w, &background_rect.h);
+  SDL_FRect * window_rect;
+  SDL_FRect loading_bar_rect = config->getProgressPosition();
 
   std::thread * loading_resources_thread = nullptr;;
   std::thread * loading_strings_thread = nullptr; ;
@@ -25,7 +25,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
     window->clear();
     if (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
           std::exit(0);
           break;
       }
@@ -33,10 +33,10 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
     window_rect = window->getWindowRect();
     background_rect.x = window_rect->w /2 - background_rect.w / 2;
     background_rect.y = window_rect->h /2 - background_rect.h / 2;
-    SDL_RenderCopy(window->renderer, background, NULL, &background_rect);
+    SDL_RenderTexture(window->renderer, background, NULL, &background_rect);
 
     float overall_progress = (resources_progress.load() + strings_progress.load() + layouts_progress.load()) / 3.0f;
-    SDL_Rect loading_bar_draw_rect = loading_bar_rect;
+    SDL_FRect loading_bar_draw_rect = loading_bar_rect;
     loading_bar_draw_rect.x += background_rect.x;
     loading_bar_draw_rect.y += background_rect.y;
     loading_bar_draw_rect.w = (int) ((float) loading_bar_draw_rect.w / 100.0f * overall_progress);

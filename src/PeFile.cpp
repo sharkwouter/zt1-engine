@@ -3,7 +3,7 @@
 #define LOAD_SCREEN_ID 502
 #define LANGUAGE_ID PRL_LANG_EN_US
 
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "Utils.hpp"
 
@@ -26,8 +26,8 @@ SDL_Surface *PeFile::getLoadScreenSurface(uint32_t loading_screen_id)
 
   void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_BITMAP, LANGUAGE_ID, loading_screen_id, &size);
   if (data) {
-    SDL_RWops * rw = SDL_RWFromMem(data, size);
-    surface = IMG_LoadTyped_RW(rw, 1, "BMP");
+    SDL_IOStream * rw = SDL_IOFromMem(data, size);
+    surface = IMG_LoadTyped_IO(rw, 1, "BMP");
     free(data);
   } else {
     SDL_Log("Could not load content of loading screen");
@@ -41,8 +41,8 @@ SDL_Surface *PeFile::getCursor(uint32_t cursor_id) {
 
   void * data = PeResourceLoader_GetResource(this->loader, PRL_TYPE_CURSOR, 0, cursor_id, &size);
   if (data) {
-    SDL_RWops * rw = SDL_RWFromMem(data, size);
-    surface = IMG_LoadTyped_RW(rw, 1, "CUR");
+    SDL_IOStream * rw = SDL_IOFromMem(data, size);
+    surface = IMG_LoadTyped_IO(rw, 1, "CUR");
     free(data);
   } else {
     SDL_Log("Could not load content of cursor");

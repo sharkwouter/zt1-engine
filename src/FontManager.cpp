@@ -1,6 +1,6 @@
 #include "FontManager.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "Utils.hpp"
 
@@ -20,14 +20,14 @@ FontManager::~FontManager() {
 SDL_Texture * FontManager::getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color) {
   this->loadFont(font);
 
-  SDL_Surface * surface = TTF_RenderUTF8_Blended(this->fonts[font], string.c_str(), color);
+  SDL_Surface * surface = TTF_RenderText_Blended(this->fonts[font], string.c_str(), string.length(), color);
   if (surface == NULL) {
-      SDL_Log("Couldn't create surface for text %s: %s", string.c_str(), TTF_GetError());
+      SDL_Log("Couldn't create surface for text %s: %s", string.c_str(), SDL_GetError());
       return NULL;
   }
 
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
 
   return texture;
 }

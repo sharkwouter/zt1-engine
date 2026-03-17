@@ -1,7 +1,7 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <string>
 
 class Window {
@@ -17,13 +17,13 @@ public:
 
     void set_cursor(SDL_Cursor * cursor) {this->default_cursor = cursor; SDL_SetCursor(this->default_cursor);};
 
-    SDL_Rect * getWindowRect();
+    SDL_FRect * getWindowRect();
 
     void clear();
     void present();
 private:
     SDL_Cursor * default_cursor = nullptr;
-    SDL_Rect window_rect = {0, 0, 0, 0};
+    SDL_FRect window_rect = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
 #endif // WINDOW_HPP
