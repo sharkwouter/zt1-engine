@@ -23,7 +23,7 @@ jobs:
           strip --strip-unneeded zt1-engine
           cp ../LICENSE.txt ../README.md ./
       - name: Publish artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: zt1-engine-linux
           path: |
@@ -67,7 +67,7 @@ jobs:
           ldd zt1-engine.exe | grep /mingw64 | awk '{print $3}' | xargs -i cp {} .
           cp ../LICENSE.txt ../README.md ./
       - name: Publish artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: zt1-engine-windows
           path: |
