@@ -118,14 +118,23 @@ SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::s
   return surface;
 }
 
-MIX_Audio * ZtdFile::getMusic(const std::string &ztd_file, const std::string &file_name) {
+MIX_Audio * ZtdFile::getMusic(const std::string &ztd_file, const std::string &file_name, MIX_Mixer * mixer) {
   MIX_Audio * music = NULL;
   int file_size = 0;
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
     SDL_IOStream * rw = SDL_IOFromMem(file_content, file_size);
-    // music = MIX_LoadAudio_IO(rw, music_type, 1);
+
+    SDL_PropertiesID options = SDL_CreateProperties();
+    SDL_SetPointerProperty(options, MIX_PROP_AUDIO_LOAD_PREFERRED_MIXER_POINTER, mixer);
+    SDL_SetPointerProperty(options, MIX_PROP_AUDIO_LOAD_IOSTREAM_POINTER, rw);
+    SDL_SetStringProperty(options, MIX_PROP_AUDIO_DECODER_STRING, "WAV");
+    SDL_SetBooleanProperty(options, MIX_PROP_AUDIO_LOAD_CLOSEIO_BOOLEAN, true);
+    SDL_SetBooleanProperty(options, MIX_PROP_AUDIO_LOAD_PREDECODE_BOOLEAN, true);
+
+    music = MIX_LoadAudioWithProperties(options);
+    SDL_DestroyProperties(options);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
   }

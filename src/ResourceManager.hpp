@@ -8,6 +8,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "Config.hpp"
 #include "ZtdFile.hpp"
@@ -51,7 +52,10 @@ private:
 
   std::string getResourceLocation(const std::string &resoure_name, bool failure_is_critical=true);
 
+  MIX_Mixer * mixer = nullptr;
   MIX_Audio * menu_music = nullptr;
+  MIX_Track * menu_music_track = nullptr;
+
 
   Config * config;
   FontManager font_manager;
