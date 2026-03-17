@@ -12,7 +12,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends git ca-certificates g++ make cmake zlib1g-dev libasound-dev libxkbcommon-dev libdrm-dev libgl1-mesa-dev libgbm-dev libwayland-dev libdecor-0-dev
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Build
@@ -55,7 +55,7 @@ jobs:
             mingw-w64-x86_64-libzip
           update: true
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Build
@@ -85,12 +85,12 @@ jobs:
       matrix:
         build: [linux, windows]
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v8
     - name: Zip artifacts
       run: |
         zip -r zt1-engine-${{matrix.build}}.zip zt1-engine-${{matrix.build}}
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2.4.2
       with:
         files: zt1-engine-${{matrix.build}}.zip
         prerelease: true
