@@ -32,7 +32,11 @@ IniReader::IniReader(const std::string &filename) {
     SDL_Log("Could not load content of ini file %s", filename.c_str());  
     return;
   }
-  fread(buffer, sizeof(char), size, fd);
+  size_t read_count = fread(buffer, sizeof(char), size, fd);
+  if (read_count == 0) {
+    SDL_Log("Could not load content of ini file %s", filename.c_str());  
+    return;
+  }
   load(std::string((char *) buffer, size));
 
   #ifdef DEBUG
