@@ -1,4 +1,3 @@
-#define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
@@ -12,7 +11,7 @@
 #include "LayoutManager.hpp"
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
   (void) argc;
   (void) argv;
 
