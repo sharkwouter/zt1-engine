@@ -16,7 +16,7 @@ public:
   ~LayoutManager();
 
   bool HandleInputs(std::vector<Input> &inputs);
-  void Draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
+  void Draw(SDL_Renderer * renderer, SDL_Rect * window_rect);
 
   void Load(std::atomic<float> * progress, std::atomic<bool> * is_done);
 

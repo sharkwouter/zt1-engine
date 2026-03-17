@@ -24,12 +24,10 @@ public:
 
 protected:
   std::string name = "";
-  SDL_Window * window = nullptr;
-
   std::vector<UiElement*> elements;
   
-  void process_sections(IniReader * ini_reader, ResourceManager * resource_manager);
-  void process_layout(ResourceManager * resource_manager, std::string layout);
+  void process_sections();
+  void process_layout(std::string layout);
 
 };
 

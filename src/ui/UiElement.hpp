@@ -180,24 +180,24 @@ protected:
       }
     }
 
-    if (map["x"] == "center") {
-      rect.x = layout_rect->w / 2 - rect.w / 2;
-    } else if (map["x"] == "right") {
-      rect.x = layout_rect->w - rect.w;
-    } else if (map["x"].empty() || map["x"] == "left") {
-      rect.x = 0;
-    } else {
-      rect.x = std::stoi(map["x"]);
+    if (map.contains("x") || !map["x"].empty() || map["x"] != "left") {
+      if (map["x"] == "center") {
+        rect.x = layout_rect->w / 2 - rect.w / 2;
+      } else if (map["x"] == "right") {
+        rect.x = layout_rect->w - rect.w;
+      } else {
+        rect.x = std::stoi(map["x"]);
+      }
     }
 
-    if (map["y"] == "center") {
-      rect.y = layout_rect->h / 2 - rect.h / 2;
-    } else if (map["y"] == "bottom") {
-      rect.y = layout_rect->h - rect.h;
-    } else if (map["y"].empty() || map["y"] == "top") {
-      rect.y = 0;
-    } else {
-      rect.y = std::stoi(map["y"]);
+    if (map.contains("y") || !map["y"].empty() || map["y"] != "top") {
+      if (map["y"] == "center") {
+        rect.y = layout_rect->h / 2 - rect.h / 2;
+      } else if (map["y"] == "bottom") {
+        rect.y = layout_rect->h - rect.h;
+      } else {
+        rect.y = std::stoi(map["y"]);
+      }
     }
 
     if (map.contains("justify")) {

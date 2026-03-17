@@ -17,10 +17,13 @@ public:
 
     void set_cursor(SDL_Cursor * cursor) {this->default_cursor = cursor; SDL_SetCursor(this->default_cursor);};
 
+    SDL_Rect * getWindowRect();
+
     void clear();
     void present();
 private:
     SDL_Cursor * default_cursor = nullptr;
+    SDL_Rect window_rect = {0, 0, 0, 0};
 };
 
 #endif // WINDOW_HPP
