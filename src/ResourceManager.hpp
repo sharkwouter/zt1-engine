@@ -6,6 +6,7 @@
 #include <atomic>
 #include <cstdint>
 
+#include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include "Config.hpp"

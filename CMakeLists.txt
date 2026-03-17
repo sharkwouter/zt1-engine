@@ -106,11 +106,12 @@ set(ENABLE_ZSTD OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(vendor/libzip)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pe-resource-loader/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL_image/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL_ttf/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL_mixer/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libzip/include
+    ${CMAKE_SOURCE_DIR}/vendor/pe-resource-loader/include
+    ${CMAKE_SOURCE_DIR}/vendor/SDL/include
+    ${CMAKE_SOURCE_DIR}/vendor/SDL_image/include
+    ${CMAKE_SOURCE_DIR}/vendor/SDL_ttf/include
+    ${CMAKE_SOURCE_DIR}/vendor/SDL_mixer/include
+    ${CMAKE_SOURCE_DIR}/vendor/libzip/include
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
