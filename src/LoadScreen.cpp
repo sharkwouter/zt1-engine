@@ -55,7 +55,6 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
     // Only start loading layouts after the resources have been loaded
     if (resources_done.load() && loading_layouts_thread == nullptr) {
       resource_manager->PlayMenuMusic();
-      SDL_Log("Started loading layouts");
       loading_layouts_thread = new std::thread(&LayoutManager::Load, layout_manager, &layouts_progress, &layouts_done);
     }
   }
