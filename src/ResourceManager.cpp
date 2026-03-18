@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "ZtdFile.hpp"
 #include "Utils.hpp"
@@ -17,9 +17,9 @@ ResourceManager::ResourceManager(Config * config) : config(config) {
 }
 
 ResourceManager::~ResourceManager() {
-  Mix_HaltMusic();
+  // MIX_StopTrack(this->menu_music);
   if (this->menu_music != nullptr){
-    Mix_FreeMusic(this->menu_music);
+    MIX_DestroyAudio(this->menu_music);
   }
 }
 
@@ -164,7 +164,7 @@ SDL_Texture * ResourceManager::getTexture(SDL_Renderer * renderer, const std::st
   SDL_Surface * surface = ZtdFile::getImageSurface(getResourceLocation(file_name), file_name);
   if (surface != nullptr) {
     texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
   }
   return texture;
 }
@@ -174,13 +174,13 @@ SDL_Cursor * ResourceManager::getCursor(uint32_t cursor_id) {
 
   SDL_Surface * surface = pe_file.getCursor(cursor_id);
   SDL_Cursor * cursor = SDL_CreateColorCursor(surface, 0, 0);
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
 
   return cursor;
 }
 
-Mix_Music * ResourceManager::getMusic(const std::string &file_name) {
-  return ZtdFile::getMusic(getResourceLocation(file_name), file_name);
+MIX_Audio * ResourceManager::getMusic(const std::string &file_name) {
+  return ZtdFile::getMusic(getResourceLocation(file_name), file_name, this->mixer);
 }
 
 IniReader * ResourceManager::getIniReader(const std::string &file_name) {
@@ -220,7 +220,7 @@ SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
   PeFile pe_file(lang_dll_path);
   SDL_Surface * surface = pe_file.getLoadScreenSurface(loading_screen_id);
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
   return texture;
 }
 
@@ -236,9 +236,22 @@ void ResourceManager::PlayMenuMusic() {
   if(!this->resource_map_loaded || !this->config->getPlayMenuMusic()) {
     return;
   }
-
+  if (this->mixer == nullptr) {
+    this->mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (!this->mixer) {
+      SDL_Log("Couldn't create mixer on default device: %s", SDL_GetError());
+      return;
+    }
+  }
   if (this->menu_music == nullptr) {
     this->menu_music = this->getMusic(this->config->getMenuMusic());
   }
-  Mix_PlayMusic(this->menu_music, -1);
+  SDL_PropertiesID options = SDL_CreateProperties();
+  SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+  if(this->menu_music_track == nullptr) {
+    this->menu_music_track = MIX_CreateTrack(mixer);
+  }
+  MIX_SetTrackAudio(this->menu_music_track, this->menu_music);
+  MIX_PlayTrack(this->menu_music_track, options);
+  SDL_DestroyProperties(options);
 }

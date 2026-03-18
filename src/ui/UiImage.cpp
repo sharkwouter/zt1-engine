@@ -46,7 +46,7 @@ UiImage::~UiImage() {
   }
 }
 
-void UiImage::draw(SDL_Renderer *renderer, SDL_Rect *layout_rect) {
+void UiImage::draw(SDL_Renderer *renderer, SDL_FRect *layout_rect) {
   if (!this->image && !this->animation && !this->image_path.empty()) {
     std::string extension = Utils::getFileExtension(this->image_path);
     if (extension.empty() || extension == "ANI")
@@ -63,16 +63,16 @@ this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
 //   draw_rect.x -= draw_rect.w;
 // }
 if (this->image) {
-  if (draw_rect.w == 0 || draw_rect.h == 0) {
-    SDL_QueryTexture(this->image, NULL, NULL, &draw_rect.w, &draw_rect.h);
+  if (draw_rect.w == 0.0f || draw_rect.h == 0.0f) {
+    SDL_GetTextureSize(this->image, &draw_rect.w, &draw_rect.h);
   }
   if (this->ini_reader->get(this->name, "y") == "bottom") {
     draw_rect.y -= draw_rect.h;
   }
-  SDL_RenderCopy(renderer, this->image, NULL, &draw_rect);
+  SDL_RenderTexture(renderer, this->image, NULL, &draw_rect);
 }
 if (this->animation) {
-  if (draw_rect.w == 0 || draw_rect.h == 0) {
+  if (draw_rect.w == 0.0f || draw_rect.h == 0.0f) {
     this->animation->queryTexture(CompassDirection::N, &draw_rect.w, &draw_rect.h);
   }
   if (this->ini_reader->get(this->name, "y") == "bottom") {

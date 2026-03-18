@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "UiAction.hpp"
 
@@ -67,12 +67,12 @@ public:
     return result;
   }
 
-  virtual void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect) = 0;
+  virtual void draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) = 0;
 
   std::string getName() {return this->name;};
   int getLayer() {return this->layer;};
   std::vector<int> getAnchors() {return this->anchors;};
-  SDL_Rect * getDrawRect() {return &this->draw_rect;};
+  SDL_FRect * getDrawRect() {return &this->draw_rect;};
 
   int getId() {return id;};
 
@@ -116,11 +116,11 @@ protected:
   bool active = true;
   Action action = Action::NONE;
   std::vector<int> anchors;
-  SDL_Rect draw_rect = {0, 0, 0, 0};
+  SDL_FRect draw_rect = {0.0f, 0.0f, 0.0f, 0.0f};
 
   std::vector<UiElement*> children;
 
-  void drawChildren(SDL_Renderer * renderer, SDL_Rect * parent_rect) {
+  void drawChildren(SDL_Renderer * renderer, SDL_FRect * parent_rect) {
     for (int l=0; l < (8 + 1); l++) {
       for (UiElement * child : this->children) {
         if (child->layer == l) {
@@ -161,14 +161,14 @@ protected:
     return {Action::NONE, 0, 0};
   }
 
-  void generateDrawRect(std::map<std::string, std::string> map, SDL_Rect * layout_rect) {
-    SDL_Rect rect = {0, 0, 0, 0};
+  void generateDrawRect(std::map<std::string, std::string> map, SDL_FRect * layout_rect) {
+    SDL_FRect rect = {0.0f, 0.0f, 0.0f, 0.0f};
 
     if (map.contains("dx")) {
       if (map["dx"] == "whole") {
         rect.w = layout_rect->w;
       } else {
-        rect.w = std::stoi(map["dx"]);
+        rect.w = (float) std::stoi(map["dx"]);
       }
     }
 
@@ -176,27 +176,27 @@ protected:
        if (map["dy"] == "whole") {
         rect.h = layout_rect->h;
       } else {
-        rect.h = std::stoi(map["dy"]);
+        rect.h = (float) std::stoi(map["dy"]);
       }
     }
 
     if (map.contains("x") || !map["x"].empty() || map["x"] != "left") {
       if (map["x"] == "center") {
-        rect.x = layout_rect->w / 2 - rect.w / 2;
+        rect.x = layout_rect->w / 2.0f - rect.w / 2.0f;
       } else if (map["x"] == "right") {
         rect.x = layout_rect->w - rect.w;
       } else {
-        rect.x = std::stoi(map["x"]);
+        rect.x = (float) std::stoi(map["x"]);
       }
     }
 
     if (map.contains("y") || !map["y"].empty() || map["y"] != "top") {
       if (map["y"] == "center") {
-        rect.y = layout_rect->h / 2 - rect.h / 2;
+        rect.y = layout_rect->h / 2.0f - rect.h / 2.0f;
       } else if (map["y"] == "bottom") {
         rect.y = layout_rect->h - rect.h;
       } else {
-        rect.y = std::stoi(map["y"]);
+        rect.y = (float) std::stoi(map["y"]);
       }
     }
 

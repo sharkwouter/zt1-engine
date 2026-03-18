@@ -70,11 +70,11 @@ void PalletManager::loadPallet(const std::string &file_name) {
       SDL_Log("Could not load pallet %s from %s, returning", file_name.c_str(), this->pallet_files_map[file_name].c_str());
       return;
     }
-    SDL_RWops * pallet_rw = SDL_RWFromMem(pallet_file_content, pallet_file_size);
+    SDL_IOStream * pallet_rw = SDL_IOFromMem(pallet_file_content, pallet_file_size);
 
-    pallet.color_count =  SDL_ReadLE32(pallet_rw);
-    SDL_RWread(pallet_rw, pallet.colors, sizeof(uint32_t), (size_t) pallet.color_count);
-    SDL_RWclose(pallet_rw);
+    SDL_ReadU32LE(pallet_rw, &pallet.color_count);
+    SDL_ReadIO(pallet_rw, pallet.colors, (size_t) pallet.color_count * sizeof(uint32_t));
+    SDL_CloseIO(pallet_rw);
 
     this->pallet_map[file_name] = pallet;
 }

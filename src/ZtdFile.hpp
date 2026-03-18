@@ -4,8 +4,8 @@
 #include <vector>
 #include <string>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "IniReader.hpp"
 
@@ -14,7 +14,7 @@ public:
     static std::vector<std::string> getFileList(const std::string &ztd_file);
     static void * getFileContent(const std::string &ztd_file, const std::string &file_name, int * size);
     static SDL_Surface * getImageSurface(const std::string &ztd_file, const std::string &file_name);
-    static Mix_Music * getMusic(const std::string &ztd_file, const std::string &file_name);
+    static MIX_Audio * getMusic(const std::string &ztd_file, const std::string &file_name, MIX_Mixer * mixer);
     static IniReader * getIniReader(const std::string &ztd_file, const std::string &file_name);
 private:
     static SDL_Surface * getImageSurfaceBmp(const std::string &ztd_file, const std::string &file_name);

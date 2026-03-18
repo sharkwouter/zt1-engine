@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "UiElement.hpp"
 
@@ -20,7 +20,7 @@ public:
   ~UiLayout();
 
   UiAction handleInputs(std::vector<Input> &inputs);
-  void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
+  void draw(SDL_Renderer * renderer, SDL_FRect * layout_rect);
 
 protected:
   std::string name = "";

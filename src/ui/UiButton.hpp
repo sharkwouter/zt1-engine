@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
@@ -17,7 +17,7 @@ public:
   ~UiButton();
 
   UiAction handleInputs(std::vector<Input> &inputs);
-  void draw(SDL_Renderer * renderer, SDL_Rect * layout_rect);
+  void draw(SDL_Renderer * renderer, SDL_FRect * layout_rect);
 
 private:
   std::string text_string = "";
@@ -29,7 +29,7 @@ private:
   bool selected_updated = false;
   bool has_select_color = false;
   CompassDirection current_button_image = CompassDirection::N;
-  SDL_Rect shadow_rect = {0, 0, 0, 0};
+  SDL_FRect shadow_rect = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
 #endif // UI_BUTTON_HPP

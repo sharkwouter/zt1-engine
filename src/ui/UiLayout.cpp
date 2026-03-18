@@ -28,7 +28,7 @@ UiLayout::~UiLayout() {
     }
 }
 
-void UiLayout::draw(SDL_Renderer *renderer, SDL_Rect * layout_rect) {
+void UiLayout::draw(SDL_Renderer *renderer, SDL_FRect * layout_rect) {
   this->generateDrawRect(this->ini_reader->getSection("layoutinfo"), layout_rect);
   drawChildren(renderer, &this->draw_rect);
 }

@@ -1,6 +1,6 @@
 #include "Config.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "Utils.hpp"
 
@@ -73,13 +73,13 @@ SDL_Color Config::getProgressColor() {
   return color;
 }
 
-SDL_Rect Config::getProgressPosition() {
-  SDL_Rect rect;
+SDL_FRect Config::getProgressPosition() {
+  SDL_FRect rect;
 
-  rect.x = reader->getInt("UI", "progressLeft", 0);
-  rect.y = reader->getInt("UI", "progressTop", 0);
-  rect.w = reader->getInt("UI", "progressRight", 0) - rect.x;
-  rect.h = reader->getInt("UI", "progressBottom", 0) - rect.y;
+  rect.x = (float) reader->getInt("UI", "progressLeft", 0);
+  rect.y = (float) reader->getInt("UI", "progressTop", 0);
+  rect.w = (float) reader->getInt("UI", "progressRight", 0) - rect.x;
+  rect.h = (float) reader->getInt("UI", "progressBottom", 0) - rect.y;
 
   return rect;
 }

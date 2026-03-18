@@ -3,7 +3,7 @@
 #include <zip.h>
 #include <stdlib.h>
 
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "Utils.hpp"
 
@@ -58,8 +58,8 @@ SDL_Surface * ZtdFile::getImageSurfaceBmp(const std::string &ztd_file, const std
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
-    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    surface = IMG_LoadTyped_RW(rw, 1, "BMP");
+    SDL_IOStream * rw = SDL_IOFromMem(file_content, file_size);
+    surface = IMG_LoadTyped_IO(rw, 1, "BMP");
     free(file_content);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
@@ -74,8 +74,8 @@ SDL_Surface * ZtdFile::getImageSurfaceTga(const std::string &ztd_file, const std
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
-    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    surface = IMG_LoadTyped_RW(rw, 1, "TGA");
+    SDL_IOStream * rw = SDL_IOFromMem(file_content, file_size);
+    surface = IMG_LoadTyped_IO(rw, 1, "TGA");
     free(file_content);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
@@ -90,8 +90,8 @@ SDL_Surface * ZtdFile::getImageSurfaceZt1(const std::string &ztd_file, const std
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
-    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    surface = IMG_Load_RW(rw, 1);
+    SDL_IOStream * rw = SDL_IOFromMem(file_content, file_size);
+    surface = IMG_Load_IO(rw, 1);
     free(file_content);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.empty() ? "unknown ztd file" : ztd_file.c_str());
@@ -118,15 +118,23 @@ SDL_Surface * ZtdFile::getImageSurface(const std::string &ztd_file, const std::s
   return surface;
 }
 
-Mix_Music * ZtdFile::getMusic(const std::string &ztd_file, const std::string &file_name) {
-  Mix_Music * music = NULL;
+MIX_Audio * ZtdFile::getMusic(const std::string &ztd_file, const std::string &file_name, MIX_Mixer * mixer) {
+  MIX_Audio * music = NULL;
   int file_size = 0;
-  Mix_MusicType music_type = MUS_WAV;
 
   void * file_content = ZtdFile::getFileContent(ztd_file, file_name, &file_size);
   if (file_content) {
-    SDL_RWops * rw = SDL_RWFromMem(file_content, file_size);
-    music = Mix_LoadMUSType_RW(rw, music_type, 1);
+    SDL_IOStream * rw = SDL_IOFromMem(file_content, file_size);
+
+    SDL_PropertiesID options = SDL_CreateProperties();
+    SDL_SetPointerProperty(options, MIX_PROP_AUDIO_LOAD_PREFERRED_MIXER_POINTER, mixer);
+    SDL_SetPointerProperty(options, MIX_PROP_AUDIO_LOAD_IOSTREAM_POINTER, rw);
+    SDL_SetStringProperty(options, MIX_PROP_AUDIO_DECODER_STRING, "WAV");
+    SDL_SetBooleanProperty(options, MIX_PROP_AUDIO_LOAD_CLOSEIO_BOOLEAN, true);
+    SDL_SetBooleanProperty(options, MIX_PROP_AUDIO_LOAD_PREDECODE_BOOLEAN, true);
+
+    music = MIX_LoadAudioWithProperties(options);
+    SDL_DestroyProperties(options);
   } else {
     SDL_Log("Could not load content of file %s in %s", file_name.c_str(), ztd_file.c_str());
   }

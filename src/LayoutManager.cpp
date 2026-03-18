@@ -78,7 +78,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
   return true;
 }
 
-void LayoutManager::Draw(SDL_Renderer * renderer, SDL_Rect * window_rect) {
+void LayoutManager::Draw(SDL_Renderer * renderer, SDL_FRect * window_rect) {
   for (int layer=0; layer < (8 + 1); layer++) {
     for(auto kv : layouts) {
       UiLayout * layout = layouts[kv.first];

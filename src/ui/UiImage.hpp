@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "UiElement.hpp"
 #include "../IniReader.hpp"
@@ -15,7 +15,7 @@ public:
   UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std::string name);
   ~UiImage();
 
-  void draw(SDL_Renderer *renderer, SDL_Rect * layout_rect);
+  void draw(SDL_Renderer *renderer, SDL_FRect * layout_rect);
 
 private:
   std::string image_path = "";

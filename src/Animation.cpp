@@ -11,7 +11,7 @@ Animation::Animation(std::unordered_map<std::string, AnimationData *> * data) {
 Animation::~Animation() {
   for (auto surface_list : this->surfaces) {
     for (SDL_Surface * surface : surface_list.second) {
-      SDL_FreeSurface(surface);
+      SDL_DestroySurface(surface);
     }
     surface_list.second.clear();
   }
@@ -23,11 +23,11 @@ Animation::~Animation() {
   }
 }
 
-void Animation::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection direction) {
+void Animation::draw(SDL_Renderer *renderer,  float x, float y, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
-  SDL_Rect rect = {x, y, 0, 0};
+  SDL_FRect rect = {x, y, 0.0f, 0.0f};
   if (!this->textures[direction_string].empty()) {
-    SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, &rect.w, &rect.h);
+    SDL_GetTextureSize(this->textures[direction_string][this->current_frame], &rect.w, &rect.h);
   } else {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
     rect.w = this->surfaces[direction_string][this->current_frame]->w;
@@ -38,7 +38,7 @@ void Animation::draw(SDL_Renderer *renderer,  int x, int y, CompassDirection dir
   this->draw(renderer, &rect, direction);
 }
 
-void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirection direction) {
+void Animation::draw(SDL_Renderer *renderer,  SDL_FRect * dest_rect, CompassDirection direction) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
   if (direction_string.empty()) {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
@@ -48,7 +48,7 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
         this->textures[direction_string].push_back(
           SDL_CreateTextureFromSurface(renderer, surface)
         );
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
       }
       this->surfaces[direction_string].clear();
     } else {
@@ -79,25 +79,25 @@ void Animation::draw(SDL_Renderer *renderer,  SDL_Rect * dest_rect, CompassDirec
   #endif
 
   if (dest_rect->w == 0 || dest_rect->h == 0) {
-    SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, &dest_rect->w, &dest_rect->h);
+    SDL_GetTextureSize(this->textures[direction_string][this->current_frame], &dest_rect->w, &dest_rect->h);
   }
 
   // Draw background
   if (this->has_background) {
-    SDL_RenderCopyEx(renderer, this->textures[direction_string][this->textures[direction_string].size() - 1], NULL, dest_rect, 0, NULL, this->renderer_flip);
-    if (this->current_frame >= this->textures[direction_string].size() - 1) {
+    SDL_RenderTextureRotated(renderer, this->textures[direction_string][this->textures[direction_string].size() - 1], NULL, dest_rect, 0, NULL, this->renderer_flip);
+    if (this->current_frame >= (int) this->textures[direction_string].size() - 1) {
       this->current_frame = 0;
     }
   }
 
   // Draw object
-  SDL_RenderCopyEx(renderer, this->textures[direction_string][this->current_frame], NULL, dest_rect, 0, NULL, this->renderer_flip);
+  SDL_RenderTextureRotated(renderer, this->textures[direction_string][this->current_frame], NULL, dest_rect, 0, NULL, this->renderer_flip);
 }
 
-void Animation::queryTexture(CompassDirection direction, int * w, int * h) {
+void Animation::queryTexture(CompassDirection direction, float * w, float * h) {
   std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
   if (!this->textures[direction_string].empty()) {
-    SDL_QueryTexture(this->textures[direction_string][this->current_frame], NULL, NULL, w, h);
+    SDL_GetTextureSize(this->textures[direction_string][this->current_frame], w, h);
   } else {
     direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
     if (w != nullptr) {
@@ -396,7 +396,7 @@ void Animation::loadSurfaces(std::string direction_string, AnimationData * data)
 
   this->surfaces[direction_string] = std::vector<SDL_Surface *>();
   for(int i = 0; i < ((int) data->frame_count + (int) data->has_background); i++) {
-    this->surfaces[direction_string].push_back(SDL_CreateRGBSurfaceWithFormat(0, data->width, data->height, 0, SDL_PIXELFORMAT_RGBA32));
+    this->surfaces[direction_string].push_back(SDL_CreateSurface(data->width, data->height, SDL_PIXELFORMAT_RGBA32));
     for(int y = 0; y < data->frames[i].height; y++) {
       int x = offset_x - data->frames[i].offset_x;
       for(int instruction = 0; instruction < data->frames[i].lines[y].instruction_count; instruction++) {

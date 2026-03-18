@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "IniReader.hpp"
 #include "CompassDirection.hpp"
@@ -18,14 +18,14 @@ public:
     Animation(std::unordered_map<std::string, AnimationData *> * data);
     ~Animation();
 
-    void draw(SDL_Renderer * renderer, int x, int y, CompassDirection direction=CompassDirection::N);
-    void draw(SDL_Renderer * renderer, SDL_Rect * draw_rect, CompassDirection direction=CompassDirection::N);
+    void draw(SDL_Renderer * renderer, float x, float y, CompassDirection direction=CompassDirection::N);
+    void draw(SDL_Renderer * renderer, SDL_FRect * draw_rect, CompassDirection direction=CompassDirection::N);
 
-    void queryTexture(CompassDirection direction, int * w, int * h);
+    void queryTexture(CompassDirection direction, float * w, float * h);
 private:
     int current_frame = 0;
     CompassDirection last_direction = CompassDirection::N;
-    SDL_RendererFlip renderer_flip = SDL_FLIP_NONE;
+    SDL_FlipMode renderer_flip = SDL_FLIP_NONE;
     uint32_t frame_start_time = 0;
 
     uint32_t frame_time_in_ms = 0;
