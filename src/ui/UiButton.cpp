@@ -69,6 +69,7 @@ UiAction UiButton::handleInputs(std::vector<Input> &inputs) {
     switch (input.event) {
       case InputEvent::LEFT_CLICK:
         result = {this->action, this->target, this->id};
+        this->selected = false;
         break;
       default:
         break;
@@ -106,7 +107,7 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
   if (this->animation != nullptr) {
-    this->animation->draw(renderer, &draw_rect, CompassDirection::N);
+    this->animation->draw(renderer, &draw_rect, this->current_button_image);
   }
 
   SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);

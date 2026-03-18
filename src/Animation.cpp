@@ -39,24 +39,28 @@ void Animation::draw(SDL_Renderer *renderer,  float x, float y, CompassDirection
 }
 
 void Animation::draw(SDL_Renderer *renderer,  SDL_FRect * dest_rect, CompassDirection direction) {
-  std::string direction_string = convertCompassDirectionToExistingAnimationString(direction, this->textures);
-  if (direction_string.empty()) {
-    direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
-    this->textures[direction_string] = std::vector<SDL_Texture *>();
-    if (!direction_string.empty()) {
-      for (SDL_Surface * surface: this->surfaces[direction_string]) {
-        this->textures[direction_string].push_back(
-          SDL_CreateTextureFromSurface(renderer, surface)
-        );
-        SDL_DestroySurface(surface);
-      }
-      this->surfaces[direction_string].clear();
-    } else {
+  std::string direction_string = convertCompassDirectionToString(direction);
+  if (!this->textures.contains(direction_string)) {
+    if (!this->surfaces.contains(direction_string)) {
+      direction_string = convertCompassDirectionToExistingAnimationString(direction, this->surfaces);
+    }
+    if (direction_string.empty()) {
       SDL_Log("Cannot draw animation because the specified direction does not exist");
       return;
     }
+    this->textures[direction_string] = std::vector<SDL_Texture *>();
+    for (SDL_Surface * surface: this->surfaces[direction_string]) {
+      this->textures[direction_string].push_back(
+        SDL_CreateTextureFromSurface(renderer, surface)
+      );
+      SDL_DestroySurface(surface);
+    }
+    this->surfaces[direction_string].clear();
   }
-  assert(!this->textures[direction_string].empty());
+
+  if (this->textures[direction_string].empty()) {
+    return;
+  }
 
   if (direction != this->last_direction) {
     this->last_direction = direction;
