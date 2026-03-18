@@ -107,18 +107,14 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
   if (this->animation != nullptr) {
     this->animation->draw(renderer, &draw_rect, CompassDirection::N);
-
-    // Prepare position for text drawing
-    if (this->ini_reader->get(this->name, "justify") == "center") {
-      text_rect.x += draw_rect.w / 2.0f;
-      text_rect.y += draw_rect.h / 2.0f;
-    }
   }
 
   SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
-    text_rect.x -= text_rect.w / 2;
-    text_rect.y -= text_rect.h / 2;
+    text_rect.x = draw_rect.x + (draw_rect.w / 2.0f) - (text_rect.w / 2.0f);
+    text_rect.y = draw_rect.y + (draw_rect.h / 2.0f) - (text_rect.h / 2.0f);
+  } else if (this->ini_reader->get(this->name, "justify") == "right") {
+    text_rect.x = draw_rect.x + draw_rect.w - text_rect.w;
   }
 
   // Make sure draw_rect has a size so mouse selection works

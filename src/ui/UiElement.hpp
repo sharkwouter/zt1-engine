@@ -200,14 +200,6 @@ protected:
       }
     }
 
-    if (map.contains("justify")) {
-      if (map["justify"] == "center") {
-        rect.x += rect.w / 2;
-      } else if (map["justify"] == "right") {
-        rect.x += rect.w;
-      }
-    }
-
     rect.x += layout_rect->x;
     rect.y += layout_rect->y;
 

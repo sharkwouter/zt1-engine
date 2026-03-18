@@ -21,7 +21,7 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
   this->text_string = this->resource_manager->getString(string_id);
   
   if(this->text_string.empty()) {
-    if (name == "version_label") {
+    if (this->id == 7119) {
       this->text_string = "Version Number: ZT1-Engine 0.1  ";
     } else {
       this->text_string = "Not found";
@@ -49,21 +49,23 @@ void UiText::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
     this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
   }
   this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
-  SDL_GetTextureSize(this->text, &draw_rect.w, &draw_rect.h);
+  SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
+  SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
   if (this->ini_reader->get(this->name, "justify") == "center") {
-    draw_rect.x -= draw_rect.w / 2.0f;
+    text_rect.x = draw_rect.x + (draw_rect.w / 2.0f) - (text_rect.w / 2.0f);
+    text_rect.y = draw_rect.y + (draw_rect.h / 2.0f) - (text_rect.h / 2.0f);
   } else if (this->ini_reader->get(this->name, "justify") == "right") {
-    draw_rect.x -= draw_rect.w;
+    text_rect.x = draw_rect.x + draw_rect.w - text_rect.w;
   }
 
   // Fix for version text on main menu
-  if (this->ini_reader->get(this->name, "y") == "bottom") {
-    draw_rect.y -= draw_rect.h;
+  if (this->ini_reader->get(this->name, "dy") == "fitfont" && this->ini_reader->get(this->name, "y") == "bottom") {
+    text_rect.y -= text_rect.h;
   }
   
-  shadow_rect = {draw_rect.x - 1.0f, draw_rect.y + 1.0f, draw_rect.w, draw_rect.h};
+  shadow_rect = {text_rect.x - 1.0f, text_rect.y + 1.0f, text_rect.w, text_rect.h};
   SDL_RenderTexture(renderer, this->shadow, NULL, &shadow_rect);
 
-  SDL_RenderTexture(renderer, this->text, NULL, &draw_rect);
+  SDL_RenderTexture(renderer, this->text, NULL, &text_rect);
   this->drawChildren(renderer, &draw_rect);
 }
