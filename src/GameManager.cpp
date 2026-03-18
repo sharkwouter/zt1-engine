@@ -1,20 +1,20 @@
-#include "LayoutManager.hpp"
+#include "GameManager.hpp"
 
 #include <string>
 #include <algorithm>
 
-LayoutManager::LayoutManager(ResourceManager * resource_manager) {
+GameManager::GameManager(ResourceManager * resource_manager) {
   this->resource_manager = resource_manager;
 }
 
-LayoutManager::~LayoutManager() {
+GameManager::~GameManager() {
   for(auto kv : layouts) {
     free(kv.second);
     layouts[kv.first] = nullptr;
   }
 }
 
-bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
+bool GameManager::HandleInputs(std::vector<Input> &inputs) {
   for (int layer=8; layer > (0 - 1); layer--) {
     for(auto kv : layouts) {
       UiLayout * layout = layouts[kv.first];
@@ -78,7 +78,7 @@ bool LayoutManager::HandleInputs(std::vector<Input> &inputs) {
   return true;
 }
 
-void LayoutManager::Draw(SDL_Renderer * renderer, SDL_FRect * window_rect) {
+void GameManager::Draw(SDL_Renderer * renderer, SDL_FRect * window_rect) {
   for (int layer=0; layer < (8 + 1); layer++) {
     for(auto kv : layouts) {
       UiLayout * layout = layouts[kv.first];
@@ -90,7 +90,7 @@ void LayoutManager::Draw(SDL_Renderer * renderer, SDL_FRect * window_rect) {
   }
 }
 
-void LayoutManager::Load(std::atomic<float> * progress, std::atomic<bool> * is_done) {
+void GameManager::Load(std::atomic<float> * progress, std::atomic<bool> * is_done) {
     if (this->loaded) {
     *progress = 100.0f;
     *is_done = true;
@@ -133,7 +133,7 @@ void LayoutManager::Load(std::atomic<float> * progress, std::atomic<bool> * is_d
   *is_done = true;
 }
 
-bool LayoutManager::handleTargetlessAction(UiAction action) {
+bool GameManager::handleTargetlessAction(UiAction action) {
   switch (action.source) {
     case (int) ActionSource::MAIN_MENU_EXIT:
       return false;

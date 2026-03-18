@@ -5,7 +5,7 @@
 #include <thread>
 #include <atomic>
 
-void LoadScreen::run(Window * window, Config * config, ResourceManager * resource_manager, LayoutManager * layout_manager) {
+void LoadScreen::run(Window * window, Config * config, ResourceManager * resource_manager, GameManager * game_manager) {
   SDL_Texture * background = resource_manager->getLoadTexture(window->renderer);
   
   SDL_Event event;
@@ -55,7 +55,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
     // Only start loading layouts after the resources have been loaded
     if (resources_done.load() && loading_layouts_thread == nullptr) {
       resource_manager->PlayMenuMusic();
-      loading_layouts_thread = new std::thread(&LayoutManager::Load, layout_manager, &layouts_progress, &layouts_done);
+      loading_layouts_thread = new std::thread(&GameManager::Load, game_manager, &layouts_progress, &layouts_done);
     }
   }
   SDL_DestroyTexture(background);

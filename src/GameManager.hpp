@@ -1,5 +1,5 @@
-#ifndef LAYOUT_MANAGER_HPP
-#define LAYOUT_MANAGER_HPP
+#ifndef GAME_MANAGER_HPP
+#define GAME_MANAGER_HPP
 
 #include <unordered_map>
 #include <vector>
@@ -10,10 +10,10 @@
 #include "ui/UiLayout.hpp"
 #include "ui/UiAction.hpp"
 
-class LayoutManager {
+class GameManager {
 public:
-  LayoutManager(ResourceManager * resource_manager);
-  ~LayoutManager();
+  GameManager(ResourceManager * resource_manager);
+  ~GameManager();
 
   bool HandleInputs(std::vector<Input> &inputs);
   void Draw(SDL_Renderer * renderer, SDL_FRect * window_rect);
@@ -22,7 +22,6 @@ public:
 
 private:
   std::unordered_map<std::string, UiLayout*> layouts;
-  UiLayout * current_layout;
   int id = 0;
   bool loaded = false;
   ResourceManager * resource_manager = nullptr;
@@ -30,4 +29,4 @@ private:
   bool handleTargetlessAction(UiAction);
 };
 
-#endif // LAYOUT_MANAGER_HPP
+#endif // GAME_MANAGER_HPP
