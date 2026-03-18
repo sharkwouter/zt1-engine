@@ -110,6 +110,15 @@ void UiButton::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   }
 
   SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
+  if (draw_rect.w == 0) {
+    this->draw_rect.w = text_rect.w;
+  }
+  if (draw_rect.h == 0) {
+    this->draw_rect.h = text_rect.h;
+    if (this->ini_reader->get(this->name, "y") == "bottom") {
+      text_rect.y -= text_rect.h;
+    }
+  }
   if (this->ini_reader->get(this->name, "justify") == "center") {
     text_rect.x = draw_rect.x + (draw_rect.w / 2.0f) - (text_rect.w / 2.0f);
     text_rect.y = draw_rect.y + (draw_rect.h / 2.0f) - (text_rect.h / 2.0f);

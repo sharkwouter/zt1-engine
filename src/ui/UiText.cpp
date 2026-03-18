@@ -51,16 +51,20 @@ void UiText::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
   this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
   SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
+  if (draw_rect.w == 0) {
+    this->draw_rect.w = text_rect.w;
+  }
+  if (draw_rect.h == 0) {
+    this->draw_rect.h = text_rect.h;
+    if (this->ini_reader->get(this->name, "y") == "bottom") {
+      text_rect.y -= text_rect.h;
+    }
+  }
   if (this->ini_reader->get(this->name, "justify") == "center") {
     text_rect.x = draw_rect.x + (draw_rect.w / 2.0f) - (text_rect.w / 2.0f);
     text_rect.y = draw_rect.y + (draw_rect.h / 2.0f) - (text_rect.h / 2.0f);
   } else if (this->ini_reader->get(this->name, "justify") == "right") {
     text_rect.x = draw_rect.x + draw_rect.w - text_rect.w;
-  }
-
-  // Fix for version text on main menu
-  if (this->ini_reader->get(this->name, "dy") == "fitfont" && this->ini_reader->get(this->name, "y") == "bottom") {
-    text_rect.y -= text_rect.h;
   }
   
   shadow_rect = {text_rect.x - 1.0f, text_rect.y + 1.0f, text_rect.w, text_rect.h};
