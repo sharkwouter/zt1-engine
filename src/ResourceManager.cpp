@@ -64,7 +64,9 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, std::atom
   std::vector<std::string> resource_paths = config->getResourcePaths();
   float progress_per_resource_path_load = (100.0f - *progress) / (float) resource_paths.size();
   for (std::string path : resource_paths) {
+    SDL_Log("Resource path %s", path.c_str());
     path = Utils::fixPath(path);
+    SDL_Log("Resource path after fixPath %s", path.c_str());
     if (path.empty())
       continue;
     for (std::filesystem::directory_entry archive : std::filesystem::directory_iterator(path)) {
@@ -72,7 +74,6 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, std::atom
       if (Utils::getFileExtension(current_archive) != "ZTD") {
         continue;
       }
-      // SDL_Log("Adding resources from %s", archive.path().c_str());
       for (std::string file : ZtdFile::getFileList(current_archive)) {
         if (resource_map.count(file) == 0) {
           resource_map[file] = current_archive;
@@ -97,7 +98,7 @@ void ResourceManager::load_resource_map(std::atomic<float> * progress, std::atom
 
 void ResourceManager::load_string_map(std::atomic<float> * progress, std::atomic<bool> * is_done) {
   std::vector<std::string> lang_dlls;
-  for (std::filesystem::directory_entry lang_dll : std::filesystem::directory_iterator(Utils::getExecutableDirectory())) {
+  for (std::filesystem::directory_entry lang_dll : std::filesystem::directory_iterator(Utils::getZooTycoonPath())) {
     std::string current_dll = lang_dll.path().filename().string();
     if (!Utils::string_to_lower(current_dll).starts_with("lang") || Utils::getFileExtension(current_dll) != "DLL") {
       continue;
@@ -209,7 +210,7 @@ Animation *ResourceManager::getAnimation(const std::string &file_name) {
 SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
   Expansion expansion = Utils::getExpansion();
   uint32_t loading_screen_id = 502;
-  std::string lang_dll_path = Utils::getExpansionLangDllPath(expansion);
+  std::string lang_dll_name = Utils::getExpansionLangDllName(expansion);
 
   if (expansion == Expansion::ALL) {
     loading_screen_id = 505;
@@ -217,7 +218,7 @@ SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
     loading_screen_id = 504;
   }
 
-  PeFile pe_file(lang_dll_path);
+  PeFile pe_file(lang_dll_name);
   SDL_Surface * surface = pe_file.getLoadScreenSurface(loading_screen_id);
   SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_DestroySurface(surface);

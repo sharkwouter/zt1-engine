@@ -88,59 +88,121 @@ public:
   }
 
   static std::string fixPath(std::string path_string) {
+    if (path_string.ends_with("/")) {
+      // Remove final slash, otherwise the next part fails
+      path_string = path_string.substr(0, path_string.length() - 1);
+    }
     std::filesystem::path path = std::filesystem::path(path_string);
 
     std::filesystem::path new_path = std::filesystem::path("/");
     if (!path.is_absolute()) {
-      new_path =  std::filesystem::path(Utils::getExecutableDirectory());
+      new_path =  std::filesystem::path(Utils::getZooTycoonPath());
     }
     for (std::filesystem::path part : path) {
       if (part == "/" || part == ".") {
         continue;
       }
       std::string new_part = Utils::getCorrectCaseFilename(new_path.string(), part.string());
-      if (new_part.empty())
+      if (new_part.empty()) {
+        SDL_Log("Path %s does not exist", new_path.string().c_str());
         return "";
+      }
       new_path = new_path / new_part;
     }
     return new_path.string();
   }
 #endif
 
-  static std::string getExpansionLangDllPath(Expansion expansion) {
+  static std::string getExpansionLangDllName(Expansion expansion) {
     switch (expansion) {
       case Expansion::NONE:
-        return Utils::fixPath("lang0.dll");
+        return Utils::getCorrectCaseFilename(Utils::getZooTycoonPath(), "lang0.dll");
         break;
       case Expansion::DINOSAUR_DIGS:
-        return Utils::fixPath("lang100.dll");
+        return Utils::getCorrectCaseFilename(Utils::getZooTycoonPath(), "lang100.dll");
         break;
       case Expansion::MARINE_MANIA:
-        return Utils::fixPath("lang200.dll");
+        return Utils::getCorrectCaseFilename(Utils::getZooTycoonPath(), "lang200.dll");
         break;
       case Expansion::ALL:
-        return Utils::fixPath("lang200.dll");
+        return Utils::getCorrectCaseFilename(Utils::getZooTycoonPath(), "lang200.dll");
         break;
       default:
-        return Utils::fixPath("lang0.dll");
+        return Utils::getCorrectCaseFilename(Utils::getZooTycoonPath(), "lang0.dll");
         break;
     }
   }
 
   static Expansion getExpansion() {
-    if (!Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA).empty() && !Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS).empty()) {
+    if (!Utils::getExpansionLangDllName(Expansion::MARINE_MANIA).empty() && !Utils::getExpansionLangDllName(Expansion::DINOSAUR_DIGS).empty()) {
       return Expansion::ALL;
     }
 
-    if (!Utils::getExpansionLangDllPath(Expansion::MARINE_MANIA).empty()) {
+    if (!Utils::getExpansionLangDllName(Expansion::MARINE_MANIA).empty()) {
       return Expansion::MARINE_MANIA;
     }
 
-    if (!Utils::getExpansionLangDllPath(Expansion::DINOSAUR_DIGS).empty()) {
+    if (!Utils::getExpansionLangDllName(Expansion::DINOSAUR_DIGS).empty()) {
       return Expansion::DINOSAUR_DIGS;
     }
 
     return Expansion::NONE;
+  }
+
+  static std::string getZooTycoonPath() {
+    static std::string zoo_tycoon_path = "";
+    if (!zoo_tycoon_path.empty()) {
+      return zoo_tycoon_path;
+    }
+
+    zoo_tycoon_path = Utils::getExecutableDirectory();
+    while (!pathContainsZooTycoonFiles(zoo_tycoon_path)) {
+      OpenFolderDialogData data = {"", false};
+      SDL_ShowOpenFolderDialog(Utils::openFolderDialogCallback, (void *) &data, NULL, NULL, false);
+      while (!data.done) {
+        SDL_PumpEvents();
+      }
+      zoo_tycoon_path = data.file_name;
+    }
+    return zoo_tycoon_path;
+  }
+
+private:
+  static bool pathContainsZooTycoonFiles(std::string path) {
+    if (path.empty()) {
+      return false;
+    }
+
+    bool contains_all_expected_files = true;
+    std::string expected_files[] = {
+      "zoo.ini",
+      "res0.dll",
+      "lang0.dll"
+    };
+    for (std::string expected_file : expected_files) {
+      std::string found_file_path = Utils::getCorrectCaseFilename(path, expected_file);
+      if (found_file_path.empty()) {
+        contains_all_expected_files = false;
+        break;
+      }
+      SDL_Log("Found file %s in %s", expected_file.c_str(), path.c_str());
+    }
+    return contains_all_expected_files;
+  }
+
+  typedef struct {
+    std::string file_name;
+    bool done;
+  } OpenFolderDialogData;
+
+  static void SDLCALL openFolderDialogCallback(void* userdata, const char* const* filelist, int filter) {
+    OpenFolderDialogData * data = (OpenFolderDialogData *) userdata;
+    if (!filelist) {
+      data->file_name = "";
+    } else {
+      data->file_name = std::string(*filelist);
+    }
+    data->done = true;
   }
 };
 

@@ -11,6 +11,8 @@
 PeFile::PeFile(const std::string &pe_file) {
   std::string fixed_path = Utils::fixPath(pe_file);
   this->loader = PeResourceLoader_Open(fixed_path.c_str());
+  if (!this->loader)
+    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not load PE file %s, got %s from fix path function", pe_file.c_str(), fixed_path.c_str());
 }
 
 PeFile::~PeFile() {

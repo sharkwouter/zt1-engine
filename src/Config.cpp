@@ -5,7 +5,7 @@
 #include "Utils.hpp"
 
 Config::Config(const std::string &filename) {
-  this->reader = new IniReader(Utils::fixPath(filename));
+  this->reader = new IniReader(Utils::fixPath(Utils::getZooTycoonPath() + "/" + filename));
 }
 
 Config::~Config(){
@@ -18,14 +18,17 @@ std::vector<std::string>  Config::getResourcePaths() {
   std::string path_string = reader->get("resource", "path", "");
   std::string current_path = "";
   for (char character : path_string) {
+    if (current_path.empty() && (character == '.' || character == '/')) {
+      continue;
+    }
     if (character == ';') {
-      resource_paths.push_back(current_path);
+      resource_paths.push_back(Utils::getZooTycoonPath() + "/" + current_path);
       current_path = "";
       continue;
     }
     current_path += character;
   }
-  resource_paths.push_back(current_path);
+  resource_paths.push_back(Utils::getZooTycoonPath() + "/" + current_path);
 
   for(std::string path : resource_paths) {
     SDL_Log("Found resource path %s", path.c_str());
