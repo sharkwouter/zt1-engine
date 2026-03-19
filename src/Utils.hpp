@@ -59,6 +59,10 @@ public:
 
 #ifdef _WIN32
   static std::string fixPath(std::string path_string) {
+    std::filesystem::path path = std::filesystem::path(path_string);
+    if (!path.is_absolute()) {
+      path_string = Utils::getZooTycoonPath() + "/" + path;
+    }
     return path_string;
   }
 #else
