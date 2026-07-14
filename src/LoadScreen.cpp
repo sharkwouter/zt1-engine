@@ -10,16 +10,16 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
   
   SDL_Event event;
 
-  std::atomic<float> resources_progress, strings_progress, layouts_progress = 0.0f;
-  std::atomic<bool> resources_done, strings_done, layouts_done = false;
+  std::atomic<float> resources_progress(0.0f), strings_progress(0.0f), layouts_progress(0.0f);
+  std::atomic<bool> resources_done(false), strings_done(false), layouts_done(false);
   SDL_Color loading_bar_color = config->getProgressColor();
   SDL_FRect background_rect;
   SDL_GetTextureSize(background, &background_rect.w, &background_rect.h);
   SDL_FRect * window_rect;
   SDL_FRect loading_bar_rect = config->getProgressPosition();
 
-  std::thread * loading_resources_thread = nullptr;;
-  std::thread * loading_strings_thread = nullptr; ;
+  std::thread * loading_resources_thread = nullptr;
+  std::thread * loading_strings_thread = nullptr;
   std::thread * loading_layouts_thread = nullptr;
   while (resources_done.load() == false || strings_done.load() == false || layouts_done.load() == false) {
     window->clear();
@@ -62,7 +62,7 @@ void LoadScreen::run(Window * window, Config * config, ResourceManager * resourc
   loading_resources_thread->join();
   loading_strings_thread->join();
   loading_layouts_thread->join();
-  free(loading_resources_thread);
-  free(loading_strings_thread);
-  free(loading_layouts_thread);
+  delete loading_resources_thread;
+  delete loading_strings_thread;
+  delete loading_layouts_thread;
 }

@@ -20,12 +20,14 @@ UiLayout::UiLayout(IniReader *ini_reader, ResourceManager *resource_manager, std
 }
 
 UiLayout::~UiLayout() {
-    for (UiElement * element : this->children) {
-      free(element);
+  for (UiElement * child : this->children) {
+    if (child != nullptr) {
+      delete child;
     }
-    if (this->ini_reader != nullptr) {
-      free(this->ini_reader);
-    }
+  }
+  if (this->ini_reader != nullptr) {
+    delete this->ini_reader;
+  }
 }
 
 void UiLayout::draw(SDL_Renderer *renderer, SDL_FRect * layout_rect) {

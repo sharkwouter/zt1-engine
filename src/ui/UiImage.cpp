@@ -35,14 +35,16 @@ UiImage::UiImage(IniReader * ini_reader, ResourceManager * resource_manager, std
 }
 
 UiImage::~UiImage() {
-  if (this->image) {
+  if (this->image != nullptr) {
     SDL_DestroyTexture(this->image);
   }
-  if (this->animation) {
-    free(animation);
+  if (this->animation != nullptr) {
+    delete this->animation;
   }
   for (UiElement * child : this->children) {
-    free(child);
+    if (child != nullptr) {
+      delete child;
+    }
   }
 }
 

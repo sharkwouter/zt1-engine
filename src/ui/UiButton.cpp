@@ -35,9 +35,16 @@ UiButton::UiButton(IniReader * ini_reader, ResourceManager * resource_manager, s
 }
 
 UiButton::~UiButton() {
-  SDL_DestroyTexture(text);
+  if (this->text != nullptr) {
+    SDL_DestroyTexture(this->text);
+  }
+  if (this->shadow != nullptr) {
+    SDL_DestroyTexture(this->shadow);
+  }
   for (UiElement * child : this->children) {
-    free(child);
+    if (child != nullptr) {
+      delete child;
+    }
   }
 }
 
