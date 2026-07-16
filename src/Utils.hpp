@@ -57,15 +57,6 @@ public:
     return new_string;
   }
 
-#ifdef _WIN32
-  static std::string fixPath(std::string path_string) {
-    std::filesystem::path path = std::filesystem::path(path_string);
-    if (!path.is_absolute()) {
-      path_string = Utils::getZooTycoonPath() + "/" + path;
-    }
-    return path_string;
-  }
-#else
   static std::string getCorrectCaseFilename(std::string base_path, std::string file_name) {
     std::string current_file_name = "";
     std::string matching_file = "";
@@ -91,6 +82,15 @@ public:
     return matching_file;
   }
 
+  #ifdef _WIN32
+  static std::string fixPath(std::string path_string) {
+    std::filesystem::path path = std::filesystem::path(path_string);
+    if (!path.is_absolute()) {
+      path_string = Utils::getZooTycoonPath() + "/" + path_string;
+    }
+    return path_string;
+  }
+#else
   static std::string fixPath(std::string path_string) {
     if (path_string.ends_with("/")) {
       // Remove final slash, otherwise the next part fails
