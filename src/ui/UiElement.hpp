@@ -124,6 +124,9 @@ protected:
     for (int l=0; l < (8 + 1); l++) {
       for (UiElement * child : this->children) {
         if (child->layer == l) {
+          if (child == NULL || !child->getActive()) {
+            continue;
+          }
           if (!child->getAnchors().empty()) {
             UiElement * parent = nullptr;
             for (int anchor : child->getAnchors()) {
