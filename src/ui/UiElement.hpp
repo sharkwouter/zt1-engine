@@ -183,7 +183,7 @@ protected:
       }
     }
 
-    if (map.contains("x") || !map["x"].empty() || map["x"] != "left") {
+    if (map.contains("x") && !map["x"].empty() && map["x"] != "left") {
       if (map["x"] == "center") {
         rect.x = layout_rect->w / 2.0f - rect.w / 2.0f;
       } else if (map["x"] == "right") {
@@ -193,7 +193,7 @@ protected:
       }
     }
 
-    if (map.contains("y") || !map["y"].empty() || map["y"] != "top") {
+    if (map.contains("y") && !map["y"].empty() && map["y"] != "top") {
       if (map["y"] == "center") {
         rect.y = layout_rect->h / 2.0f - rect.h / 2.0f;
       } else if (map["y"] == "bottom") {
