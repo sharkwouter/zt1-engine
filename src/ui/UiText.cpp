@@ -19,6 +19,7 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
   this->font = ini_reader->getInt(name, "font");
   uint32_t string_id = (uint32_t) ini_reader->getUnsignedInt(name, "id");
   this->text_string = this->resource_manager->getString(string_id);
+  this->fitfont = (ini_reader->get(name, "dy") == "fitfont");
   
   if(this->text_string.empty()) {
     if (this->id == 7119) {
@@ -44,6 +45,7 @@ UiText::~UiText() {
 }
 
 void UiText::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
+  this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   if (!this->text_string.empty() && (!this->text || !this->shadow)) {
     std::vector<std::string> color_values = ini_reader->getList(name, "forecolor");
     SDL_Color color = {
@@ -52,10 +54,14 @@ void UiText::draw(SDL_Renderer * renderer, SDL_FRect * layout_rect) {
       (uint8_t) std::stoi(color_values[2]),
       255,
     };
-    this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
-    this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
+    if (this->fitfont) {
+      this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color);
+      this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255});
+    } else {
+      this->text = this->resource_manager->getStringTexture(renderer, this->font, this->text_string, color, &this->draw_rect);
+      this->shadow = this->resource_manager->getStringTexture(renderer, this->font, this->text_string,  {0, 0, 0, 255}, &this->draw_rect);
+    }
   }
-  this->generateDrawRect(this->ini_reader->getSection(this->name), layout_rect);
   SDL_FRect text_rect = {draw_rect.x, draw_rect.y, 0.0f, 0.0f};
   SDL_GetTextureSize(this->text, &text_rect.w, &text_rect.h);
   if (draw_rect.w == 0) {

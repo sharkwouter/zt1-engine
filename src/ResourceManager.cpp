@@ -225,8 +225,12 @@ SDL_Texture * ResourceManager::getLoadTexture(SDL_Renderer *renderer) {
   return texture;
 }
 
-SDL_Texture *ResourceManager::getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color) {
-  return this->font_manager.getStringTexture(renderer, font, string, color);
+SDL_Texture *ResourceManager::getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color, SDL_FRect * rect) {
+  if (rect == nullptr) {
+    return this->font_manager.getStringTexture(renderer, font, string, color);
+  } else {
+    return this->font_manager.getStringTexture(renderer, font, string, color, rect);
+  }
 }
 
 std::string ResourceManager::getString(uint32_t string_id) {

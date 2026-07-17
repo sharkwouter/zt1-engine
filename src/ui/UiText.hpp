@@ -22,6 +22,7 @@ private:
   SDL_Texture * shadow = nullptr;
   int font = 0;
   SDL_FRect shadow_rect = {0.0f, 0.0f, 0.0f, 0.0f};
+  bool fitfont = false;
 };
 
 #endif // UI_TEXT_HPP

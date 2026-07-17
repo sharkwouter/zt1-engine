@@ -38,7 +38,7 @@ public:
   IniReader * getIniReader(const std::string &file_name);
   Animation * getAnimation(const std::string &file_name);
   SDL_Texture * getLoadTexture(SDL_Renderer * renderer);
-  SDL_Texture * getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color);
+  SDL_Texture * getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color, SDL_FRect * rect=nullptr);
   std::string getString(uint32_t string_id);
 
   void PlayMenuMusic();

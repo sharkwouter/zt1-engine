@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 
+#include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 
@@ -13,6 +14,7 @@ public:
   ~FontManager();
 
   SDL_Texture * getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color);
+  SDL_Texture * getStringTexture(SDL_Renderer * renderer, const int font, const std::string &string, SDL_Color color, SDL_FRect * rect);
 
 private:
   std::unordered_map<int, TTF_Font *> fonts;
