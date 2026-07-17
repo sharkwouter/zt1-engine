@@ -5,6 +5,8 @@
 #include "UiImage.hpp"
 #include "UiText.hpp"
 #include "UiButton.hpp"
+#include "UiScrollBar.hpp"
+#include "UiListBox.hpp"
 
 UiLayout::UiLayout(IniReader * ini_reader, ResourceManager * resource_manager) {
   this->ini_reader = ini_reader;
@@ -52,6 +54,15 @@ void UiLayout::process_sections() {
       this->children.push_back((UiElement *) new UiButton(this->ini_reader, this->resource_manager, section));
     } else if (element_type == "UIText") {
       this->children.push_back((UiElement *) new UiText(this->ini_reader, this->resource_manager, section));
+    } else if (element_type == "UIListBox") {
+      this->children.push_back((UiElement *) new UiListBox(this->ini_reader, this->resource_manager, section));
+    } else if (element_type == "UIScrollBar") {
+      int scrollbar_id = this->ini_reader->getInt(section, "id");
+      if (hasScrollbar(scrollbar_id)) {
+        this->children.push_back((UiElement *) new UiScrollBar(this->ini_reader, this->resource_manager, section, getChildWithScrollbar(scrollbar_id)));
+      } else {
+        SDL_Log("Could not find element that connects to scrollbar %s (%i) in layout %s", section.c_str(), scrollbar_id, this->name.c_str());
+      }
     } else if (element_type == "UILayout") {
       this->children.push_back((UiElement *) new UiLayout(this->ini_reader, this->resource_manager, section));
     } else {

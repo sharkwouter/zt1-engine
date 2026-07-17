@@ -88,6 +88,18 @@ public:
     return false;
   }
 
+    bool hasScrollbar(int scrollbar) {
+    if (scrollbar == this->scrollbar) {
+      return true;
+    }
+    for (UiElement * child : this->children) {
+      if (child->hasScrollbar(scrollbar)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   UiElement * getChildWithId(int id) {
     if (id == this->id) {
       return this;
@@ -98,6 +110,21 @@ public:
       }
       if (child->hasId(id)) {
         return child->getChildWithId(id);
+      }
+    }
+    return nullptr;
+  }
+
+  UiElement * getChildWithScrollbar(int scrollbar) {
+    if (scrollbar == this->scrollbar) {
+      return this;
+    }
+    for (UiElement * child : this->children) {
+      if (scrollbar == child->scrollbar) {
+        return child;
+      }
+      if (child->hasScrollbar(scrollbar)) {
+        return child->getChildWithScrollbar(scrollbar);
       }
     }
     return nullptr;
@@ -114,6 +141,7 @@ protected:
   int layer = 0;
   int target = 0;
   bool active = true;
+  int scrollbar = 0;
   Action action = Action::NONE;
   std::vector<int> anchors;
   SDL_FRect draw_rect = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -164,7 +192,7 @@ protected:
     return {Action::NONE, 0, 0};
   }
 
-  void generateDrawRect(std::map<std::string, std::string> map, SDL_FRect * layout_rect) {
+  virtual void generateDrawRect(std::map<std::string, std::string> map, SDL_FRect * layout_rect) {
     SDL_FRect rect = {0.0f, 0.0f, 0.0f, 0.0f};
 
     if (map.contains("dx")) {

@@ -20,6 +20,7 @@ UiText::UiText(IniReader * ini_reader, ResourceManager * resource_manager, std::
   uint32_t string_id = (uint32_t) ini_reader->getUnsignedInt(name, "id");
   this->text_string = this->resource_manager->getString(string_id);
   this->fitfont = (ini_reader->get(name, "dy") == "fitfont");
+  this->scrollbar = ini_reader->getInt(name, "scrollbar");
   
   if(this->text_string.empty()) {
     if (this->id == 7119) {
