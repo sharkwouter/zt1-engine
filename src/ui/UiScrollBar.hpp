@@ -25,10 +25,11 @@ private:
   Animation * upArrow = nullptr;
   Animation * downArrow = nullptr;
   Animation * thumb = nullptr;
-
-  void generateDrawRect(std::map<std::string, std::string> map, SDL_FRect * layout_rect);
+  bool up_arrow_pressed = false;
+  bool down_arrow_pressed = false;
 
 protected:
+  void generateDrawRect(std::map<std::string, std::string> map, SDL_FRect * layout_rect);
   SDL_FRect draw_rect = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
